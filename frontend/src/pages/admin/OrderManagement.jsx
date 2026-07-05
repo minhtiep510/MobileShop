@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, Eye, Trash2 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -136,26 +137,37 @@ export default function OrderManagement() {
                       <td style={{ color: 'var(--text-muted)' }}>#{order.id}</td>
                       <td><strong>{order.customerName || 'N/A'}</strong></td>
                       <td>{order.phone || 'N/A'}</td>
-                      <td>{new Date(order.orderDate).toLocaleString('vi-VN')}</td>
+                      <td>{new Date(order.orderDate || order.date).toLocaleString('vi-VN')}</td>
                       <td style={{ color: 'var(--primary)', fontWeight: '600' }}>
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount || 0)}
+                        {new Intl.NumberFormat('vi-VN').format(order.totalAmount || 0)} VNĐ
                       </td>
                       <td>
                         <select 
-                          value={order.status}
+                          value={order.status?.toLowerCase() || 'pending'}
                           onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
+                          disabled={order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'cancelled'}
                           className={`admin-badge badge-${
-                            order.status === 'Pending' ? 'yellow' :
-                            order.status === 'Processing' ? 'blue' :
-                            order.status === 'Delivered' ? 'green' : 'gray'
+                            order.status?.toLowerCase() === 'pending' ? 'yellow' :
+                            order.status?.toLowerCase() === 'processing' ? 'blue' :
+                            order.status?.toLowerCase() === 'shipped' ? 'blue' :
+                            order.status?.toLowerCase() === 'delivered' ? 'green' :
+                            order.status?.toLowerCase() === 'cancelled' ? 'red' : 'gray'
                           }`}
-                          style={{ border: 'none', cursor: 'pointer', outline: 'none' }}
+                          style={{ 
+                            border: 'none', 
+                            cursor: (order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'cancelled') ? 'not-allowed' : 'pointer', 
+                            outline: 'none', 
+                            padding: '6px 12px', 
+                            borderRadius: '20px', 
+                            fontWeight: '600',
+                            opacity: (order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'cancelled') ? 0.8 : 1
+                          }}
                         >
-                          <option value="Pending">Pending</option>
-                          <option value="Processing">Processing</option>
-                          <option value="Shipped">Shipped</option>
-                          <option value="Delivered">Delivered</option>
-                          <option value="Cancelled">Cancelled</option>
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
                         </select>
                       </td>
                       <td>
@@ -217,16 +229,22 @@ export default function OrderManagement() {
                   <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>TT Giao hàng:</span>
                     <select 
-                      value={selectedOrder.status}
+                      value={selectedOrder.status?.toLowerCase() || 'pending'}
                       onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
+                      disabled={selectedOrder.status?.toLowerCase() === 'delivered' || selectedOrder.status?.toLowerCase() === 'cancelled'}
                       className="admin-form-select"
-                      style={{ padding: '0.25rem 0.5rem', width: 'auto' }}
+                      style={{ 
+                        padding: '0.25rem 0.5rem', 
+                        width: 'auto',
+                        cursor: (selectedOrder.status?.toLowerCase() === 'delivered' || selectedOrder.status?.toLowerCase() === 'cancelled') ? 'not-allowed' : 'pointer',
+                        opacity: (selectedOrder.status?.toLowerCase() === 'delivered' || selectedOrder.status?.toLowerCase() === 'cancelled') ? 0.7 : 1
+                      }}
                     >
-                      <option value="Pending">Pending</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Delivered">Delivered</option>
-                      <option value="Cancelled">Cancelled</option>
+                      <option value="pending">Pending</option>
+                      <option value="processing">Processing</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
                     </select>
                   </div>
                 </div>
@@ -247,18 +265,24 @@ export default function OrderManagement() {
                     <tr key={item.id}>
                       <td>
                         <div className="flex-center">
-                          <img src={item.productImage || 'https://via.placeholder.com/40'} alt={item.productName} className="admin-thumbnail" />
+                          <Link to={`/product/${item.productId}`}>
+                            <img src={item.productImage || 'https://via.placeholder.com/40'} alt={item.productName} className="admin-thumbnail" style={{ cursor: 'pointer' }} />
+                          </Link>
                           <div>
-                            <p style={{ fontWeight: '600' }}>{item.productName}</p>
+                            <p style={{ fontWeight: '600' }}>
+                              <Link to={`/product/${item.productId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                {item.productName}
+                              </Link>
+                            </p>
                             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>SKU: {item.sku}</p>
                             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{[item.color, item.capacity].filter(Boolean).join(' - ')}</p>
                           </div>
                         </div>
                       </td>
-                      <td style={{ textAlign: 'center' }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}</td>
+                      <td style={{ textAlign: 'center' }}>{new Intl.NumberFormat('vi-VN').format(item.price)} VNĐ</td>
                       <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                      <td style={{ textAlign: 'right', color: 'var(--primary)', fontWeight: '600' }}>
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price * item.quantity)}
+                      <td style={{ textAlign: 'right', fontWeight: '600', color: 'var(--primary)' }}>
+                        {new Intl.NumberFormat('vi-VN').format(item.price * item.quantity)} VNĐ
                       </td>
                     </tr>
                   ))}
@@ -267,7 +291,9 @@ export default function OrderManagement() {
                   <tr>
                     <td colSpan="3" style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.1rem' }}>Tổng cộng:</td>
                     <td style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.25rem', color: 'var(--primary)' }}>
-                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedOrder.totalAmount)}
+                      <h2 style={{ color: 'var(--primary)', margin: 0 }}>
+                        {new Intl.NumberFormat('vi-VN').format(selectedOrder.totalAmount)} VNĐ
+                      </h2>
                     </td>
                   </tr>
                 </tfoot>

@@ -72,7 +72,7 @@ export default function ProductManagement() {
           name: detail.name,
           description: detail.description || '',
           categoryId: detail.categoryId || (categories[0]?.id || ''),
-          variants: [], // Ignore variants when editing product base info
+          variants: detail.variants && detail.variants.length > 0 ? detail.variants : [{ sku: `SKU-${Date.now()}`, price: 0, stockQuantity: 0, condition: 'Mới 100%' }], 
           specifications: detail.specifications || []
         });
       } catch (err) {
@@ -140,25 +140,42 @@ export default function ProductManagement() {
   };
 
   const handleFirstVariantImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const uploadData = new FormData();
-    uploadData.append('file', file);
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
     try {
-      const res = await api.post('/Upload', uploadData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const uploadPromises = files.map(file => {
+        const uploadData = new FormData();
+        uploadData.append('file', file);
+        return api.post('/Upload', uploadData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       });
-      if (res.data && res.data.url) {
-        const newVariants = [...formData.variants];
-        newVariants[0].images = [{ imageUrl: res.data.url, isMain: true }];
-        setFormData({ ...formData, variants: newVariants });
-      }
+
+      const responses = await Promise.all(uploadPromises);
+      const newImages = responses
+        .filter(res => res.data && res.data.url)
+        .map(res => ({ imageUrl: res.data.url, isMain: false }));
+
+      const newVariants = [...formData.variants];
+      const currentImages = newVariants[0].images || [];
+      const updatedImages = [...currentImages, ...newImages];
+      if (updatedImages.length > 0) updatedImages[0].isMain = true;
+      
+      newVariants[0].images = updatedImages;
+      setFormData({ ...formData, variants: newVariants });
     } catch (err) {
       console.error('Lỗi upload ảnh:', err);
       alert('Không thể upload ảnh, vui lòng thử lại.');
     }
+  };
+
+  const removeFirstVariantImage = (indexToRemove) => {
+    const newVariants = [...formData.variants];
+    const updatedImages = newVariants[0].images.filter((_, i) => i !== indexToRemove);
+    if (updatedImages.length > 0) updatedImages[0].isMain = true;
+    newVariants[0].images = updatedImages;
+    setFormData({ ...formData, variants: newVariants });
   };
 
   const handleSpecChange = (index, field, value) => {
@@ -200,25 +217,85 @@ export default function ProductManagement() {
   };
 
   const handleVariantImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const uploadData = new FormData();
-    uploadData.append('file', file);
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
     try {
-      const res = await api.post('/Upload', uploadData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      if (res.data && res.data.url) {
-        setVariantForm({
-          ...variantForm,
-          images: [{ imageUrl: res.data.url, isMain: true }]
+      const uploadPromises = files.map(file => {
+        const uploadData = new FormData();
+        uploadData.append('file', file);
+        return api.post('/Upload', uploadData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
-      }
+      });
+
+      const responses = await Promise.all(uploadPromises);
+      const newImages = responses
+        .filter(res => res.data && res.data.url)
+        .map(res => ({ imageUrl: res.data.url, isMain: false }));
+
+      const currentImages = variantForm.images || [];
+      const updatedImages = [...currentImages, ...newImages];
+      if (updatedImages.length > 0) updatedImages[0].isMain = true;
+
+      setVariantForm({
+        ...variantForm,
+        images: updatedImages
+      });
     } catch (err) {
       console.error('Lỗi upload ảnh:', err);
       alert('Không thể upload ảnh, vui lòng thử lại.');
+    }
+  };
+
+  const removeVariantImage = (indexToRemove) => {
+    const updatedImages = variantForm.images.filter((_, i) => i !== indexToRemove);
+    if (updatedImages.length > 0) updatedImages[0].isMain = true;
+    setVariantForm({
+      ...variantForm,
+      images: updatedImages
+    });
+  };
+
+  const handleVariantSpecChange = (index, field, value) => {
+    const newSpecs = [...(selectedProduct.specifications || [])];
+    newSpecs[index][field] = value;
+    setSelectedProduct({ ...selectedProduct, specifications: newSpecs });
+  };
+
+  const addVariantSpec = () => {
+    setSelectedProduct({
+      ...selectedProduct,
+      specifications: [...(selectedProduct.specifications || []), { key: '', value: '' }]
+    });
+  };
+
+  const removeVariantSpec = (index) => {
+    const newSpecs = [...(selectedProduct.specifications || [])];
+    newSpecs.splice(index, 1);
+    setSelectedProduct({ ...selectedProduct, specifications: newSpecs });
+  };
+
+  const handleSaveVariantSpecs = async () => {
+    try {
+      const payload = {
+        name: selectedProduct.name,
+        description: selectedProduct.description || '',
+        categoryId: selectedProduct.categoryId,
+        variants: selectedProduct.variants && selectedProduct.variants.length > 0 
+          ? selectedProduct.variants 
+          : [{ sku: `SKU-${Date.now()}`, price: 0, stockQuantity: 0, condition: 'Mới 100%' }], 
+        specifications: (selectedProduct.specifications || []).map(s => ({
+          specName: s.key,
+          specValue: s.value
+        }))
+      };
+      await api.put(`/Product/${selectedProduct.id}`, payload);
+      alert('Cập nhật thông số kỹ thuật thành công!');
+      fetchProducts();
+    } catch (err) {
+      console.error('Lỗi khi lưu thông số:', err);
+      alert('Không thể lưu thông số kỹ thuật.');
     }
   };
 
@@ -234,7 +311,8 @@ export default function ProductManagement() {
         await api.put(`/Product/variant/${variantForm.id}`, variantForm);
         alert('Cập nhật biến thể thành công!');
       } else {
-        await api.post(`/Product/${selectedProduct.id}/variants`, variantForm);
+        const { id, ...createForm } = variantForm;
+        await api.post(`/Product/${selectedProduct.id}/variants`, createForm);
         alert('Thêm biến thể thành công!');
       }
       // Refresh variant list
@@ -409,11 +487,16 @@ export default function ProductManagement() {
                       <div className="admin-form-group full" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '0.5rem' }}>
                         <div style={{ flex: 1 }}>
                           <label className="admin-form-label">Hình ảnh biến thể</label>
-                          <input type="file" accept="image/*" onChange={handleFirstVariantImageUpload} className="admin-form-input" style={{ padding: '0.4rem' }} />
+                          <input type="file" multiple accept="image/*" onChange={handleFirstVariantImageUpload} className="admin-form-input" style={{ padding: '0.4rem' }} />
                         </div>
-                        {formData.variants[0].images && formData.variants[0].images.length > 0 && (
-                          <img src={formData.variants[0].images[0].imageUrl} alt="preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }} />
-                        )}
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          {formData.variants[0].images && formData.variants[0].images.map((img, idx) => (
+                            <div key={idx} style={{ position: 'relative' }}>
+                              <img src={img.imageUrl} alt="preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }} />
+                              <button type="button" onClick={() => removeFirstVariantImage(idx)} style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', fontSize: '10px' }}>&times;</button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -503,11 +586,16 @@ export default function ProductManagement() {
                   <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     <div style={{ flex: 1 }}>
                       <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Hình ảnh biến thể</label>
-                      <input type="file" accept="image/*" onChange={handleVariantImageUpload} className="admin-form-input" style={{ padding: '0.4rem' }} />
+                      <input type="file" multiple accept="image/*" onChange={handleVariantImageUpload} className="admin-form-input" style={{ padding: '0.4rem' }} />
                     </div>
-                    {variantForm.images && variantForm.images.length > 0 && (
-                      <img src={variantForm.images[0].imageUrl} alt="preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }} />
-                    )}
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                      {variantForm.images && variantForm.images.map((img, idx) => (
+                        <div key={idx} style={{ position: 'relative' }}>
+                          <img src={img.imageUrl} alt="preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }} />
+                          <button type="button" onClick={() => removeVariantImage(idx)} style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', fontSize: '10px' }}>&times;</button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '0.5rem' }}>
                     <button type="submit" className="btn-primary" style={{ padding: '0.5rem 1rem', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.25rem' }}>
@@ -554,7 +642,7 @@ export default function ProductManagement() {
                             <td>{v.color || '-'}</td>
                             <td>{v.capacity || '-'}</td>
                             <td>{v.condition || 'Mới 100%'}</td>
-                            <td style={{ color: 'var(--primary)', fontWeight: '600' }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v.price)}</td>
+                            <td style={{ color: 'var(--primary)', fontWeight: '600' }}>{new Intl.NumberFormat('vi-VN').format(v.price)} VNĐ</td>
                             <td style={{ textAlign: 'center' }}>
                               <span className={`admin-badge badge-${v.stockQuantity > 0 ? 'green' : 'red'}`}>
                                 {v.stockQuantity}
@@ -575,6 +663,36 @@ export default function ProductManagement() {
                       )}
                     </tbody>
                   </table>
+                </div>
+              </div>
+
+              {/* Product Specifications inside Variant Modal */}
+              <div style={{ marginTop: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 className="admin-variant-title" style={{ margin: 0 }}>Thông số kỹ thuật của sản phẩm</h3>
+                  <button type="button" onClick={addVariantSpec} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>
+                    <Plus size={14} /> Thêm thông số
+                  </button>
+                </div>
+                {(!selectedProduct.specifications || selectedProduct.specifications.length === 0) ? (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, marginBottom: '1rem' }}>Chưa có thông số kỹ thuật nào.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                    {selectedProduct.specifications.map((spec, index) => (
+                      <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input type="text" placeholder="Tên (VD: Màn hình)" value={spec.key} onChange={e => handleVariantSpecChange(index, 'key', e.target.value)} className="admin-form-input" style={{ flex: 1 }} required />
+                        <input type="text" placeholder="Giá trị (VD: 6.1 inch)" value={spec.value} onChange={e => handleVariantSpecChange(index, 'value', e.target.value)} className="admin-form-input" style={{ flex: 2 }} required />
+                        <button type="button" onClick={() => removeVariantSpec(index)} className="action-btn delete" style={{ padding: '0.4rem' }}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div style={{ textAlign: 'right' }}>
+                  <button type="button" onClick={handleSaveVariantSpecs} className="btn-primary" style={{ padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Save size={16} /> Lưu thông số
+                  </button>
                 </div>
               </div>
 

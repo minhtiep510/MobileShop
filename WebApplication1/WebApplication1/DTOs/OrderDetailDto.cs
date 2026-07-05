@@ -3,6 +3,7 @@ namespace WebApplication1.DTOs
     public class OrderDetailDto
     {
      public int ProductVariantId { get; set; }
+     public int ProductId { get; set; }
 
     public string ProductName { get; set; }
 
@@ -10,8 +11,9 @@ namespace WebApplication1.DTOs
     public string Capacity { get; set; }
 
     public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
+    public decimal Price { get; set; }
 
-    public string ImageUrl { get; set; }
+    public string ProductImage { get; set; }
+    public string Sku { get; set; }
     }
 }

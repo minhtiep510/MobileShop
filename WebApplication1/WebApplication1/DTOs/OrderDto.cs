@@ -28,5 +28,7 @@ namespace WebApplication1.DTOs
         public string Phone { get; set; }
 
         public string PaymentMethod { get; set; } = "COD";
+        
+        public decimal ShippingFee { get; set; } = 0;
     }
 }

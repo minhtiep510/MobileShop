@@ -56,6 +56,12 @@ namespace WebApplication1.Services
             var query = _context.Orders
                 .Where(o => o.UserId == userId)
                 .Include(o => o.User)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.ProductVariant)
+                        .ThenInclude(v => v.Product)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.ProductVariant)
+                        .ThenInclude(v => v.Images)
                 .OrderByDescending(o => o.OrderDate)
                 .AsQueryable();
 
@@ -68,11 +74,25 @@ namespace WebApplication1.Services
                     o.Id,
                     CustomerName = o.User != null ? o.User.FullName : "N/A",
                     Phone = o.User != null ? o.User.PhoneNumber : "N/A",
-                    Date = o.OrderDate,
+                    OrderDate = o.OrderDate,
                     o.TotalAmount,
+                    ShippingAddress = o.ShippingAddress,
                     Status = o.Status.ToLower(),
                     PaymentMethod = o.PaymentMethod,
-                    PaymentStatus = o.PaymentStatus
+                    PaymentStatus = o.PaymentStatus,
+                    Items = o.OrderDetails.Select(d => new OrderDetailDto
+                    {
+                        ProductVariantId = d.ProductVariantId,
+                        ProductId = d.ProductVariant != null ? d.ProductVariant.ProductId : 0,
+                        ProductName = d.ProductVariant != null && d.ProductVariant.Product != null ? d.ProductVariant.Product.Name : "Unknown",
+                        Color = d.ProductVariant != null ? d.ProductVariant.Color : "",
+                        Capacity = d.ProductVariant != null ? d.ProductVariant.Capacity : "",
+                        Quantity = d.Quantity,
+                        Price = d.UnitPrice,
+                        ProductImage = d.ProductVariant != null && d.ProductVariant.Images != null ? 
+                            d.ProductVariant.Images.Where(i => i.IsMain).Select(i => i.ImageUrl).FirstOrDefault() ?? "" : "",
+                        Sku = d.ProductVariant != null ? d.ProductVariant.SKU : ""
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -116,24 +136,53 @@ namespace WebApplication1.Services
                 Items = order.OrderDetails.Select(d => new OrderDetailDto
                 {
                     ProductVariantId = d.ProductVariantId,
+                    ProductId = d.ProductVariant?.ProductId ?? 0,
                     ProductName = d.ProductVariant?.Product?.Name ?? "Unknown",
                     Color = d.ProductVariant?.Color ?? "",
                     Capacity = d.ProductVariant?.Capacity ?? "",
                     Quantity = d.Quantity,
-                    UnitPrice = d.UnitPrice,
-                    ImageUrl = d.ProductVariant?.Images?
+                    Price = d.UnitPrice,
+                    ProductImage = d.ProductVariant?.Images?
                         .Where(i => i.IsMain)
                         .Select(i => i.ImageUrl)
-                        .FirstOrDefault() ?? ""
+                        .FirstOrDefault() ?? "",
+                    Sku = d.ProductVariant?.SKU ?? ""
                 }).ToList()
             };
         }
 
         public async Task<(bool Success, object? Data)> UpdateStatusAsync(int id, string status)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.ProductVariant)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
             if (order == null)
                 return (false, null);
+
+            // Restore inventory if order is being cancelled
+            if (status.ToLower() == "cancelled" && order.Status.ToLower() != "cancelled")
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    if (detail.ProductVariant != null)
+                    {
+                        detail.ProductVariant.StockQuantity += detail.Quantity;
+                    }
+                }
+            }
+            // Deduct inventory if order is being un-cancelled
+            else if (order.Status.ToLower() == "cancelled" && status.ToLower() != "cancelled")
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    if (detail.ProductVariant != null)
+                    {
+                        detail.ProductVariant.StockQuantity -= detail.Quantity;
+                    }
+                }
+            }
 
             order.Status = status;
             await _context.SaveChangesAsync();
@@ -157,10 +206,23 @@ namespace WebApplication1.Services
         {
             var order = await _context.Orders
                 .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.ProductVariant)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)
                 return false;
+
+            // Restore inventory if order wasn't already cancelled before deletion
+            if (order.Status.ToLower() != "cancelled")
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    if (detail.ProductVariant != null)
+                    {
+                        detail.ProductVariant.StockQuantity += detail.Quantity;
+                    }
+                }
+            }
 
             _context.OrderDetails.RemoveRange(order.OrderDetails);
             _context.Orders.Remove(order);
@@ -203,7 +265,7 @@ namespace WebApplication1.Services
                 }
 
                 // 3. Tạo Đơn hàng mới
-                decimal totalAmount = cart.Items.Sum(i => i.ProductVariant.Price * i.Quantity);
+                decimal totalAmount = cart.Items.Sum(i => i.ProductVariant.Price * i.Quantity) + dto.ShippingFee;
                 
                 var order = new Order
                 {
@@ -252,6 +314,50 @@ namespace WebApplication1.Services
             {
                 await transaction.RollbackAsync();
                 return (false, $"Lỗi khi đặt hàng: {ex.Message}", null);
+            }
+        }
+
+        public async Task<(bool Success, string ErrorMessage)> CancelOrderAsync(int orderId, int userId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var order = await _context.Orders
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(d => d.ProductVariant)
+                    .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
+
+                if (order == null)
+                {
+                    return (false, "Không tìm thấy đơn hàng.");
+                }
+
+                if (order.Status.ToLower() != "pending")
+                {
+                    return (false, "Chỉ có thể hủy đơn hàng khi đang ở trạng thái 'Đang xử lý'.");
+                }
+
+                // Cập nhật trạng thái
+                order.Status = "cancelled";
+
+                // Hoàn lại số lượng tồn kho
+                foreach (var detail in order.OrderDetails)
+                {
+                    if (detail.ProductVariant != null)
+                    {
+                        detail.ProductVariant.StockQuantity += detail.Quantity;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, string.Empty);
+            }
+            catch (System.Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Lỗi khi hủy đơn hàng: {ex.Message}");
             }
         }
     }

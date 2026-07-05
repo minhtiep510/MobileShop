@@ -10,7 +10,7 @@ export default function CustomerLayout() {
   const userStr = localStorage.getItem('user');
   let user = null;
   if (userStr) {
-    try { user = JSON.parse(userStr); } catch(e){}
+    try { user = JSON.parse(userStr); } catch (e) { }
   }
 
   const [cartCount, setCartCount] = useState(0);
@@ -65,28 +65,33 @@ export default function CustomerLayout() {
           <div className="cps-header-actions">
             <Link to="/cart" className="cps-action-item header-cart-item">
               <ShoppingCart size={24} />
-              <span>Giỏ<br/>hàng</span>
+              <span>Giỏ<br />hàng</span>
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
 
             {token ? (
-              <div className="cps-user-dropdown">
-                <div className="cps-action-item user-item">
+              user?.role?.toLowerCase() === 'admin' ? (
+                <div className="cps-user-dropdown">
+                  <div className="cps-action-item user-item">
+                    <User size={24} />
+                    <span>{user?.fullName || 'Admin'}</span>
+                  </div>
+                  <div className="cps-dropdown-menu">
+                    <Link to="/account/profile" className="cps-dropdown-link">Trang cá nhân</Link>
+                    <Link to="/admin" className="cps-dropdown-link text-primary">Trang quản trị</Link>
+                    <button onClick={handleLogout} className="cps-dropdown-link text-danger w-full text-left">Đăng xuất</button>
+                  </div>
+                </div>
+              ) : (
+                <Link to="/account/profile" className="cps-action-item user-item" style={{ textDecoration: 'none' }}>
                   <User size={24} />
                   <span>{user?.fullName || 'Smember'}</span>
-                </div>
-                <div className="cps-dropdown-menu">
-                  <Link to="/my-orders" className="cps-dropdown-link">Đơn hàng của tôi</Link>
-                  {user?.role?.toLowerCase() === 'admin' && (
-                    <Link to="/admin" className="cps-dropdown-link text-primary">Trang quản trị</Link>
-                  )}
-                  <button onClick={handleLogout} className="cps-dropdown-link text-danger w-full text-left">Đăng xuất</button>
-                </div>
-              </div>
+                </Link>
+              )
             ) : (
               <Link to="/login" className="cps-action-item user-item">
                 <User size={24} />
-                <span>Đăng<br/>nhập</span>
+                <span>Đăng<br />nhập</span>
               </Link>
             )}
           </div>

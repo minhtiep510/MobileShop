@@ -35,6 +35,26 @@ export default function MyOrders() {
     }
   }, [navigate]);
 
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Việc này không thể hoàn tác.')) {
+      return;
+    }
+    try {
+      await api.put(`/Order/${orderId}/cancel`);
+      alert('Hủy đơn hàng thành công!');
+      // Reload orders
+      const response = await api.get('/Order/my-orders');
+      if (response.data && response.data.items) {
+        setOrders(response.data.items);
+      } else if (Array.isArray(response.data)) {
+        setOrders(response.data);
+      }
+    } catch (err) {
+      console.error('Lỗi khi hủy đơn hàng:', err);
+      alert(err.response?.data?.message || 'Không thể hủy đơn hàng.');
+    }
+  };
+
   const getStatusDisplay = (status) => {
     switch (status?.toLowerCase()) {
       case 'pending': return { text: 'Đang xử lý', class: 'status-pending', icon: <Clock size={14} /> };
@@ -48,7 +68,7 @@ export default function MyOrders() {
 
   if (loading) {
     return (
-      <div className="container my-orders-page flex justify-center items-center h-64">
+      <div className="my-orders-page flex justify-center items-center h-64">
         <div className="loader"></div>
       </div>
     );
@@ -56,7 +76,7 @@ export default function MyOrders() {
 
   if (error) {
     return (
-      <div className="container my-orders-page text-center py-16">
+      <div className="my-orders-page text-center py-16">
         <h2 className="text-2xl font-bold text-danger mb-4">Lỗi</h2>
         <p className="text-text-muted">{error}</p>
       </div>
@@ -64,7 +84,7 @@ export default function MyOrders() {
   }
 
   return (
-    <div className="container my-orders-page">
+    <div className="my-orders-page" style={{ padding: '20px' }}>
       <div className="orders-header">
         <h1 className="orders-title">Đơn hàng của tôi</h1>
       </div>
@@ -98,20 +118,24 @@ export default function MyOrders() {
                 <div className="order-items">
                   {order.items && order.items.map((item) => (
                     <div key={item.id} className="order-item">
-                      <img 
-                        src={item.productImage || 'https://via.placeholder.com/60'} 
-                        alt={item.productName} 
-                        className="item-image"
-                        onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
-                      />
+                      <Link to={`/product/${item.productId}`} className="shrink-0">
+                        <img 
+                          src={item.productImage || 'https://via.placeholder.com/60'} 
+                          alt={item.productName} 
+                          className="item-image"
+                          onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
+                        />
+                      </Link>
                       <div className="item-details">
-                        <div className="item-name">{item.productName}</div>
+                        <Link to={`/product/${item.productId}`} className="item-name block hover:text-primary" style={{ textDecoration: 'none', color: 'inherit' }}>
+                          {item.productName}
+                        </Link>
                         <div className="item-meta">
                           {[item.color, item.capacity].filter(Boolean).join(' - ')} x {item.quantity}
                         </div>
                       </div>
-                      <div className="item-price">
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
+                      <div className="myorders-item-price">
+                        {new Intl.NumberFormat('vi-VN').format(item.price)} VNĐ
                       </div>
                     </div>
                   ))}
@@ -119,14 +143,35 @@ export default function MyOrders() {
 
                 <div className="order-footer">
                   <div className="text-sm text-text-muted flex flex-col gap-1">
-                    <span>Thanh toán: {order.paymentMethod} - <strong className={order.paymentStatus === 'Paid' ? 'text-success' : 'text-warning'}>{order.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}</strong></span>
-                    <span>Giao đến: {order.shippingAddress}</span>
+                    <div>Thanh toán: {order.paymentMethod} - <strong className={order.paymentStatus === 'Paid' ? 'text-success' : 'text-warning'}>{order.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}</strong></div>
+                    <div>Giao đến: {order.shippingAddress || 'N/A'}</div>
                   </div>
                   <div className="text-right">
                     <div className="order-total-label">Tổng tiền</div>
-                    <div className="order-total-value">
-                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount)}
+                    <div className="myorders-total-amount">
+                      {new Intl.NumberFormat('vi-VN').format(order.totalAmount)} VNĐ
                     </div>
+                    {order.status?.toLowerCase() === 'pending' && (
+                      <button 
+                        onClick={() => handleCancelOrder(order.id)}
+                        style={{ 
+                          marginTop: '10px', 
+                          padding: '8px 16px', 
+                          fontSize: '0.9rem', 
+                          borderRadius: '8px', 
+                          cursor: 'pointer', 
+                          border: '1px solid #6b7280', 
+                          background: 'transparent', 
+                          color: '#4b5563', 
+                          fontWeight: '600',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#1f2937'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#4b5563'; }}
+                      >
+                        Hủy đơn hàng
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

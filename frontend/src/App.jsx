@@ -10,6 +10,11 @@ import Login from './pages/customer/Login';
 import Register from './pages/customer/Register';
 import VerifyOtp from './pages/customer/VerifyOtp';
 import MyOrders from './pages/customer/MyOrders';
+import Profile from './pages/customer/Profile';
+import ChangePassword from './pages/customer/ChangePassword';
+import ForgotPassword from './pages/customer/ForgotPassword';
+import ResetPassword from './pages/customer/ResetPassword';
+import ProfileLayout from './layouts/ProfileLayout';
 
 // Admin Pages
 import Dashboard from './pages/admin/Dashboard';
@@ -30,7 +35,14 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="verify-otp" element={<VerifyOtp />} />
-          <Route path="my-orders" element={<MyOrders />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="account" element={<ProfileLayout />}>
+            <Route index element={<Navigate to="profile" replace />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="orders" element={<MyOrders />} />
+            <Route path="password" element={<ChangePassword />} />
+          </Route>
         </Route>
 
         {/* Admin Routes */}

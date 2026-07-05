@@ -117,5 +117,24 @@ namespace WebApplication1.Controllers
 
             return Ok(new { message = "Đặt hàng thành công", orderId = orderId });
         }
+
+        [HttpPut("{id}/cancel")]
+        [Authorize]
+        public async Task<IActionResult> CancelOrder(int id)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int userId))
+            {
+                return Unauthorized(new { message = "User ID không hợp lệ" });
+            }
+
+            var (success, errorMsg) = await _orderService.CancelOrderAsync(id, userId);
+            if (!success)
+            {
+                return BadRequest(new { message = errorMsg });
+            }
+
+            return Ok(new { message = "Hủy đơn hàng thành công" });
+        }
     }
 }

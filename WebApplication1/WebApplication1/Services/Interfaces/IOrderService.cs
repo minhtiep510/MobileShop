@@ -13,5 +13,6 @@ namespace WebApplication1.Services.Interfaces
         Task<(bool Success, object? Data)> UpdatePaymentStatusAsync(int id, string paymentStatus);
         Task<bool> DeleteAsync(int id);
         Task<(bool Success, string ErrorMessage, int? OrderId)> CheckoutAsync(int userId, CheckoutDto dto);
+        Task<(bool Success, string ErrorMessage)> CancelOrderAsync(int orderId, int userId);
     }
 }

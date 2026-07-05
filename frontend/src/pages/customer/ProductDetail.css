@@ -343,7 +343,7 @@
   }
   
   .cps-description-box {
-    flex: 4;
+    flex: 1;
     background: var(--cps-white);
     border-radius: var(--cps-radius);
     padding: 20px;
@@ -351,7 +351,7 @@
   }
   
   .cps-specs-box {
-    flex: 2;
+    flex: 1;
     background: var(--cps-white);
     border-radius: var(--cps-radius);
     padding: 20px;
@@ -360,10 +360,10 @@
   }
   
   .cps-description-box h2, .cps-specs-box h2 {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: var(--cps-red);
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     text-transform: uppercase;
     text-align: center;
   }
@@ -374,8 +374,8 @@
   }
   
   .cps-specs-table th, .cps-specs-table td {
-    padding: 10px;
-    font-size: 0.85rem;
+    padding: 15px 12px;
+    font-size: 0.95rem;
     border-bottom: 1px solid var(--cps-border);
   }
   

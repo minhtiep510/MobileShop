@@ -27,7 +27,7 @@ namespace WebApplication1.Services
             }).ToList();
 
             var orders = await _context.Orders
-                .Where(o => o.OrderDate.Year == year && o.Status.ToLower() != "cancelled")
+                .Where(o => o.OrderDate.Year == year && o.Status.ToLower() == "delivered")
                 .GroupBy(o => o.OrderDate.Month)
                 .Select(g => new
                 {
@@ -48,23 +48,47 @@ namespace WebApplication1.Services
             return revenueByMonth;
         }
 
-        public async Task<List<BestSellingProductDto>> GetBestSellingProductsAsync(int limit = 5)
+        public async Task<List<BestSellingProductDto>> GetBestSellingProductsAsync(int limit = 10)
         {
             var bestSellers = await _context.OrderDetails
                 .Include(od => od.Order)
                 .Include(od => od.ProductVariant)
                     .ThenInclude(pv => pv.Product)
-                .Where(od => od.Order != null && od.Order.Status.ToLower() != "cancelled")
-                .GroupBy(od => new { od.ProductVariant!.ProductId, od.ProductVariant.Product!.Name })
+                .Include(od => od.ProductVariant)
+                    .ThenInclude(pv => pv.Images)
+                .Where(od => od.Order != null && od.Order.Status.ToLower() == "delivered")
+                .GroupBy(od => new { 
+                    VariantId = od.ProductVariantId, 
+                    ProductId = od.ProductVariant!.ProductId, 
+                    ProductName = od.ProductVariant.Product!.Name,
+                    Sku = od.ProductVariant.SKU,
+                    Color = od.ProductVariant.Color,
+                    Capacity = od.ProductVariant.Capacity,
+                    Price = od.ProductVariant.Price
+                })
                 .Select(g => new BestSellingProductDto
                 {
                     ProductId = g.Key.ProductId,
-                    ProductName = g.Key.Name,
+                    ProductName = g.Key.ProductName,
+                    VariantId = g.Key.VariantId,
+                    VariantSku = g.Key.Sku,
+                    Color = g.Key.Color ?? "",
+                    Capacity = g.Key.Capacity ?? "",
+                    Price = g.Key.Price,
                     TotalSold = g.Sum(od => od.Quantity)
                 })
                 .OrderByDescending(dto => dto.TotalSold)
                 .Take(limit)
                 .ToListAsync();
+
+            foreach (var item in bestSellers)
+            {
+                var variant = await _context.ProductVariants.Include(v => v.Images).FirstOrDefaultAsync(v => v.Id == item.VariantId);
+                if (variant != null && variant.Images.Any())
+                {
+                    item.ThumbnailUrl = variant.Images.OrderByDescending(i => i.IsMain).First().ImageUrl;
+                }
+            }
 
             return bestSellers;
         }

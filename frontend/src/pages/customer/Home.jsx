@@ -140,10 +140,10 @@ export default function Home() {
                       <h3 className="cps-product-name">{product.name}</h3>
                       <div className="cps-product-price-row">
                         <span className="cps-price-special">
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.startingPrice || 0)}
+                          {new Intl.NumberFormat('vi-VN').format(product.startingPrice || 0)} VNĐ
                         </span>
                         <span className="cps-price-old">
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format((product.startingPrice || 0) * 1.2)}
+                          {new Intl.NumberFormat('vi-VN').format((product.startingPrice || 0) * 1.2)} VNĐ
                         </span>
                       </div>
                       <div className="cps-product-rating">
@@ -230,7 +230,7 @@ export default function Home() {
 
                           <div className="cps-product-price-row">
                             <span className="cps-price-special">
-                              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.startingPrice || 0)}
+                              {new Intl.NumberFormat('vi-VN').format(product.startingPrice || 0)} VNĐ
                             </span>
                           </div>
 

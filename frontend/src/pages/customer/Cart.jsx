@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Truck } from 'lucide-react';
 import api from '../../services/api';
 import './Cart.css';
 
@@ -13,6 +13,7 @@ export default function Cart() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [shippingAddress, setShippingAddress] = useState('');
   const [phone, setPhone] = useState('');
+  const [shippingFee] = useState(30000);
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [checkingOut, setCheckingOut] = useState(false);
   
@@ -88,12 +89,13 @@ export default function Cart() {
       await api.post('/Order/checkout', {
         shippingAddress,
         phone,
-        paymentMethod
+        paymentMethod,
+        shippingFee
       });
       
       alert('Đặt hàng thành công!');
       setShowCheckout(false);
-      navigate('/my-orders');
+      navigate('/account/orders');
     } catch (err) {
       console.error('Lỗi khi đặt hàng:', err);
       alert(err.response?.data?.message || 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
@@ -159,8 +161,8 @@ export default function Cart() {
                   {item.color && <span>Màu: {item.color}</span>}
                   {item.capacity && <span style={{marginLeft: '10px'}}>Dung lượng: {item.capacity}</span>}
                 </div>
-                <div className="cart-item-price">
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
+                <div className="cps-cart-price">
+                  {new Intl.NumberFormat('vi-VN').format(item.price)} VNĐ
                 </div>
               </div>
 
@@ -197,30 +199,35 @@ export default function Cart() {
         <div className="cart-summary">
           <h2 className="summary-title">Tóm tắt đơn hàng</h2>
           
-          <div className="summary-row">
+          <div className="cps-summary-row">
             <span>Tạm tính</span>
-            <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(cart.totalPrice)}</span>
+            <span>{new Intl.NumberFormat('vi-VN').format(cart.totalPrice)} VNĐ</span>
           </div>
           
-          <div className="summary-row">
-            <span>Giảm giá</span>
-            <span>0 ₫</span>
+          <div className="cps-summary-row cps-shipping-fee-row" style={{ color: 'var(--cps-text-light)', fontSize: '0.9rem', marginTop: '10px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Truck size={16} /> Phí vận chuyển</span>
+            <span>{new Intl.NumberFormat('vi-VN').format(shippingFee)} VNĐ</span>
           </div>
-          
-          <div className="summary-row">
-            <span>Phí giao hàng</span>
-            <span>Miễn phí</span>
-          </div>
-          
-          <div className="summary-row total">
-            <span>Tổng cộng</span>
-            <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(cart.totalPrice)}</span>
+
+          <div className="cps-summary-total">
+            <span>Tổng tiền</span>
+            <span>{new Intl.NumberFormat('vi-VN').format(cart.totalPrice + shippingFee)} VNĐ</span>
           </div>
           
           <button 
             className="cps-btn-primary checkout-btn"
             onClick={() => setShowCheckout(true)}
-            style={{ width: '100%', marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+            style={{ 
+              width: '100%', 
+              marginTop: '1rem', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '0.5rem',
+              background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+              border: 'none',
+              boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
+            }}
           >
             Tiến hành thanh toán
             <ArrowRight size={18} />
@@ -273,7 +280,14 @@ export default function Cart() {
                 </select>
               </div>
 
-              <div className="flex gap-4 mt-6" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <div className="flex justify-between items-center text-lg font-bold pt-4 mt-2" style={{ borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', paddingTop: '1rem' }}>
+                <span>Tổng thanh toán:</span>
+                <div className="cps-checkout-total">
+                  {new Intl.NumberFormat('vi-VN').format(cart.totalPrice + shippingFee)} VNĐ
+                </div>
+              </div>
+
+              <div className="flex gap-4 mt-2" style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
                 <button 
                   type="button" 
                   className="btn-outline flex-1"
@@ -286,7 +300,12 @@ export default function Cart() {
                 <button 
                   type="submit" 
                   className="cps-btn-primary flex-1"
-                  style={{ flex: 1 }}
+                  style={{ 
+                    flex: 1, 
+                    background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
+                  }}
                   disabled={checkingOut}
                 >
                   {checkingOut ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}

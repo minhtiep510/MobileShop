@@ -187,7 +187,7 @@ export default function ProductDetail() {
                     >
                       <div className="variant-name">{label}</div>
                       <div className="variant-price">
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(variant.price)}
+                        {new Intl.NumberFormat('vi-VN').format(variant.price)} VNĐ
                       </div>
                     </button>
                   );
@@ -199,10 +199,10 @@ export default function ProductDetail() {
           {/* Price Block */}
           <div className="cps-price-block">
             <div className="cps-price-current">
-              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedVariant?.price || product.startingPrice || 0)}
+              {new Intl.NumberFormat('vi-VN').format(selectedVariant?.price || product.startingPrice || 0)} VNĐ
             </div>
             <div className="cps-price-old">
-              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format((selectedVariant?.price || product.startingPrice || 0) * 1.2)}
+              {new Intl.NumberFormat('vi-VN').format((selectedVariant?.price || product.startingPrice || 0) * 1.2)} VNĐ
             </div>
           </div>
 

@@ -343,8 +343,8 @@
 
 .cps-na-tab {
   flex: 1;
-  background: #f1f5f9;
-  color: #0066cc;
+  background: #fff7ed;
+  color: #ea580c;
   font-weight: 700;
   font-size: 1.1rem;
   padding: 12px 20px;
@@ -358,7 +358,7 @@
 }
 
 .cps-na-tab.active {
-  background: linear-gradient(90deg, #0052cc 0%, #0066ff 100%);
+  background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
   color: white;
 }
 
@@ -368,8 +368,8 @@
 }
 
 .cps-new-arrivals-content {
-  background: #f8faff;
-  border: 2px solid #0052cc;
+  background: #fffcf9;
+  border: 2px solid #ea580c;
   border-radius: 0 0 12px 12px;
   padding: 20px;
 }
@@ -394,9 +394,9 @@
 }
 
 .cps-na-subtab.active, .cps-na-subtab:hover {
-  border-color: #0052cc;
-  color: #0052cc;
-  background: #eff6ff;
+  border-color: #ea580c;
+  color: #ea580c;
+  background: #fff7ed;
 }
 
 /* Fake Badge and Tags inside Card */
