@@ -1,0 +1,139 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Package, Clock, CheckCircle, XCircle } from 'lucide-react';
+import api from '../../services/api';
+import './MyOrders.css';
+
+export default function MyOrders() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/Order/my-orders');
+        if (response.data && response.data.items) {
+          setOrders(response.data.items);
+        } else if (Array.isArray(response.data)) {
+          setOrders(response.data);
+        }
+      } catch (err) {
+        console.error('Lỗi khi tải đơn hàng:', err);
+        setError('Không thể tải danh sách đơn hàng.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (localStorage.getItem('token')) {
+      fetchOrders();
+    } else {
+      navigate('/auth');
+    }
+  }, [navigate]);
+
+  const getStatusDisplay = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'pending': return { text: 'Đang xử lý', class: 'status-pending', icon: <Clock size={14} /> };
+      case 'processing': return { text: 'Đang chuẩn bị', class: 'status-processing', icon: <Package size={14} /> };
+      case 'shipped': return { text: 'Đang giao', class: 'status-shipped', icon: <Package size={14} /> };
+      case 'delivered': return { text: 'Hoàn thành', class: 'status-delivered', icon: <CheckCircle size={14} /> };
+      case 'cancelled': return { text: 'Đã hủy', class: 'status-cancelled', icon: <XCircle size={14} /> };
+      default: return { text: status || 'Mới', class: 'status-pending', icon: <Clock size={14} /> };
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="container my-orders-page flex justify-center items-center h-64">
+        <div className="loader"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container my-orders-page text-center py-16">
+        <h2 className="text-2xl font-bold text-danger mb-4">Lỗi</h2>
+        <p className="text-text-muted">{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container my-orders-page">
+      <div className="orders-header">
+        <h1 className="orders-title">Đơn hàng của tôi</h1>
+      </div>
+
+      {orders.length === 0 ? (
+        <div className="empty-orders">
+          <Package className="empty-icon mx-auto" size={64} />
+          <h2 className="text-xl font-semibold mb-2">Bạn chưa có đơn hàng nào</h2>
+          <p className="text-text-muted mb-6">Hãy tiếp tục mua sắm để nhận được nhiều ưu đãi nhé!</p>
+          <Link to="/" className="cps-btn-primary">Mua sắm ngay</Link>
+        </div>
+      ) : (
+        <div className="orders-list">
+          {orders.map((order) => {
+            const statusInfo = getStatusDisplay(order.status);
+            return (
+              <div key={order.id} className="order-card glass">
+                <div className="order-header-row">
+                  <div>
+                    <div className="order-id">Đơn hàng #{order.id}</div>
+                    <div className="order-date">
+                      Đặt lúc: {new Date(order.orderDate).toLocaleString('vi-VN')}
+                    </div>
+                  </div>
+                  <div className={`order-status-badge ${statusInfo.class} flex items-center gap-1`}>
+                    {statusInfo.icon}
+                    {statusInfo.text}
+                  </div>
+                </div>
+
+                <div className="order-items">
+                  {order.items && order.items.map((item) => (
+                    <div key={item.id} className="order-item">
+                      <img 
+                        src={item.productImage || 'https://via.placeholder.com/60'} 
+                        alt={item.productName} 
+                        className="item-image"
+                        onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
+                      />
+                      <div className="item-details">
+                        <div className="item-name">{item.productName}</div>
+                        <div className="item-meta">
+                          {[item.color, item.capacity].filter(Boolean).join(' - ')} x {item.quantity}
+                        </div>
+                      </div>
+                      <div className="item-price">
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="order-footer">
+                  <div className="text-sm text-text-muted flex flex-col gap-1">
+                    <span>Thanh toán: {order.paymentMethod} - <strong className={order.paymentStatus === 'Paid' ? 'text-success' : 'text-warning'}>{order.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}</strong></span>
+                    <span>Giao đến: {order.shippingAddress}</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="order-total-label">Tổng tiền</div>
+                    <div className="order-total-value">
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

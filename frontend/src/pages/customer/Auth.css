@@ -1,0 +1,141 @@
+/* ==========================================================================
+   CellphoneS Clone - Auth Styles
+   ========================================================================== */
+
+   .cps-auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    min-height: calc(100vh - 200px);
+  }
+  
+  .cps-auth-box {
+    background: var(--cps-white);
+    width: 100%;
+    max-width: 450px;
+    border-radius: var(--cps-radius);
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  
+  .cps-auth-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--cps-text);
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .cps-auth-subtitle {
+    text-align: center;
+    color: var(--cps-text-light);
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+  }
+  
+  .cps-auth-error {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 12px 15px;
+    border-radius: var(--cps-radius-sm);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    border-left: 4px solid #dc2626;
+  }
+  
+  .cps-auth-success {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 12px 15px;
+    border-radius: var(--cps-radius-sm);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    border-left: 4px solid #16a34a;
+  }
+  
+  .cps-auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .cps-auth-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .cps-auth-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--cps-text);
+  }
+  
+  .cps-auth-group input {
+    padding: 12px 15px;
+    border: 1px solid var(--cps-border);
+    border-radius: var(--cps-radius-sm);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  .cps-auth-group input:focus {
+    border-color: #1e40af; /* matches header */
+  }
+  
+  .cps-auth-forgot {
+    text-align: right;
+  }
+  
+  .cps-auth-forgot a {
+    color: #1e40af;
+    font-size: 0.85rem;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .cps-auth-forgot a:hover {
+    text-decoration: underline;
+  }
+  
+  .cps-btn-auth {
+    background: linear-gradient(to right, #d70018, #ff4d4f);
+    color: white;
+    border: none;
+    border-radius: var(--cps-radius-sm);
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: opacity 0.2s;
+  }
+  
+  .cps-btn-auth:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  
+  .cps-btn-auth:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .cps-auth-footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--cps-text-light);
+  }
+  
+  .cps-auth-footer a {
+    color: #1e40af;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 5px;
+  }
+  
+  .cps-auth-footer a:hover {
+    text-decoration: underline;
+  }

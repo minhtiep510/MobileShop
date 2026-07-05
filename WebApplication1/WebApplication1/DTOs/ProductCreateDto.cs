@@ -11,5 +11,11 @@ namespace WebApplication1.DTOs
         [Required(ErrorMessage = "Danh mục là bắt buộc")]
         [Range(1, int.MaxValue, ErrorMessage = "Danh mục không hợp lệ")]
         public int CategoryId { get; set; }
+
+        [Required(ErrorMessage = "Sản phẩm phải có ít nhất 1 biến thể")]
+        [MinLength(1, ErrorMessage = "Sản phẩm phải có ít nhất 1 biến thể")]
+        public List<ProductVariantDto> Variants { get; set; } = new List<ProductVariantDto>();
+
+        public List<TechnicalSpecDto>? Specifications { get; set; } = new List<TechnicalSpecDto>();
     }
 }

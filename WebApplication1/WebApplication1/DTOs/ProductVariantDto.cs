@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.DTOs
+namespace WebApplication1.DTOs
 {
     public class ProductVariantDto
     {
@@ -8,6 +8,7 @@
         public int StockQuantity { get; set; }
         public string Color { get; set; }
         public string Capacity { get; set; }
+        public string Condition { get; set; }
         public List<VariantImageDto> Images { get; set; }
     }
 }

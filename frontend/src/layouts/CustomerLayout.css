@@ -1,0 +1,222 @@
+/* ==========================================================================
+   CellphoneS Clone - Global Customer Styles
+   ========================================================================== */
+
+   :root {
+    --cps-red: #d70018;
+    --cps-red-dark: #b80014;
+    --cps-gray-bg: #f3f4f6;
+    --cps-text: #333333;
+    --cps-text-light: #707070;
+    --cps-white: #ffffff;
+    --cps-border: #e5e7eb;
+    --cps-radius: 10px;
+    --cps-radius-sm: 6px;
+  }
+  
+  body {
+    background-color: var(--cps-gray-bg);
+    color: var(--cps-text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  .cps-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .cps-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+  
+  /* Header */
+  .cps-header {
+    background-color: #1e40af; /* Đổi màu xanh dương đậm (Navy) */
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .cps-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: 15px;
+  }
+  
+  .cps-logo {
+    color: var(--cps-white);
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+  }
+  
+  .cps-btn-catalog {
+    background: rgba(255,255,255,0.2);
+    color: var(--cps-white);
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--cps-radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  
+  .cps-search-box {
+    flex: 1;
+    max-width: 400px;
+    position: relative;
+    display: flex;
+  }
+  
+  .cps-search-input {
+    width: 100%;
+    height: 36px;
+    border-radius: 18px;
+    border: none;
+    padding: 0 40px 0 15px;
+    outline: none;
+    font-size: 0.85rem;
+  }
+  
+  .cps-search-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--cps-text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .cps-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .cps-action-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--cps-white);
+    text-decoration: none;
+    background: rgba(255,255,255,0.1);
+    padding: 5px 10px;
+    border-radius: var(--cps-radius-sm);
+    transition: background 0.2s;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+  
+  .cps-action-item:hover {
+    background: rgba(255,255,255,0.2);
+  }
+  
+  .cps-action-item span {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+  
+  .header-cart-item {
+    position: relative;
+  }
+  
+  .cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ffaa00;
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+  
+  .cps-user-dropdown {
+    position: relative;
+  }
+  
+  .cps-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    background: var(--cps-white);
+    border-radius: var(--cps-radius-sm);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    min-width: 150px;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .cps-user-dropdown:hover .cps-dropdown-menu {
+    display: flex;
+  }
+  
+  .cps-dropdown-link {
+    padding: 10px 15px;
+    text-decoration: none;
+    color: var(--cps-text);
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .cps-dropdown-link:hover {
+    background: var(--cps-gray-bg);
+    color: var(--cps-red);
+  }
+  
+  /* Main */
+  .cps-main {
+    flex-grow: 1;
+    padding: 20px 0;
+  }
+  
+  .cps-footer {
+    background: var(--cps-white);
+    border-top: 1px solid var(--cps-border);
+  }
+
+  /* Global CPS Primary Button */
+  .cps-btn-primary {
+    background-color: var(--cps-red);
+    color: var(--cps-white);
+    padding: 10px 24px;
+    border-radius: var(--cps-radius-sm);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .cps-btn-primary:hover {
+    background-color: var(--cps-red-dark);
+    color: var(--cps-white);
+  }

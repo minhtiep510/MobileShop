@@ -277,3 +277,5 @@ D:\baocao\WebApplication1\WebApplication1\obj\Debug\net8.0\WebApplication1.genru
 D:\baocao\WebApplication1\WebApplication1\obj\Debug\net8.0\ref\WebApplication1.dll
 D:\baocao\WebApplication1\WebApplication1\obj\Debug\net8.0\WebApplication1.sourcelink.json
 D:\baocao\WebApplication1\WebApplication1\bin\Debug\net8.0\WebApplication1.staticwebassets.runtime.json
+D:\baocao\WebApplication1\WebApplication1\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\baocao\WebApplication1\WebApplication1\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll

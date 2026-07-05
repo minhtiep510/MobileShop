@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Model
@@ -18,6 +18,7 @@ namespace WebApplication1.Model
             [Column(TypeName = "decimal(18,2)")]
             public decimal Price { get; set; }
 
+            [ConcurrencyCheck]
             public int StockQuantity { get; set; } = 0;
 
             [MaxLength(50)]
@@ -25,6 +26,9 @@ namespace WebApplication1.Model
 
             [MaxLength(50)]
             public string Capacity { get; set; } // Ví dụ: 128GB, 256GB
+
+            [MaxLength(50)]
+            public string Condition { get; set; } = "Mới 100%";
 
             // Navigation properties
             [ForeignKey("ProductId")]

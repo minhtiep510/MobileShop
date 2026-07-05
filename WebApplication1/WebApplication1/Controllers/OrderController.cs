@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.Model;
+using WebApplication1.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using WebApplication1.DTOs;
+using System.Security.Claims;
 
 namespace WebApplication1.Controllers
 {
@@ -9,121 +10,112 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IOrderService _orderService;
 
-        public OrderController(AppDbContext context)
+        public OrderController(IOrderService orderService)
         {
-            _context = context;
+            _orderService = orderService;
         }
 
-        // =========================================
-        // GET ALL
-        // =========================================
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var orders = await _context.Orders
-                .Include(o => o.User)
-                .OrderByDescending(o => o.OrderDate)
-                .Select(o => new
-                {
-                    o.Id,
-                    CustomerName = o.User.FullName,
-                    Phone = o.User.PhoneNumber,
-                    Date = o.OrderDate,
-                    o.TotalAmount,
-                    Status = o.Status.ToLower()
-                })
-                .ToListAsync();
-
+            var orders = await _orderService.GetAllAsync(page, pageSize);
             return Ok(orders);
         }
 
-        // =========================================
-        // GET DETAIL (FULL)
-        // =========================================
+        [HttpGet("my-orders")]
+        [Authorize]
+        public async Task<IActionResult> GetMyOrders([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int userId))
+            {
+                return Unauthorized(new { message = "User ID không hợp lệ" });
+            }
+
+            var orders = await _orderService.GetMyOrdersAsync(userId, page, pageSize);
+            return Ok(orders);
+        }
+
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetDetail(int id)
         {
-            var order = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(d => d.ProductVariant)
-                        .ThenInclude(v => v.Product)
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(d => d.ProductVariant)
-                        .ThenInclude(v => v.Images)
-                .FirstOrDefaultAsync(o => o.Id == id);
-
-            if (order == null)
+            var result = await _orderService.GetDetailAsync(id);
+            if (result == null)
                 return NotFound();
 
-            var result = new OrderItemResponseDto
+            var role = User.FindFirstValue(ClaimTypes.Role);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (role != "admin")
             {
-                Id = order.Id,
-                CustomerName = order.User.FullName,
-                Phone = order.User.PhoneNumber,
-                ShippingAddress = order.ShippingAddress,
-                OrderDate = order.OrderDate,
-                TotalAmount = order.TotalAmount,
-                Status = order.Status.ToLower(),
-
-                Items = order.OrderDetails.Select(d => new OrderDetailDto
+                if (!int.TryParse(userIdStr, out int currentUserId) || result.UserId != currentUserId)
                 {
-                    ProductVariantId = d.ProductVariantId,
-                    ProductName = d.ProductVariant.Product.Name,
-
-                    Color = d.ProductVariant.Color,
-                    Capacity = d.ProductVariant.Capacity,
-
-                    Quantity = d.Quantity,
-                    UnitPrice = d.UnitPrice,
-
-                    ImageUrl = d.ProductVariant.Images
-                        .Where(i => i.IsMain)
-                        .Select(i => i.ImageUrl)
-                        .FirstOrDefault()
-                }).ToList()
-            };
+                    return Forbid();
+                }
+            }
 
             return Ok(result);
         }
 
-        // =========================================
-        // UPDATE STATUS
-        // =========================================
         [HttpPut("{id}/status")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            var (success, data) = await _orderService.UpdateStatusAsync(id, status);
+            if (!success)
                 return NotFound();
 
-            order.Status = status;
-            await _context.SaveChangesAsync();
-
-            return Ok(order);
+            return Ok(data);
         }
 
-        // =========================================
-        // DELETE
-        // =========================================
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPut("{id}/payment-status")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> UpdatePaymentStatus(int id, [FromBody] string paymentStatus)
         {
-            var order = await _context.Orders
-                .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(o => o.Id == id);
-
-            if (order == null)
+            var (success, data) = await _orderService.UpdatePaymentStatusAsync(id, paymentStatus);
+            if (!success)
                 return NotFound();
 
-            _context.OrderDetails.RemoveRange(order.OrderDetails);
-            _context.Orders.Remove(order);
+            return Ok(data);
+        }
 
-            await _context.SaveChangesAsync();
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _orderService.DeleteAsync(id);
+            if (!success)
+                return NotFound();
 
             return Ok("Deleted");
+        }
+
+        [HttpPost("checkout")]
+        [Authorize]
+        public async Task<IActionResult> Checkout([FromBody] CheckoutDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int userId))
+            {
+                return Unauthorized(new { message = "User ID không hợp lệ" });
+            }
+
+            var (success, errorMsg, orderId) = await _orderService.CheckoutAsync(userId, dto);
+            if (!success)
+            {
+                return BadRequest(new { message = errorMsg });
+            }
+
+            return Ok(new { message = "Đặt hàng thành công", orderId = orderId });
         }
     }
 }

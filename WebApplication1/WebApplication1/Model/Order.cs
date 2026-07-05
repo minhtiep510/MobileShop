@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Model
@@ -21,9 +21,15 @@ namespace WebApplication1.Model
         [MaxLength(500)]
         public string ShippingAddress { get; set; }
 
+        [MaxLength(50)]
+        public string PaymentMethod { get; set; } = "COD";
+
+        [MaxLength(50)]
+        public string PaymentStatus { get; set; } = "Unpaid";
+
         // Navigation properties
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
 
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
