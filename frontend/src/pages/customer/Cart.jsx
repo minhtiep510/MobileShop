@@ -8,14 +8,7 @@ export default function Cart() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Checkout states
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [shippingAddress, setShippingAddress] = useState('');
-  const [phone, setPhone] = useState('');
-  const [shippingFee] = useState(30000);
-  const [paymentMethod, setPaymentMethod] = useState('COD');
-  const [checkingOut, setCheckingOut] = useState(false);
+  const [shippingFee] = useState(30000); // Vẫn giữ fee ở giỏ hàng để nhẩm tính tổng
   
   const navigate = useNavigate();
 
@@ -77,32 +70,7 @@ export default function Cart() {
     }
   };
 
-  const handleCheckout = async (e) => {
-    e.preventDefault();
-    if (!shippingAddress || !phone) {
-      alert('Vui lòng điền đầy đủ địa chỉ và số điện thoại giao hàng.');
-      return;
-    }
 
-    try {
-      setCheckingOut(true);
-      await api.post('/Order/checkout', {
-        shippingAddress,
-        phone,
-        paymentMethod,
-        shippingFee
-      });
-      
-      alert('Đặt hàng thành công!');
-      setShowCheckout(false);
-      navigate('/account/orders');
-    } catch (err) {
-      console.error('Lỗi khi đặt hàng:', err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
-    } finally {
-      setCheckingOut(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -162,7 +130,7 @@ export default function Cart() {
                   {item.capacity && <span style={{marginLeft: '10px'}}>Dung lượng: {item.capacity}</span>}
                 </div>
                 <div className="cps-cart-price">
-                  {new Intl.NumberFormat('vi-VN').format(item.price)} VNĐ
+                  {new Intl.NumberFormat('vi-VN').format(item.price)} đ
                 </div>
               </div>
 
@@ -201,22 +169,22 @@ export default function Cart() {
           
           <div className="cps-summary-row">
             <span>Tạm tính</span>
-            <span>{new Intl.NumberFormat('vi-VN').format(cart.totalPrice)} VNĐ</span>
+            <span>{new Intl.NumberFormat('vi-VN').format(cart.totalPrice)} đ</span>
           </div>
           
           <div className="cps-summary-row cps-shipping-fee-row" style={{ color: 'var(--cps-text-light)', fontSize: '0.9rem', marginTop: '10px' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Truck size={16} /> Phí vận chuyển</span>
-            <span>{new Intl.NumberFormat('vi-VN').format(shippingFee)} VNĐ</span>
+            <span>{new Intl.NumberFormat('vi-VN').format(shippingFee)} đ</span>
           </div>
 
           <div className="cps-summary-total">
             <span>Tổng tiền</span>
-            <span>{new Intl.NumberFormat('vi-VN').format(cart.totalPrice + shippingFee)} VNĐ</span>
+            <span>{new Intl.NumberFormat('vi-VN').format(cart.totalPrice + shippingFee)} đ</span>
           </div>
           
           <button 
             className="cps-btn-primary checkout-btn"
-            onClick={() => setShowCheckout(true)}
+            onClick={() => navigate('/checkout')}
             style={{ 
               width: '100%', 
               marginTop: '1rem', 
@@ -235,86 +203,7 @@ export default function Cart() {
         </div>
       </div>
 
-      {/* Checkout Modal */}
-      {showCheckout && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="bg-surface rounded-xl p-6 max-w-md w-full shadow-2xl" style={{ backgroundColor: 'var(--surface)', padding: '2rem', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '500px' }}>
-            <h2 className="text-2xl font-bold mb-6">Thông tin giao hàng</h2>
-            
-            <form onSubmit={handleCheckout} className="flex flex-col gap-4" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ display: 'block', marginBottom: '0.5rem' }}>Số điện thoại người nhận</label>
-                <input 
-                  type="tel" 
-                  required 
-                  value={phone} 
-                  onChange={e => setPhone(e.target.value)}
-                  className="w-full p-2 border border-border rounded-md focus:outline-none focus:border-primary"
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
-                  placeholder="Ví dụ: 0912345678"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ display: 'block', marginBottom: '0.5rem' }}>Địa chỉ giao hàng</label>
-                <textarea 
-                  required 
-                  value={shippingAddress} 
-                  onChange={e => setShippingAddress(e.target.value)}
-                  className="w-full p-2 border border-border rounded-md focus:outline-none focus:border-primary"
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', minHeight: '80px' }}
-                  placeholder="Nhập địa chỉ chi tiết (Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố)"
-                />
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ display: 'block', marginBottom: '0.5rem' }}>Phương thức thanh toán</label>
-                <select 
-                  value={paymentMethod} 
-                  onChange={e => setPaymentMethod(e.target.value)}
-                  className="w-full p-2 border border-border rounded-md focus:outline-none focus:border-primary"
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
-                >
-                  <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                  <option value="BankTransfer">Chuyển khoản ngân hàng</option>
-                </select>
-              </div>
-
-              <div className="flex justify-between items-center text-lg font-bold pt-4 mt-2" style={{ borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', paddingTop: '1rem' }}>
-                <span>Tổng thanh toán:</span>
-                <div className="cps-checkout-total">
-                  {new Intl.NumberFormat('vi-VN').format(cart.totalPrice + shippingFee)} VNĐ
-                </div>
-              </div>
-
-              <div className="flex gap-4 mt-2" style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-                <button 
-                  type="button" 
-                  className="btn-outline flex-1"
-                  style={{ flex: 1 }}
-                  onClick={() => setShowCheckout(false)}
-                  disabled={checkingOut}
-                >
-                  Hủy
-                </button>
-                <button 
-                  type="submit" 
-                  className="cps-btn-primary flex-1"
-                  style={{ 
-                    flex: 1, 
-                    background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-                    border: 'none',
-                    boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
-                  }}
-                  disabled={checkingOut}
-                >
-                  {checkingOut ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

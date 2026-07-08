@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Package, DollarSign, TrendingUp, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import api from '../../services/api';
 
@@ -12,6 +13,7 @@ export default function Dashboard() {
     totalProducts: 0,
     totalStock: 0
   });
+  const navigate = useNavigate();
   const [recentOrders, setRecentOrders] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
   const [bestSellersData, setBestSellersData] = useState([]);
@@ -77,10 +79,10 @@ export default function Dashboard() {
   }
 
   const statCards = [
-    { title: 'Tổng đơn hàng', value: stats.totalOrders, icon: <ShoppingCart size={24} />, colorClass: 'blue' },
-    { title: 'Doanh thu ước tính (Trang 1)', value: new Intl.NumberFormat('vi-VN').format(stats.totalRevenue) + ' VNĐ', icon: <DollarSign size={24} />, colorClass: 'green' },
-    { title: 'Sản phẩm', value: stats.totalProducts, icon: <Package size={24} />, colorClass: 'purple' },
-    { title: 'Tồn kho', value: stats.totalStock, icon: <TrendingUp size={24} />, colorClass: 'orange' },
+    { title: 'Tổng đơn hàng', value: stats.totalOrders, icon: <ShoppingCart size={24} />, colorClass: 'blue', link: '/admin/orders' },
+    { title: 'Doanh thu ước tính (Trang 1)', value: new Intl.NumberFormat('vi-VN').format(stats.totalRevenue) + ' đ', icon: <DollarSign size={24} />, colorClass: 'green', link: '/admin/orders' },
+    { title: 'Sản phẩm', value: stats.totalProducts, icon: <Package size={24} />, colorClass: 'purple', link: '/admin/products' },
+    { title: 'Tồn kho', value: stats.totalStock, icon: <TrendingUp size={24} />, colorClass: 'orange', link: '/admin/products' },
   ];
 
   return (
@@ -92,7 +94,7 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div className="stat-grid">
         {statCards.map((card, index) => (
-          <div key={index} className="stat-card">
+          <div key={index} className="stat-card" onClick={() => navigate(card.link)} style={{ cursor: 'pointer' }}>
             <div className={`stat-icon ${card.colorClass}`}>
               {card.icon}
             </div>
@@ -121,7 +123,7 @@ export default function Dashboard() {
                   tickFormatter={(value) => new Intl.NumberFormat('vi-VN', { notation: "compact", compactDisplay: "short" }).format(value)} 
                 />
                 <Tooltip 
-                  formatter={(value) => new Intl.NumberFormat('vi-VN').format(value) + ' VNĐ'}
+                  formatter={(value) => new Intl.NumberFormat('vi-VN').format(value) + ' đ'}
                   cursor={{fill: 'transparent'}}
                 />
                 <Legend />
@@ -188,11 +190,11 @@ export default function Dashboard() {
               ) : (
                 recentOrders.map((order) => (
                   <tr key={order.id}>
-                    <td><strong>#{order.id}</strong></td>
+                    <td><strong>DH-{order.id}</strong></td>
                     <td>{order.customerName}</td>
                     <td>{new Date(order.orderDate || order.date).toLocaleDateString('vi-VN')}</td>
                     <td style={{ color: 'var(--primary)', fontWeight: '600' }}>
-                      {new Intl.NumberFormat('vi-VN').format(order.totalAmount)} VNĐ
+                      {new Intl.NumberFormat('vi-VN').format(order.totalAmount)} đ
                     </td>
                     <td>
                       <span className={`admin-badge badge-${

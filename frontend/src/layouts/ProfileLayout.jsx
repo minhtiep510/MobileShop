@@ -46,7 +46,7 @@ export default function ProfileLayout() {
             <li>
               <NavLink to="/account/orders" className={({ isActive }) => `account-menu-link ${isActive ? 'active' : ''}`}>
                 <Package size={20} />
-                Đơn mua
+                Lịch sử mua hàng
               </NavLink>
             </li>
             <li>

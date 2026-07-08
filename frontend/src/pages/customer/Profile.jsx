@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { User, Key, Shield, Award, MapPin, Phone, Mail, CheckCircle, AlertCircle, Edit2, X, Save } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { RefreshCw, GraduationCap, Briefcase, MapPin, Package, Gift, Edit2, X } from 'lucide-react';
 import api from '../../services/api';
 import './Profile.css';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
+  const [totalOrders, setTotalOrders] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -22,6 +24,14 @@ export default function Profile() {
           phoneNumber: res.data.phoneNumber || '',
           address: res.data.address || ''
         });
+
+        // Fetch total orders
+        const ordersRes = await api.get('/Order/my-orders');
+        if (ordersRes.data && ordersRes.data.items) {
+          setTotalOrders(ordersRes.data.totalCount || ordersRes.data.items.length);
+        } else if (Array.isArray(ordersRes.data)) {
+          setTotalOrders(ordersRes.data.length);
+        }
       } catch (err) {
         console.error('Lỗi lấy thông tin:', err);
         setError('Không thể lấy thông tin người dùng. Vui lòng thử lại sau.');
@@ -31,52 +41,6 @@ export default function Profile() {
     };
     fetchProfile();
   }, []);
-
-  if (loading) {
-    return (
-      <div className="profile-container flex justify-center items-center min-h-[50vh]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (error || !profile) {
-    return (
-      <div className="profile-container text-center py-12">
-        <AlertCircle className="w-16 h-16 text-danger mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-gray-700">{error || 'Không tìm thấy người dùng'}</h2>
-      </div>
-    );
-  }
-
-  // Determine rank color
-  let rankColor = 'rank-default';
-  if (profile.rank === 'Bạc') rankColor = 'rank-silver';
-  if (profile.rank === 'Vàng') rankColor = 'rank-gold';
-  if (profile.rank === 'Kim Cương') rankColor = 'rank-diamond';
-
-  const formatCurrency = (amount) => {
-    if (!amount) return '0 VNĐ';
-    return new Intl.NumberFormat('vi-VN').format(amount) + ' VNĐ';
-  };
-
-  // Tính phần trăm tiến trình đến rank tiếp theo (nếu có thể)
-  let nextRankTarget = 10000000;
-  let nextRankName = "Bạc";
-  if (profile.totalSpent >= 50000000) {
-    nextRankTarget = profile.totalSpent; // Max rank
-    nextRankName = "Max";
-  } else if (profile.totalSpent >= 20000000) {
-    nextRankTarget = 50000000;
-    nextRankName = "Kim Cương";
-  } else if (profile.totalSpent >= 10000000) {
-    nextRankTarget = 20000000;
-    nextRankName = "Vàng";
-  }
-
-  const progressPercent = profile.totalSpent >= 50000000 
-    ? 100 
-    : Math.min(100, Math.max(0, (profile.totalSpent / nextRankTarget) * 100));
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -93,158 +57,201 @@ export default function Profile() {
       alert('Cập nhật hồ sơ thành công!');
     } catch (err) {
       console.error('Lỗi khi cập nhật:', err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật hồ sơ');
+      alert(err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  return (
-    <div className="profile-page-wrapper">
-      <h2 className="profile-page-header">
-        Hồ sơ của tôi
-      </h2>
-      <p className="profile-page-subtitle">
-        Quản lý thông tin hồ sơ để bảo mật tài khoản
-      </p>
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <div className="loader inline-block" style={{ borderTopColor: '#0071e3', width: '30px', height: '30px', animation: 'spin 1s linear infinite', border: '3px solid #f0f0f0', borderRadius: '50%' }}></div>
+      </div>
+    );
+  }
 
-      <div className="profile-cards-grid">
-        {/* User Info Card */}
-        <div className="user-profile-card">
-          <div className="user-profile-cover"></div>
-          
-          <div className="user-profile-content">
-            <div className="user-profile-avatar">
-              <User size={36} color="#9ca3af" />
-            </div>
-            
-            <h2 className="user-profile-name">{profile.fullName}</h2>
-            
-            <div className={`user-profile-rank-badge ${rankColor}`}>
-              <Award size={18} />
-              <span>{profile.rank || 'Thành viên'}</span>
-            </div>
-            
-            <div className="user-profile-details">
-              <div className="user-detail-row">
-                <Mail className="user-detail-icon" size={20} />
-                <div className="user-detail-info">
-                  <p className="label">Email</p>
-                  <p className="value">{profile.email}</p>
-                </div>
-              </div>
-              <div className="user-detail-row">
-                <Phone className="user-detail-icon" size={20} />
-                <div className="user-detail-info">
-                  <p className="label">Số điện thoại</p>
-                  <p className="value">{profile.phoneNumber || 'Chưa cập nhật'}</p>
-                </div>
-              </div>
-              <div className="user-detail-row">
-                <MapPin className="user-detail-icon" size={20} />
-                <div className="user-detail-info">
-                  <p className="label">Địa chỉ</p>
-                  <p className="value">{profile.address || 'Chưa cập nhật'}</p>
-                </div>
-              </div>
-            </div>
-            
-            <button 
-              className="cps-btn-primary" 
-              style={{ width: '100%', marginTop: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-              onClick={() => setShowEditModal(true)}
-            >
-              <Edit2 size={16} />
-              Cập nhật tài khoản
-            </button>
+  if (error || !profile) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-xl font-semibold text-danger">{error || 'Không tìm thấy người dùng'}</h2>
+      </div>
+    );
+  }
+
+  // Get initials for Avatar
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  // Tính phần trăm tiến trình đến rank tiếp theo
+  let nextRankTarget = 5000000;
+  let rankLabel = profile.rank || 'S-NULL';
+  
+  if (profile.totalSpent >= 50000000) {
+    nextRankTarget = profile.totalSpent;
+    rankLabel = 'S-DIAMOND';
+  } else if (profile.totalSpent >= 20000000) {
+    nextRankTarget = 50000000;
+    rankLabel = 'S-GOLD';
+  } else if (profile.totalSpent >= 10000000) {
+    nextRankTarget = 20000000;
+    rankLabel = 'S-SILVER';
+  } else if (profile.totalSpent >= 5000000) {
+    nextRankTarget = 10000000;
+    rankLabel = 'S-BRONZE';
+  }
+
+  const progressPercent = profile.totalSpent >= 50000000 
+    ? 100 
+    : Math.min(100, Math.max(0, (profile.totalSpent / nextRankTarget) * 100));
+    
+  const remainingToNextRank = Math.max(0, nextRankTarget - profile.totalSpent);
+
+  return (
+    <div className="profile-dashboard">
+      
+      {/* Row 1 */}
+      <div className="profile-row-1">
+        {/* User Card */}
+        <div className="card-white profile-user-card">
+          <div className="profile-avatar">{getInitials(profile.fullName)}</div>
+          <h2 className="profile-name">{profile.fullName || 'Người dùng'}</h2>
+          <div className="profile-phone">{profile.phoneNumber || 'Chưa cập nhật SĐT'}</div>
+          <div className="profile-rank-badge">Hạng thành viên: {rankLabel}</div>
+          <div className="profile-last-update">
+            <RefreshCw size={12} /> Cập nhật lần cuối: {new Date().toLocaleDateString('vi-VN')}
           </div>
         </div>
 
-        {/* Rank Info Card */}
-        <div className="rank-info-card">
-          <h3 className="rank-info-title">
-            <Shield size={24} />
-            Thông tin hạng thành viên
-          </h3>
-          
-          <div className="rank-spent-row">
-            <span className="rank-spent-label">Chi tiêu tích luỹ:</span>
-            <span className="rank-spent-value">{formatCurrency(profile.totalSpent)}</span>
+        {/* Stats Card */}
+        <div className="card-white profile-stats-card">
+          <div className="stats-grid">
+            <div>
+              <div className="stat-item-label">TỔNG SỐ ĐƠN HÀNG</div>
+              <div className="stat-item-value">{totalOrders}</div>
+            </div>
+            <div>
+              <div className="stat-item-label">TỔNG TIỀN TÍCH LŨY</div>
+              <div className="stat-item-value blue">{new Intl.NumberFormat('vi-VN').format(profile.totalSpent || 0)}đ</div>
+            </div>
           </div>
           
-          {profile.totalSpent < 50000000 ? (
-            <div className="rank-progress-container">
-              <div className="rank-progress-bar-bg">
-                <div className="rank-progress-bar-fill" style={{ width: `${progressPercent}%` }}></div>
+          <div className="rank-progress-container">
+            <div className="rank-progress-header">
+              <div className="rank-progress-title">Tiến trình lên hạng</div>
+              <div className="rank-progress-amounts">
+                {new Intl.NumberFormat('vi-VN').format(profile.totalSpent || 0)} / {new Intl.NumberFormat('vi-VN').format(nextRankTarget)}đ
               </div>
-              <p className="rank-target-text">
-                Cần chi tiêu thêm <strong>{formatCurrency(nextRankTarget - profile.totalSpent)}</strong> để lên hạng <span className="rank-name">{nextRankName}</span>
-              </p>
             </div>
-          ) : (
-            <div className="rank-max-badge">
-              <Award size={48} />
-              <p>Chúc mừng bạn đã đạt cấp bậc cao nhất của PhoneStore!</p>
+            <div className="progress-track">
+              <div className="progress-fill active" style={{ width: `${progressPercent}%` }}></div>
             </div>
-          )}
+            {remainingToNextRank > 0 && (
+              <div className="rank-progress-note">Bạn cần tích lũy thêm {new Intl.NumberFormat('vi-VN').format(remainingToNextRank)}đ để thăng hạng.</div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
+      {/* Row 2 */}
+      <div className="profile-row-2">
+        <Link to="#" className="banner-card banner-blue">
+          <div className="banner-content">
+            <h3>S-Student</h3>
+            <p>Ưu đãi dành cho Sinh viên</p>
+          </div>
+          <GraduationCap className="banner-icon" />
+        </Link>
+        <Link to="#" className="banner-card banner-red">
+          <div className="banner-content">
+            <h3>S-Business</h3>
+            <p>Giải pháp cho doanh nghiệp</p>
+          </div>
+          <Briefcase className="banner-icon" />
+        </Link>
+        <div className="banner-card banner-black" onClick={() => setShowEditModal(true)}>
+          <div className="banner-content">
+            <h3>Địa chỉ nhận hàng</h3>
+            <p>Thêm/Sửa địa chỉ giao hàng</p>
+          </div>
+          <MapPin className="banner-icon" />
+        </div>
+      </div>
+
+      {/* Row 3 */}
+      <div className="profile-row-3">
+        <Link to="/account/orders" className="feature-card">
+          <div className="feature-icon-wrapper red">
+            <span style={{ fontWeight: '900', fontStyle: 'italic', color: '#fff', fontSize: '2.5rem' }}>ORDERS</span>
+          </div>
+          <h3>Đơn hàng gần đây</h3>
+          <p>Xem danh sách các đơn hàng của bạn</p>
+        </Link>
+        <Link to="#" className="feature-card">
+          <div className="feature-icon-wrapper black">
+            <Gift size={40} />
+          </div>
+          <h3>Ưu đãi của bạn</h3>
+          <p>Khám phá các Voucher đang có sẵn</p>
+        </Link>
+      </div>
+
+      {/* Edit Modal */}
       {showEditModal && (
         <div className="profile-modal-overlay">
           <div className="profile-modal-content">
             <div className="profile-modal-header">
-              <h3>Cập nhật Hồ sơ</h3>
-              <button onClick={() => setShowEditModal(false)} className="profile-modal-close">
-                <X size={20} />
+              <h2 className="profile-modal-title">Cập nhật thông tin</h2>
+              <button className="profile-modal-close" onClick={() => setShowEditModal(false)}>
+                <X size={24} />
               </button>
             </div>
-            <div className="profile-modal-body">
-              <form onSubmit={handleSaveProfile} className="profile-edit-form">
-                <div className="form-group">
-                  <label>Họ và tên *</label>
-                  <input 
-                    type="text" 
-                    value={editForm.fullName} 
-                    onChange={e => setEditForm({...editForm, fullName: e.target.value})} 
-                    placeholder="Nhập họ và tên"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Số điện thoại</label>
-                  <input 
-                    type="text" 
-                    value={editForm.phoneNumber} 
-                    onChange={e => setEditForm({...editForm, phoneNumber: e.target.value})} 
-                    placeholder="Nhập số điện thoại"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Địa chỉ giao hàng</label>
-                  <textarea 
-                    value={editForm.address} 
-                    onChange={e => setEditForm({...editForm, address: e.target.value})} 
-                    placeholder="Nhập địa chỉ nhận hàng của bạn"
-                    rows="3"
-                  />
-                </div>
-                
-                <div className="form-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                  <button type="button" className="btn-outline" onClick={() => setShowEditModal(false)} style={{ flex: 1 }}>
-                    Hủy
-                  </button>
-                  <button type="submit" className="cps-btn-primary" disabled={isSaving} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <Save size={16} />
-                    {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
-                  </button>
-                </div>
-              </form>
-            </div>
+            <form onSubmit={handleSaveProfile}>
+              <div className="profile-form-group">
+                <label className="profile-form-label">Họ và tên</label>
+                <input 
+                  type="text" 
+                  value={editForm.fullName}
+                  onChange={(e) => setEditForm({...editForm, fullName: e.target.value})}
+                  className="profile-form-input" 
+                  required
+                />
+              </div>
+              <div className="profile-form-group">
+                <label className="profile-form-label">Số điện thoại</label>
+                <input 
+                  type="text" 
+                  value={editForm.phoneNumber}
+                  onChange={(e) => setEditForm({...editForm, phoneNumber: e.target.value})}
+                  className="profile-form-input" 
+                />
+              </div>
+              <div className="profile-form-group">
+                <label className="profile-form-label">Địa chỉ</label>
+                <input 
+                  type="text" 
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({...editForm, address: e.target.value})}
+                  className="profile-form-input" 
+                />
+              </div>
+              <div className="profile-form-actions">
+                <button type="button" className="profile-btn-cancel" onClick={() => setShowEditModal(false)} disabled={isSaving}>Hủy</button>
+                <button type="submit" className="profile-btn-save" disabled={isSaving}>
+                  {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
+
     </div>
   );
 }

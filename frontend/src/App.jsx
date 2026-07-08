@@ -5,7 +5,9 @@ import AdminLayout from './layouts/AdminLayout';
 // Customer Pages
 import Home from './pages/customer/Home';
 import ProductDetail from './pages/customer/ProductDetail';
+import CategoryProducts from './pages/customer/CategoryProducts';
 import Cart from './pages/customer/Cart';
+import Checkout from './pages/customer/Checkout';
 import Login from './pages/customer/Login';
 import Register from './pages/customer/Register';
 import VerifyOtp from './pages/customer/VerifyOtp';
@@ -19,6 +21,7 @@ import ProfileLayout from './layouts/ProfileLayout';
 // Admin Pages
 import Dashboard from './pages/admin/Dashboard';
 import ProductManagement from './pages/admin/ProductManagement';
+import VariantManagement from './pages/admin/VariantManagement';
 import CategoryManagement from './pages/admin/CategoryManagement';
 import OrderManagement from './pages/admin/OrderManagement';
 import UserManagement from './pages/admin/UserManagement';
@@ -31,7 +34,9 @@ function App() {
         <Route path="/" element={<CustomerLayout />}>
           <Route index element={<Home />} />
           <Route path="product/:id" element={<ProductDetail />} />
+          <Route path="category/:id" element={<CategoryProducts />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="verify-otp" element={<VerifyOtp />} />
@@ -50,6 +55,7 @@ function App() {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="products" element={<ProductManagement />} />
+          <Route path="products/:id/variants" element={<VariantManagement />} />
           <Route path="categories" element={<CategoryManagement />} />
           <Route path="orders" element={<OrderManagement />} />
           <Route path="users" element={<UserManagement />} />

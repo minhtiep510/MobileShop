@@ -109,3 +109,31 @@ input, select, textarea {
 .btn-outline:hover {
   background-color: var(--background);
 }
+
+/* Global Breadcrumb */
+.cps-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #757575;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.cps-breadcrumb span {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.cps-breadcrumb span:hover:not(.active) {
+  color: #000000;
+  text-decoration: underline;
+}
+
+.cps-breadcrumb span.active {
+  color: #000000;
+  cursor: default;
+}

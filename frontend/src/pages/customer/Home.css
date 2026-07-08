@@ -1,255 +1,243 @@
 /* ==========================================================================
-   CellphoneS Clone - Home Styles
+   Apple Store Clone - Home Styles
    ========================================================================== */
 
-   .cps-home {
-    padding-bottom: 40px;
-  }
-  
-  /* Top Banner Section */
-  .cps-banner-section {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
-    height: 380px;
-  }
-  
-  /* Left Menu */
-  .cps-home-menu {
-    width: 200px;
-    background: var(--cps-white);
-    border-radius: var(--cps-radius);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    overflow: hidden;
-  }
-  
-  .cps-menu-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .cps-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 15px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--cps-text);
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-  }
-  
-  .cps-menu-item:hover {
-    background: var(--cps-gray-bg);
-    color: var(--cps-red);
-  }
-  
-  /* Main Slider */
-  .cps-main-slider {
-    flex: 1;
-    background: var(--cps-white);
-    border-radius: var(--cps-radius);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .cps-slider-image {
-    flex: 1;
-    overflow: hidden;
-  }
-  
-  .cps-slider-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .cps-slider-nav {
-    display: flex;
-    height: 60px;
-  }
-  
-  .cps-slider-nav-item {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--cps-text);
-    border-top: 1px solid var(--cps-border);
-    border-right: 1px solid var(--cps-border);
-    cursor: pointer;
-    padding: 0 5px;
-  }
-  
-  .cps-slider-nav-item:last-child {
-    border-right: none;
-  }
-  
-  .cps-slider-nav-item.active {
-    border-bottom: 2px solid var(--cps-red);
-    font-weight: bold;
-  }
-  
-  /* Right Banners */
-  .cps-right-banners {
-    width: 265px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .cps-right-banners img, .cps-right-banner-placeholder {
-    width: 100%;
-    height: calc((380px - 15px) / 2);
-    border-radius: var(--cps-radius);
-    object-fit: cover;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  }
-  
-  .cps-right-banner-placeholder {
-    background: #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #9ca3af;
-    font-weight: bold;
-  }
-  
-  /* Product Block */
-  .cps-block-products {
-    margin-bottom: 30px;
-  }
-  
-  .cps-block-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .cps-block-title {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: var(--cps-text);
-    text-transform: uppercase;
-  }
-  
-  .cps-product-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 15px;
-  }
-  
-  .cps-product-card {
-    background: var(--cps-white);
-    border-radius: var(--cps-radius);
-    padding: 15px;
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    transition: box-shadow 0.3s, transform 0.3s;
-  }
-  
-  .cps-product-card:hover {
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    transform: translateY(-2px);
-  }
-  
-  .cps-product-image {
-    width: 100%;
-    aspect-ratio: 1;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .cps-product-image img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
-  
-  .cps-product-info {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
-  
-  .cps-product-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--cps-text);
-    margin-bottom: 10px;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .cps-product-price-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: auto;
-    margin-bottom: 10px;
-  }
-  
-  .cps-price-special {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--cps-red);
-  }
-  
-  .cps-price-old {
-    font-size: 0.8rem;
-    color: var(--cps-text-light);
-    text-decoration: line-through;
-  }
-  
-  .cps-product-rating {
-    display: flex;
-    gap: 2px;
-  }
-  
-  .cps-skeleton-card {
-    background: #e5e7eb;
-    height: 350px;
-    border-radius: var(--cps-radius);
-    animation: pulse 1.5s infinite;
-  }
-  
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-  }
-  
-  /* Responsive */
-  @media (max-width: 1024px) {
-    .cps-home-menu, .cps-right-banners {
-      display: none;
-    }
-    .cps-product-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .cps-product-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .cps-services-section {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
+body {
+  background-color: #f5f5f7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1d1d1f;
+}
+
+.cps-home {
+  padding-bottom: 60px;
+  background-color: #f5f5f7;
+}
+
+/* Category Navigation Bar (replaces left menu) */
+.cps-home-menu {
+  display: flex;
+  justify-content: center;
+  background: white;
+  padding: 20px 0;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.cps-menu-list {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cps-menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.cps-menu-item:hover {
+  color: #0066cc;
+}
+
+.cps-menu-item svg {
+  color: #1d1d1f;
+  stroke-width: 1.5;
+  width: 32px;
+  height: 32px;
+}
+
+/* Top Banner Section */
+.cps-banner-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 50px;
+}
+
+.cps-main-slider {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  background: #000;
+  border-radius: 0; /* Edge to edge feeling */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cps-slider-image {
+  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.cps-slider-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+.cps-slider-text-overlay {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 2;
+  color: white;
+}
+
+.cps-slider-text-overlay h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.cps-slider-text-overlay p {
+  font-size: 1.5rem;
+  margin: 10px 0 0;
+}
+
+.cps-right-banners {
+  display: none; /* Hide right banners in minimalist design */
+}
+
+/* Product Blocks */
+.cps-block-products {
+  margin-bottom: 60px;
+  padding: 0 20px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cps-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.cps-block-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+/* Minimalist Product Grid */
+.cps-product-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+}
+
+.cps-product-card {
+  background: white;
+  border-radius: 18px;
+  padding: 25px 20px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s;
+  position: relative;
+  align-items: center;
+}
+
+.cps-product-card:hover {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  transform: scale(1.02);
+}
+
+.cps-product-image {
+  width: 100%;
+  aspect-ratio: 1;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cps-product-image img {
+  max-width: 160px;
+  max-height: 160px;
+  object-fit: contain;
+}
+
+.cps-product-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  text-align: center;
+  width: 100%;
+}
+
+.cps-product-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.cps-product-price-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.cps-price-special {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1d1d1f; /* Black price instead of red */
+}
+
+.cps-price-old {
+  display: none; /* Hide old prices for a cleaner look */
+}
+
+.cps-product-rating {
+  display: none; /* Hide ratings for minimalist look */
+}
+
+/* Remove fake tags and badges */
+.cps-card-badge, .cps-fake-tags, .cps-delivery-tag {
+  display: none !important;
+}
+
+/* Skeleton */
+.cps-skeleton-card {
+  background: #e5e5ea;
+  height: 350px;
+  border-radius: 18px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
 
 /* Carousel / Horizontal Scroll */
 .cps-carousel-container {
@@ -259,241 +247,274 @@
 }
 
 .cps-carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  color: #333;
-  transition: all 0.2s;
-}
-
-.cps-carousel-btn:hover {
-  background: #f8f9fa;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-.cps-carousel-prev {
-  left: -20px;
-}
-
-.cps-carousel-next {
-  right: -20px;
+  display: none; /* Hide scroll buttons, rely on touch/trackpad */
 }
 
 .cps-product-carousel {
   display: flex;
-  gap: 15px;
+  gap: 20px;
   overflow-x: auto;
-  padding-bottom: 15px;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-bottom: 30px;
+  padding-top: 10px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   width: 100%;
 }
 
 .cps-product-carousel::-webkit-scrollbar {
-  height: 0px; /* Hide scrollbar completely to make it look like the image */
-}
-
-.cps-product-carousel::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.cps-product-carousel::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 4px;
-}
-
-.cps-product-carousel::-webkit-scrollbar-thumb:hover {
-  background: #999;
+  height: 0px; 
 }
 
 .cps-product-carousel .cps-product-card {
-  min-width: 220px;
-  max-width: 220px;
+  min-width: 260px;
+  max-width: 260px;
   flex: 0 0 auto;
   scroll-snap-align: start;
-  position: relative;
 }
 
 /* New Arrivals Tabbed Block */
 .cps-new-arrivals-block {
   background: transparent;
   padding: 0;
-  margin-top: 20px;
+  margin-top: 40px;
   box-shadow: none;
 }
 
 .cps-new-arrivals-tabs {
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .cps-na-tab {
-  flex: 1;
-  background: #fff7ed;
-  color: #ea580c;
+  color: #1d1d1f;
   font-weight: 700;
-  font-size: 1.1rem;
-  padding: 12px 20px;
-  border-radius: 12px 12px 0 0;
-  cursor: pointer;
+  font-size: 2.2rem;
+  letter-spacing: -0.015em;
+  padding: 10px;
   text-align: center;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: none;
 }
 
 .cps-na-tab.active {
-  background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
-  color: white;
+  background: none;
+  color: #1d1d1f;
 }
 
 .cps-na-tab-active-img {
-  font-size: 1.2rem;
-  text-transform: uppercase;
+  font-size: 2.2rem;
+  font-weight: 700;
 }
 
 .cps-new-arrivals-content {
-  background: #fffcf9;
-  border: 2px solid #ea580c;
-  border-radius: 0 0 12px 12px;
-  padding: 20px;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .cps-na-subtabs {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 30px;
   flex-wrap: wrap;
 }
 
 .cps-na-subtab {
   background: white;
-  border: 1px solid #d1d5db;
-  color: #4b5563;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  border: 1px solid #d2d2d7;
+  color: #1d1d1f;
+  padding: 8px 16px;
+  border-radius: 980px; /* Pill shape */
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .cps-na-subtab.active, .cps-na-subtab:hover {
-  border-color: #ea580c;
-  color: #ea580c;
-  background: #fff7ed;
-}
-
-/* Fake Badge and Tags inside Card */
-.cps-card-badge {
-  position: absolute;
-  top: -10px;
-  left: -10px;
-  background: #d70018;
-  color: white;
-  font-size: 0.7rem;
-  font-weight: bold;
-  padding: 4px 8px;
-  border-radius: 10px 10px 10px 0;
-  z-index: 2;
-}
-
-.cps-fake-tags {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-top: 8px;
-}
-
-.cps-smember-tag, .cps-student-tag {
-  font-size: 0.7rem;
-  padding: 3px 6px;
-  border-radius: 4px;
-}
-
-.cps-smember-tag {
-  background: #e0f2fe;
-  color: #0369a1;
-}
-
-.cps-student-tag {
-  background: #f3e8ff;
-  color: #7e22ce;
-}
-
-.cps-delivery-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  color: #0284c7;
-  margin-top: 10px;
-  font-weight: 600;
-}
-
-/* Apple Section */
-.cps-apple-section {
   background: #1d1d1f;
-  padding: 30px;
-  border-radius: var(--cps-radius);
-  margin-bottom: 30px;
-}
-.cps-apple-section .cps-product-card {
-  background: #2d2d2f;
-  color: #fff;
-}
-.cps-apple-section .cps-product-name, 
-.cps-apple-section .cps-price-special {
-  color: #fff;
+  color: white;
+  border-color: #1d1d1f;
 }
 
 /* Services Section */
 .cps-services-section {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  margin-top: 40px;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin-top: 60px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
 }
 
 .cps-service-item {
-  background: var(--cps-white);
-  padding: 20px;
-  border-radius: var(--cps-radius);
+  background: white;
+  padding: 30px 20px;
+  border-radius: 18px;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
   gap: 15px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  transition: transform 0.3s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
 }
 
 .cps-service-item:hover {
-  transform: translateY(-5px);
+  transform: none; /* Removed hover jump */
+}
+
+.cps-service-item svg {
+  color: #1d1d1f; /* Black icons */
 }
 
 .cps-service-text h4 {
   margin: 0 0 5px 0;
-  font-size: 1rem;
-  color: var(--cps-text);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1d1d1f;
 }
 
 .cps-service-text p {
   margin: 0;
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.9rem;
+  color: #86868b;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .cps-product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .cps-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cps-services-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cps-slider-text-overlay h1 {
+    font-size: 2.5rem;
+  }
+}
+
+/* ==========================================================================
+   Apple Hero Carousel Styles (Thế hệ mới nhất)
+   ========================================================================== */
+
+.apple-new-arrivals-block {
+  margin-top: 60px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+}
+
+.apple-new-title {
+  font-size: 2.5rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  letter-spacing: -0.015em;
+  color: #1d1d1f;
+}
+
+.apple-hero-carousel {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 5px 30px;
+  scrollbar-width: none;
+}
+.apple-hero-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.apple-hero-card {
+  flex: 0 0 320px;
+  height: 420px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.apple-hero-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+}
+
+.apple-hero-card.dark {
+  background-color: #000000;
+  color: #f5f5f7;
+}
+
+.apple-hero-card.light {
+  background-color: #ffffff;
+  color: #1d1d1f;
+  border: 1px solid #f0f0f0;
+}
+
+.apple-hero-info {
+  padding: 30px 30px 10px;
+  z-index: 2;
+}
+
+.apple-hero-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #bf4800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.apple-hero-card.dark .apple-hero-label {
+  color: #ff9f0a;
+}
+
+.apple-hero-name {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+
+.apple-hero-desc {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 12px;
+  opacity: 0.8;
+}
+
+.apple-hero-price {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.apple-hero-image-wrap {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.apple-hero-image {
+  width: 90%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+  transform: translateY(10px);
 }

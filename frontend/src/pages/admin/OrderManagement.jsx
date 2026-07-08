@@ -39,7 +39,7 @@ export default function OrderManagement() {
       alert('Cập nhật trạng thái thành công!');
       fetchOrders();
       if (selectedOrder && selectedOrder.id === id) {
-        setSelectedOrder({...selectedOrder, status});
+        setSelectedOrder({ ...selectedOrder, status });
       }
     } catch (err) {
       console.error('Lỗi khi cập nhật trạng thái:', err);
@@ -55,7 +55,7 @@ export default function OrderManagement() {
       alert('Cập nhật trạng thái thanh toán thành công!');
       fetchOrders();
       if (selectedOrder && selectedOrder.id === id) {
-        setSelectedOrder({...selectedOrder, paymentStatus: status});
+        setSelectedOrder({ ...selectedOrder, paymentStatus: status });
       }
     } catch (err) {
       console.error('Lỗi khi cập nhật trạng thái thanh toán:', err);
@@ -96,9 +96,9 @@ export default function OrderManagement() {
         <div className="admin-card-header">
           <div className="admin-search-box">
             <Search className="admin-search-icon" size={18} />
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm đơn hàng..." 
+            <input
+              type="text"
+              placeholder="Tìm kiếm đơn hàng..."
               className="admin-search-input"
             />
           </div>
@@ -106,10 +106,10 @@ export default function OrderManagement() {
 
         {loading ? (
           <div style={{ padding: '2rem', textAlign: 'center' }}>
-            <div className="loader inline-block" style={{ 
-              border: '3px solid var(--background)', 
-              borderTop: '3px solid var(--primary)', 
-              borderRadius: '50%', width: '30px', height: '30px', animation: 'spin 1s linear infinite' 
+            <div className="loader inline-block" style={{
+              border: '3px solid var(--background)',
+              borderTop: '3px solid var(--primary)',
+              borderRadius: '50%', width: '30px', height: '30px', animation: 'spin 1s linear infinite'
             }}></div>
           </div>
         ) : (
@@ -134,31 +134,30 @@ export default function OrderManagement() {
                 ) : (
                   orders.map((order) => (
                     <tr key={order.id}>
-                      <td style={{ color: 'var(--text-muted)' }}>#{order.id}</td>
+                      <td style={{ color: 'var(--text-muted)' }}>DH-{order.id}</td>
                       <td><strong>{order.customerName || 'N/A'}</strong></td>
                       <td>{order.phone || 'N/A'}</td>
                       <td>{new Date(order.orderDate || order.date).toLocaleString('vi-VN')}</td>
                       <td style={{ color: 'var(--primary)', fontWeight: '600' }}>
-                        {new Intl.NumberFormat('vi-VN').format(order.totalAmount || 0)} VNĐ
+                        {new Intl.NumberFormat('vi-VN').format(order.totalAmount || 0)} đ
                       </td>
                       <td>
-                        <select 
+                        <select
                           value={order.status?.toLowerCase() || 'pending'}
                           onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
                           disabled={order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'cancelled'}
-                          className={`admin-badge badge-${
-                            order.status?.toLowerCase() === 'pending' ? 'yellow' :
-                            order.status?.toLowerCase() === 'processing' ? 'blue' :
-                            order.status?.toLowerCase() === 'shipped' ? 'blue' :
-                            order.status?.toLowerCase() === 'delivered' ? 'green' :
-                            order.status?.toLowerCase() === 'cancelled' ? 'red' : 'gray'
-                          }`}
-                          style={{ 
-                            border: 'none', 
-                            cursor: (order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'cancelled') ? 'not-allowed' : 'pointer', 
-                            outline: 'none', 
-                            padding: '6px 12px', 
-                            borderRadius: '20px', 
+                          className={`admin-badge badge-${order.status?.toLowerCase() === 'pending' ? 'yellow' :
+                              order.status?.toLowerCase() === 'processing' ? 'blue' :
+                                order.status?.toLowerCase() === 'shipped' ? 'blue' :
+                                  order.status?.toLowerCase() === 'delivered' ? 'green' :
+                                    order.status?.toLowerCase() === 'cancelled' ? 'red' : 'gray'
+                            }`}
+                          style={{
+                            border: 'none',
+                            cursor: (order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'cancelled') ? 'not-allowed' : 'pointer',
+                            outline: 'none',
+                            padding: '6px 12px',
+                            borderRadius: '20px',
                             fontWeight: '600',
                             opacity: (order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'cancelled') ? 0.8 : 1
                           }}
@@ -194,12 +193,12 @@ export default function OrderManagement() {
         <div className="admin-modal-overlay">
           <div className="admin-modal-content large">
             <div className="admin-modal-header">
-              <h2 className="admin-modal-title">Chi tiết đơn hàng #{selectedOrder.id}</h2>
+              <h2 className="admin-modal-title">Chi tiết đơn hàng DH-{selectedOrder.id}</h2>
               <button onClick={() => setShowModal(false)} className="admin-modal-close">
                 <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>&times;</span>
               </button>
             </div>
-            
+
             <div className="admin-modal-body">
               <div className="admin-form-row">
                 <div>
@@ -212,10 +211,10 @@ export default function OrderManagement() {
                 <div>
                   <h3 className="admin-variant-title" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Thông tin thanh toán</h3>
                   <p style={{ marginBottom: '0.5rem' }}><span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>Phương thức:</span> {selectedOrder.paymentMethod}</p>
-                  
+
                   <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>TT Thanh toán:</span> 
-                    <select 
+                    <span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>TT Thanh toán:</span>
+                    <select
                       value={selectedOrder.paymentStatus}
                       onChange={(e) => handleUpdatePaymentStatus(selectedOrder.id, e.target.value)}
                       className="admin-form-select"
@@ -228,13 +227,13 @@ export default function OrderManagement() {
 
                   <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>TT Giao hàng:</span>
-                    <select 
+                    <select
                       value={selectedOrder.status?.toLowerCase() || 'pending'}
                       onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
                       disabled={selectedOrder.status?.toLowerCase() === 'delivered' || selectedOrder.status?.toLowerCase() === 'cancelled'}
                       className="admin-form-select"
-                      style={{ 
-                        padding: '0.25rem 0.5rem', 
+                      style={{
+                        padding: '0.25rem 0.5rem',
                         width: 'auto',
                         cursor: (selectedOrder.status?.toLowerCase() === 'delivered' || selectedOrder.status?.toLowerCase() === 'cancelled') ? 'not-allowed' : 'pointer',
                         opacity: (selectedOrder.status?.toLowerCase() === 'delivered' || selectedOrder.status?.toLowerCase() === 'cancelled') ? 0.7 : 1
@@ -279,10 +278,10 @@ export default function OrderManagement() {
                           </div>
                         </div>
                       </td>
-                      <td style={{ textAlign: 'center' }}>{new Intl.NumberFormat('vi-VN').format(item.price)} VNĐ</td>
+                      <td style={{ textAlign: 'center' }}>{new Intl.NumberFormat('vi-VN').format(item.price)} đ</td>
                       <td style={{ textAlign: 'center' }}>{item.quantity}</td>
                       <td style={{ textAlign: 'right', fontWeight: '600', color: 'var(--primary)' }}>
-                        {new Intl.NumberFormat('vi-VN').format(item.price * item.quantity)} VNĐ
+                        {new Intl.NumberFormat('vi-VN').format(item.price * item.quantity)} đ
                       </td>
                     </tr>
                   ))}
@@ -292,14 +291,14 @@ export default function OrderManagement() {
                     <td colSpan="3" style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.1rem' }}>Tổng cộng:</td>
                     <td style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.25rem', color: 'var(--primary)' }}>
                       <h2 style={{ color: 'var(--primary)', margin: 0 }}>
-                        {new Intl.NumberFormat('vi-VN').format(selectedOrder.totalAmount)} VNĐ
+                        {new Intl.NumberFormat('vi-VN').format(selectedOrder.totalAmount)} đ
                       </h2>
                     </td>
                   </tr>
                 </tfoot>
               </table>
             </div>
-            
+
             <div className="admin-modal-footer">
               <button onClick={() => setShowModal(false)} className="btn-primary">Đóng</button>
             </div>

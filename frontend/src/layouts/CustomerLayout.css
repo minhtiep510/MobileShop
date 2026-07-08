@@ -197,8 +197,70 @@
   }
   
   .cps-footer {
-    background: var(--cps-white);
+    background: #fff;
     border-top: 1px solid var(--cps-border);
+    padding: 40px 0 20px;
+    margin-top: 40px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-bottom: 30px;
+  }
+
+  .footer-col {
+    padding: 0 20px;
+    border-right: 1px solid var(--cps-border);
+  }
+
+  .footer-col:last-child {
+    border-right: none;
+  }
+
+  .footer-col h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #000;
+  }
+
+  .footer-col p {
+    font-size: 0.9rem;
+    color: var(--cps-text);
+    margin-bottom: 8px;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-col ul li {
+    margin-bottom: 15px;
+  }
+
+  .footer-col ul li a {
+    color: #4b4b4b;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+
+  .footer-col ul li a:hover {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  .footer-bottom {
+    text-align: left;
+    padding-top: 20px;
+    border-top: 1px solid var(--cps-border);
+    font-size: 0.85rem;
+    color: #4b4b4b;
+    padding-left: 20px;
   }
 
   /* Global CPS Primary Button */

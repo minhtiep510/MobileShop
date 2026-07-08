@@ -1,0 +1,164 @@
+/* ==========================================================================
+   Apple Store Clone - Category Products Styles
+   ========================================================================== */
+
+.category-page-wrapper {
+  padding: 0 0 80px 0;
+  background-color: #f5f5f7;
+  min-height: calc(100vh - 150px);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+
+
+.category-banner {
+  padding: 60px 20px;
+  text-align: center;
+  color: #1d1d1f;
+  margin-bottom: 20px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.category-banner-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.015em;
+}
+
+.category-banner-subtitle {
+  font-size: 1.5rem;
+  color: #86868b;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Inherits .cps-product-card and .cps-product-grid from Home.css globally if defined, 
+   but let's define them here just in case they are isolated */
+
+.category-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.category-empty-state {
+  text-align: center;
+  padding: 100px 20px;
+  background: transparent;
+}
+
+.category-empty-state svg {
+  color: #86868b;
+  margin: 0 auto 20px;
+}
+
+.category-empty-state h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.015em;
+}
+
+.category-empty-state p {
+  color: #86868b;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Reusing Apple card styles for isolation safety */
+.category-products-grid .cps-product-card {
+  background: white;
+  border-radius: 18px;
+  padding: 30px 20px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s;
+  align-items: center;
+}
+
+.category-products-grid .cps-product-card:hover {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  transform: scale(1.02);
+}
+
+.category-products-grid .cps-product-image {
+  width: 100%;
+  aspect-ratio: 1;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-products-grid .cps-product-image img {
+  max-width: 180px;
+  max-height: 180px;
+  object-fit: contain;
+}
+
+.category-products-grid .cps-product-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  text-align: center;
+  width: 100%;
+}
+
+.category-products-grid .cps-product-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.category-products-grid .cps-product-price-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.category-products-grid .cps-price-special {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+.category-products-grid .cps-price-old {
+  display: none;
+}
+
+.category-products-grid .cps-product-rating {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .category-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .category-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .category-banner-title {
+    font-size: 2.5rem;
+  }
+  .category-banner-subtitle {
+    font-size: 1.2rem;
+  }
+}

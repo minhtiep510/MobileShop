@@ -55,7 +55,7 @@ export default function CustomerLayout() {
       {/* Header */}
       <header className="cps-header">
         <div className="cps-container cps-header-inner">
-          <Link to="/" className="cps-logo">PhoneStore</Link>
+          <Link to="/" className="cps-logo">Apple Store</Link>
 
           <div className="cps-search-box">
             <input type="text" placeholder="Bạn cần tìm gì?" className="cps-search-input" />
@@ -105,8 +105,48 @@ export default function CustomerLayout() {
 
       {/* Footer */}
       <footer className="cps-footer">
-        <div className="cps-container text-center text-sm text-gray-500 py-8">
-          &copy; {new Date().getFullYear()} PhoneStore - Clone phong cách CellphoneS. All rights reserved.
+        <div className="cps-container">
+          <div className="footer-grid">
+            <div className="footer-col">
+              <h3>Mua Sắm & Tìm Hiểu</h3>
+              <ul>
+                <li><Link to="#">Mac</Link></li>
+                <li><Link to="#">iPad</Link></li>
+                <li><Link to="#">iPhone</Link></li>
+                <li><Link to="#">Watch</Link></li>
+                <li><Link to="#">AirPods</Link></li>
+                <li><Link to="#">AirTag</Link></li>
+                <li><Link to="#">Phụ kiện</Link></li>
+              </ul>
+            </div>
+            
+            <div className="footer-col">
+              <h3>Dịch Vụ Apple</h3>
+              <ul>
+                <li><Link to="#">Apple Music</Link></li>
+                <li><Link to="#">Apple TV+</Link></li>
+                <li><Link to="#">Apple Arcade</Link></li>
+                <li><Link to="#">iCloud</Link></li>
+                <li><Link to="#">Apple One</Link></li>
+                <li><Link to="#">Apple Pay</Link></li>
+              </ul>
+            </div>
+
+            <div className="footer-col">
+              <h3>Hỗ Trợ & Chính Sách</h3>
+              <ul>
+                <li><Link to="#">Trang chủ Hỗ trợ</Link></li>
+                <li><Link to="#">Bảo hành & Sửa chữa</Link></li>
+                <li><Link to="#">AppleCare+</Link></li>
+                <li><Link to="#">Hỗ trợ thanh toán</Link></li>
+                <li><Link to="#">Tình trạng Đơn hàng</Link></li>
+                <li><Link to="#">Liên hệ với chúng tôi</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            &copy; {new Date().getFullYear()} Apple Store. All rights reserved.
+          </div>
         </div>
       </footer>
     </div>
