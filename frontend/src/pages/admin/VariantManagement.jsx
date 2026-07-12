@@ -104,9 +104,9 @@ export default function VariantManagement() {
         name: selectedProduct.name,
         description: selectedProduct.description || '',
         categoryId: selectedProduct.categoryId,
-        variants: selectedProduct.variants && selectedProduct.variants.length > 0 
-          ? selectedProduct.variants 
-          : [{ sku: `SKU-${Date.now()}`, price: 0, stockQuantity: 0, condition: 'Mới 100%' }], 
+        variants: selectedProduct.variants && selectedProduct.variants.length > 0
+          ? selectedProduct.variants
+          : [{ sku: `SKU-${Date.now()}`, price: 0, stockQuantity: 0, condition: 'Mới 100%' }],
         specifications: (selectedProduct.specifications || []).map(s => ({
           specName: s.key,
           specValue: s.value
@@ -179,9 +179,9 @@ export default function VariantManagement() {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '2rem' }}>
       <div className="admin-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-        <button 
-          onClick={() => navigate('/admin/products')} 
-          className="btn-outline" 
+        <button
+          onClick={() => navigate('/admin/products')}
+          className="btn-outline"
           style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           title="Quay lại danh sách sản phẩm"
         >

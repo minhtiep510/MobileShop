@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Model
 {
-    public class Order
+    public class Order : EntityBase
     {
-        [Key]
-        public int Id { get; set; }
 
         public int UserId { get; set; }
 

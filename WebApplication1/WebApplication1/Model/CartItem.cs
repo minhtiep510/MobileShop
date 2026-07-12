@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Model
 {
-    public class CartItem
+    public class CartItem : EntityBase
     {
-        [Key]
-        public int Id { get; set; }
 
         public int CartId { get; set; }
 

@@ -43,5 +43,37 @@ namespace WebApplication1
                 .HasForeignKey(i => i.ProductVariantId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
+
+        public override int SaveChanges()
+        {
+            UpdateTimestamps();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            UpdateTimestamps();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void UpdateTimestamps()
+        {
+            var entries = ChangeTracker.Entries<EntityBase>();
+            var now = DateTime.Now;
+
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedDate = now;
+                    entry.Entity.UpdatedDate = now;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Property(x => x.CreatedDate).IsModified = false;
+                    entry.Entity.UpdatedDate = now;
+                }
+            }
+        }
     }
 }

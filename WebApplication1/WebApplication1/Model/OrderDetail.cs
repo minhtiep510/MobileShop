@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Model
 {
-    public class OrderDetail
+    public class OrderDetail : EntityBase
     {
-        [Key]
-        public int Id { get; set; }
 
         public int OrderId { get; set; }
 

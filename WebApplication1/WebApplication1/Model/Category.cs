@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.Model
 {
-    public class Category
+    public class Category : EntityBase
     {
-        [Key]
-        public int Id { get; set; }
 
         [Required]
         [MaxLength(100)]

@@ -4,11 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Model
 {
-    public class Cart
+    public class Cart : EntityBase
     {
-        [Key]
-        public int Id { get; set; }
-
         public int UserId { get; set; }
 
         [ForeignKey("UserId")]

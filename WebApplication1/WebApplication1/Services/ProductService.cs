@@ -127,7 +127,7 @@ namespace WebApplication1.Services
                 Name = dto.Name.Trim(),
                 Description = (dto.Description ?? "").Trim(),
                 CategoryId = dto.CategoryId,
-                CreatedAt = DateTime.Now,
+                CreatedDate = DateTime.Now,
                 ProductVariants = new List<ProductVariant>()
             };
 
