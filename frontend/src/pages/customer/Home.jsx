@@ -63,6 +63,32 @@ export default function Home() {
     fetchProducts();
   }, []);
 
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in-up');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    // Give React a small tick to render the elements
+    setTimeout(() => {
+      const elements = document.querySelectorAll('.animate-on-scroll');
+      elements.forEach(el => observer.observe(el));
+    }, 100);
+
+    return () => {
+      const elements = document.querySelectorAll('.animate-on-scroll');
+      elements.forEach(el => observer.unobserve(el));
+    };
+  }, [products, categories]);
+
   // Placeholder if categories fetch is slow or empty
   const defaultCategories = [
     { name: 'Đang tải danh mục...', icon: <Smartphone size={18} /> }
@@ -81,6 +107,13 @@ export default function Home() {
     if (name.includes('tai nghe') || name.includes('âm thanh') || name.includes('loa')) return <Headphones size={18} />;
     if (name.includes('tivi') || name.includes('tv') || name.includes('màn hình')) return <Tv size={18} />;
     return <Box size={18} />; // Default icon
+  };
+
+  // Lấy ID danh mục dựa theo tên từ Backend để link động
+  const getCatId = (keyword, fallbackIndex = 0) => {
+    if (!categories.length) return '';
+    const cat = categories.find(c => c.name.toLowerCase().includes(keyword.toLowerCase()));
+    return cat ? cat.id : (categories[fallbackIndex]?.id || '');
   };
 
   return (
@@ -105,21 +138,66 @@ export default function Home() {
           </ul>
         </div>
 
-        <section className="cps-banner-section">
-          <div className="cps-main-slider">
-            <div className="cps-slider-text-overlay">
-              <h1>Store.</h1>
-              <p>The best way to buy the products you love.</p>
+        <section className="cps-banner-section animate-on-scroll">
+          <div className="cps-main-slider premium-hero">
+            <div className="premium-hero-content">
+              <h1 className="hero-title">Pro. Beyond.</h1>
+              <p className="hero-subtitle">iPhone 16 Pro Max. Titanium tinh xảo. Sức mạnh Apple Intelligence.</p>
+              <div className="hero-actions">
+                <Link to={`/category/${getCatId('điện thoại', 0)}`} className="btn-primary">Mua ngay</Link>
+                <a href="#bento" className="btn-secondary">Tìm hiểu thêm</a>
+              </div>
             </div>
-            <div className="cps-slider-image">
-              <img src="https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=1920&h=600&fit=crop" alt="Apple Store Banner" />
+            <div className="premium-hero-image-wrap">
+              <img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=2070&h=800&fit=crop" alt="iPhone 16 Pro Max" className="hero-img-scale" />
             </div>
+          </div>
+        </section>
+
+        {/* Bento Box Grid - Nổi bật */}
+        <section id="bento" className="cps-bento-section animate-on-scroll" style={{ marginTop: '40px' }}>
+          <div className="bento-grid">
+            {/* Box 1 - Big */}
+            <Link to={`/category/${getCatId('mac', 1)}`} className="bento-box bento-large bento-macbook">
+              <div className="bento-content dark-text">
+                <h3>MacBook Pro M3</h3>
+                <p>Khai phóng sức mạnh khủng khiếp.</p>
+              </div>
+              <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1000&fit=crop" alt="MacBook Pro" />
+            </Link>
+
+            {/* Box 2 - Medium */}
+            <Link to={`/category/${getCatId('watch', 2)}`} className="bento-box bento-medium bento-watch">
+              <div className="bento-content light-text">
+                <h3>Apple Watch Series 9</h3>
+                <p>Thông minh hơn. Sáng hơn.</p>
+              </div>
+              <img src="https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?q=80&w=600&fit=crop" alt="Apple Watch" />
+            </Link>
+
+            {/* Box 3 - Small 1 */}
+            <Link to={`/category/${getCatId('ipad', 3)}`} className="bento-box bento-small bento-ipad">
+              <div className="bento-content dark-text">
+                <h3>iPad Pro</h3>
+                <p>Siêu mỏng. Siêu mạnh.</p>
+              </div>
+              <img src="https://images.unsplash.com/photo-1589739900266-43b2843f4c12?q=80&w=600&fit=crop" alt="iPad Pro" />
+            </Link>
+            
+            {/* Box 4 - Small 2 */}
+            <Link to={`/category/${getCatId('tai nghe', 4)}`} className="bento-box bento-small bento-airpods">
+              <div className="bento-content light-text">
+                <h3>AirPods Pro 2</h3>
+                <p>Chống ồn đỉnh cao.</p>
+              </div>
+              <img src="https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?q=80&w=600&fit=crop" alt="AirPods" />
+            </Link>
           </div>
         </section>
 
         {/* Sản Phẩm Bán Chạy Nhất */}
         {!loading && products.length > 0 && (
-          <section className="cps-block-products">
+          <section className="cps-block-products animate-on-scroll">
             <div className="cps-block-header">
               <h2 className="cps-block-title" style={{ textTransform: 'uppercase' }}>
                 SẢN PHẨM BÁN CHẠY NHẤT
@@ -164,9 +242,9 @@ export default function Home() {
 
         {/* Khung Thế hệ mới nhất */}
         {!loading && products.length > 0 && (
-          <section className="cps-block-products apple-new-arrivals-block" style={{ marginTop: '60px' }}>
-            <div className="apple-new-arrivals-header" style={{ marginBottom: '20px' }}>
-              <h2 className="apple-new-title" style={{ fontSize: '2.5rem', fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.015em' }}>
+          <section className="cps-block-products apple-new-arrivals-block dark-mode-section animate-on-scroll" style={{ marginTop: '60px' }}>
+            <div className="apple-new-arrivals-header" style={{ marginBottom: '20px', paddingLeft: '20px' }}>
+              <h2 className="apple-new-title" style={{ fontSize: '2.5rem', fontWeight: 500, color: '#f5f5f7', letterSpacing: '-0.015em' }}>
                 <strong>Thế hệ mới nhất.</strong> <span style={{ color: '#86868b' }}>Xem ngay có gì mới.</span>
               </h2>
             </div>
@@ -222,7 +300,7 @@ export default function Home() {
         )}
 
         {/* Service Policies */}
-        <section className="cps-services-section">
+        <section className="cps-services-section animate-on-scroll">
           <div className="cps-service-item">
             <ShieldCheck size={40} color="#d70018" />
             <div className="cps-service-text">

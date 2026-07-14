@@ -549,3 +549,254 @@ body {
   object-position: bottom;
   transform: translateY(10px);
 }
+
+/* ==========================================================================
+   Premium Animations & Overrides
+   ========================================================================== */
+
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+              transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-fade-in-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Premium Hero Section */
+.premium-hero {
+  position: relative;
+  height: 600px;
+  background-color: #000;
+  border-radius: 24px;
+  margin: 0 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.premium-hero-content {
+  position: absolute;
+  top: 80px;
+  z-index: 2;
+  text-align: center;
+  color: #f5f5f7;
+  max-width: 800px;
+}
+
+.hero-title {
+  font-size: 4.5rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #fff 0%, #a1a1a6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 0 0 30px;
+  color: #a1a1a6;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: #f5f5f7;
+  color: #1d1d1f;
+  padding: 12px 24px;
+  border-radius: 980px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #ffffff;
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f5f5f7;
+  padding: 12px 24px;
+  border-radius: 980px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.premium-hero-image-wrap {
+  position: absolute;
+  bottom: -50px;
+  width: 100%;
+  height: 70%;
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+}
+
+.hero-img-scale {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  animation: scale-up 10s ease infinite alternate;
+}
+
+@keyframes scale-up {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+/* Bento Box Grid */
+.cps-bento-section {
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  padding: 0 20px;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 250px;
+  gap: 20px;
+}
+
+.bento-box {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  text-decoration: none;
+  background-color: #f5f5f7;
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s;
+}
+
+.bento-box:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.bento-large {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.bento-medium {
+  grid-column: span 2;
+  grid-row: span 1;
+}
+
+.bento-small {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+.bento-content {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  z-index: 2;
+  max-width: 80%;
+}
+
+.bento-content h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 5px;
+  letter-spacing: -0.015em;
+}
+
+.bento-large .bento-content h3 {
+  font-size: 2.5rem;
+}
+
+.bento-content p {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.dark-text { color: #1d1d1f; }
+.light-text { color: #f5f5f7; }
+
+.bento-box img {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  transition: transform 0.5s ease;
+}
+
+.bento-box:hover img {
+  transform: scale(1.03);
+}
+
+.bento-macbook img { object-position: center center; }
+.bento-watch img { object-position: right center; background: #000; }
+.bento-ipad img { object-position: center bottom; background: #fdfdfd; }
+.bento-airpods img { object-position: center center; background: #000; }
+
+/* Dark Mode Section for New Arrivals */
+.dark-mode-section {
+  background-color: #000;
+  padding: 60px 20px;
+  border-radius: 24px;
+  margin: 60px auto;
+  max-width: 1200px;
+}
+
+/* Update original apple-hero-card for dark mode */
+.dark-mode-section .apple-hero-card.light {
+  background-color: #1c1c1e;
+  color: #f5f5f7;
+  border-color: #333;
+}
+.dark-mode-section .apple-hero-card.dark {
+  background-color: #2c2c2e;
+}
+
+/* Responsive Overrides */
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .bento-large, .bento-medium, .bento-small {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .premium-hero {
+    height: 500px;
+  }
+  .hero-title {
+    font-size: 3rem;
+  }
+}

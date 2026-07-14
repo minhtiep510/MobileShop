@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Truck } from 'lucide-react';
+import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../../services/api';
 import '../../styles/Cart.css';
 
@@ -9,6 +9,8 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shippingFee] = useState(30000); // Vẫn giữ fee ở giỏ hàng để nhẩm tính tổng
+  const [suggestedProducts, setSuggestedProducts] = useState([]);
+  const carouselRef = useRef(null);
   
   const navigate = useNavigate();
 
@@ -29,7 +31,29 @@ export default function Cart() {
 
   useEffect(() => {
     fetchCart();
+    
+    // Lấy 20 sản phẩm cho phần gợi ý
+    const fetchSuggested = async () => {
+      try {
+        const response = await api.get('/Product?page=1&pageSize=20');
+        if (response.data && response.data.items) {
+          setSuggestedProducts(response.data.items);
+        } else if (Array.isArray(response.data)) {
+          setSuggestedProducts(response.data.slice(0, 20));
+        }
+      } catch (err) {
+        console.error('Lỗi khi lấy sản phẩm gợi ý:', err);
+      }
+    };
+    fetchSuggested();
   }, []);
+
+  const scrollCarousel = (direction) => {
+    if (carouselRef.current) {
+      const scrollAmount = direction === 'left' ? -300 : 300;
+      carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   const handleUpdateQuantity = async (id, currentQuantity, change) => {
     const newQuantity = currentQuantity + change;
@@ -102,9 +126,71 @@ export default function Cart() {
           <p className="empty-cart-text">Hãy khám phá thêm các sản phẩm tuyệt vời của chúng tôi nhé!</p>
           <Link to="/" className="cps-btn-primary">Mua sắm ngay</Link>
         </div>
+        {renderSuggestedProducts()}
       </div>
     );
   }
+
+  const renderSuggestedProducts = () => {
+    if (!suggestedProducts || suggestedProducts.length === 0) return null;
+
+    return (
+      <div className="cart-suggestions" style={{ marginTop: '50px', paddingBottom: '30px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '20px', color: '#1d1d1f' }}>Có thể bạn sẽ thích</h2>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <button 
+            onClick={() => scrollCarousel('left')}
+            style={{
+              position: 'absolute', left: '-20px', zIndex: 10, width: '40px', height: '40px',
+              borderRadius: '50%', background: '#fff', border: '1px solid #e5e5ea', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+            }}
+          >
+            <ChevronLeft size={20} />
+          </button>
+          
+          <div 
+            ref={carouselRef}
+            style={{ 
+              display: 'flex', gap: '20px', overflowX: 'auto', scrollBehavior: 'smooth', 
+              paddingBottom: '20px', scrollbarWidth: 'none', msOverflowStyle: 'none', width: '100%' 
+            }}
+          >
+            {suggestedProducts.map(product => (
+              <Link to={`/product/${product.id}`} key={`suggest-${product.id}`} style={{
+                minWidth: '220px', background: '#fff', borderRadius: '16px', padding: '15px',
+                textDecoration: 'none', color: '#1d1d1f', display: 'flex', flexDirection: 'column',
+                alignItems: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'transform 0.2s'
+              }} className="suggest-card">
+                <img 
+                  src={product.thumbnailUrl || 'https://via.placeholder.com/150'} 
+                  alt={product.name} 
+                  style={{ width: '120px', height: '120px', objectFit: 'contain', marginBottom: '15px' }}
+                  onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }}
+                />
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, textAlign: 'center', marginBottom: '10px' }}>{product.name}</h3>
+                <div style={{ marginTop: 'auto', fontWeight: 700, color: '#f97316' }}>
+                   {new Intl.NumberFormat('vi-VN').format(product.price || (product.variants && product.variants.length > 0 ? product.variants[0].price : 0))} đ
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <button 
+            onClick={() => scrollCarousel('right')}
+            style={{
+              position: 'absolute', right: '-20px', zIndex: 10, width: '40px', height: '40px',
+              borderRadius: '50%', background: '#fff', border: '1px solid #e5e5ea', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+            }}
+          >
+            <ChevronRight size={20} />
+          </button>
+          <style>{`.suggest-card:hover { transform: translateY(-5px); } .cart-suggestions ::-webkit-scrollbar { display: none; }`}</style>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="container cart-page">
@@ -203,6 +289,7 @@ export default function Cart() {
         </div>
       </div>
 
+      {renderSuggestedProducts()}
 
     </div>
   );
