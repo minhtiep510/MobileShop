@@ -11,7 +11,7 @@ export default function VariantManagement() {
   const [loading, setLoading] = useState(true);
 
   const [variantForm, setVariantForm] = useState({
-    id: null, sku: '', price: 0, stockQuantity: 0, color: '', capacity: '', condition: 'Mới 100%', images: []
+    id: null, sku: '', price: 0, stockQuantity: 0, color: '', size: '', condition: 'Mới 100%', images: []
   });
   const [isEditingVariant, setIsEditingVariant] = useState(false);
 
@@ -34,7 +34,7 @@ export default function VariantManagement() {
   }, [id]);
 
   const resetVariantForm = () => {
-    setVariantForm({ id: null, sku: `SKU-${Date.now()}`, price: 0, stockQuantity: 0, color: '', capacity: '', condition: 'Mới 100%', images: [] });
+    setVariantForm({ id: null, sku: `SKU-${Date.now()}`, price: 0, stockQuantity: 0, color: '', size: '', condition: 'Mới 100%', images: [] });
     setIsEditingVariant(false);
   };
 
@@ -223,8 +223,8 @@ export default function VariantManagement() {
                 <input type="text" value={variantForm.color} onChange={e => setVariantForm({ ...variantForm, color: e.target.value })} className="admin-form-input" style={{ padding: '0.5rem' }} />
               </div>
               <div>
-                <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Dung lượng</label>
-                <input type="text" value={variantForm.capacity} onChange={e => setVariantForm({ ...variantForm, capacity: e.target.value })} className="admin-form-input" style={{ padding: '0.5rem' }} />
+                <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Phân loại/Kích thước</label>
+                <input type="text" value={variantForm.size} onChange={e => setVariantForm({ ...variantForm, size: e.target.value })} className="admin-form-input" style={{ padding: '0.5rem' }} />
               </div>
               <div>
                 <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Tình trạng *</label>
@@ -266,7 +266,7 @@ export default function VariantManagement() {
                     <th>Ảnh</th>
                     <th>SKU</th>
                     <th>Màu sắc</th>
-                    <th>Dung lượng</th>
+                    <th>Phân loại/Kích thước</th>
                     <th>Tình trạng</th>
                     <th>Giá</th>
                     <th style={{ textAlign: 'center' }}>Kho</th>
@@ -286,7 +286,7 @@ export default function VariantManagement() {
                         </td>
                         <td><strong>{v.sku}</strong></td>
                         <td>{v.color || '-'}</td>
-                        <td>{v.capacity || '-'}</td>
+                        <td>{v.size || '-'}</td>
                         <td>{v.condition || 'Mới 100%'}</td>
                         <td style={{ color: 'var(--primary)', fontWeight: '600' }}>{new Intl.NumberFormat('vi-VN').format(v.price)} đ</td>
                         <td style={{ textAlign: 'center' }}>

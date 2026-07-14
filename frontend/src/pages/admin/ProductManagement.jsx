@@ -17,7 +17,7 @@ export default function ProductManagement() {
     description: '',
     categoryId: '',
     variants: [
-      { sku: '', price: 0, stockQuantity: 0, color: '', capacity: '', condition: 'Mới 100%', images: [] }
+      { sku: '', price: 0, stockQuantity: 0, color: '', size: '', condition: 'Mới 100%', images: [] }
     ],
     specifications: []
   });
@@ -83,7 +83,7 @@ export default function ProductManagement() {
         description: '',
         categoryId: categories[0]?.id || '',
         variants: [
-          { sku: '', price: 0, stockQuantity: 0, color: '', capacity: '', condition: 'Mới 100%', images: [] }
+          { sku: '', price: 0, stockQuantity: 0, color: '', size: '', condition: 'Mới 100%', images: [] }
         ],
         specifications: []
       });
@@ -337,8 +337,8 @@ export default function ProductManagement() {
                         <input type="text" value={formData.variants[0].color} onChange={e => handleVariantChange(0, 'color', e.target.value)} className="admin-form-input" />
                       </div>
                       <div className="admin-form-group">
-                        <label className="admin-form-label">Dung lượng</label>
-                        <input type="text" value={formData.variants[0].capacity} onChange={e => handleVariantChange(0, 'capacity', e.target.value)} className="admin-form-input" />
+                        <label className="admin-form-label">Phân loại/Kích thước</label>
+                        <input type="text" value={formData.variants[0].size} onChange={e => handleVariantChange(0, 'size', e.target.value)} className="admin-form-input" />
                       </div>
                       <div className="admin-form-group">
                         <label className="admin-form-label">Tình trạng *</label>

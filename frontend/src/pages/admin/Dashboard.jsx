@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Package, DollarSign, TrendingUp, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import api from '../../services/api';
+import api, { API_BASE_URL } from '../../services/api';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
@@ -149,7 +149,7 @@ export default function Dashboard() {
                     <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: index < 3 ? 'var(--primary)' : 'var(--text-muted)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 }}>
                       {index + 1}
                     </div>
-                    <img src={item.thumbnailUrl ? (item.thumbnailUrl.startsWith('/') ? `http://localhost:5136${item.thumbnailUrl}` : item.thumbnailUrl) : 'https://via.placeholder.com/50'} alt="product" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }} onError={e => e.target.src = 'https://via.placeholder.com/50'} />
+                    <img src={item.thumbnailUrl ? (item.thumbnailUrl.startsWith('/') ? `${API_BASE_URL}${item.thumbnailUrl}` : item.thumbnailUrl) : 'https://via.placeholder.com/50'} alt="product" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }} onError={e => e.target.src = 'https://via.placeholder.com/50'} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.productName}</h4>
                       <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600 }}>SKU: {item.variantSku}</p>

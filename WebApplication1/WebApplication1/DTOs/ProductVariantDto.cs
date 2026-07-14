@@ -7,7 +7,7 @@ namespace WebApplication1.DTOs
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
         public string Color { get; set; }
-        public string Capacity { get; set; }
+        public string Size { get; set; }
         public string Condition { get; set; }
         public List<VariantImageDto> Images { get; set; }
     }

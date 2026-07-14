@@ -47,7 +47,7 @@ namespace WebApplication1.Services
                     ProductImage = i.ProductVariant.Images.FirstOrDefault()?.ImageUrl,
                     SKU = i.ProductVariant.SKU,
                     Color = i.ProductVariant.Color,
-                    Capacity = i.ProductVariant.Capacity,
+                    Size = i.ProductVariant.Size,
                     Price = i.ProductVariant.Price,
                     Quantity = i.Quantity
                 }).ToList()

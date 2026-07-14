@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Package, Clock, CheckCircle, XCircle } from 'lucide-react';
 import api from '../../services/api';
-import './MyOrders.css';
+import '../../styles/MyOrders.css';
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -186,7 +186,7 @@ export default function MyOrders() {
                           {item.productName}
                         </Link>
                         <div className="item-meta">
-                          {[item.color, item.capacity].filter(Boolean).join(' - ')} x {item.quantity}
+                          {[item.color, item.size].filter(Boolean).join(' - ')} x {item.quantity}
                         </div>
                       </div>
                       <div className="myorders-item-price">

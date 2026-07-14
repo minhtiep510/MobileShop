@@ -28,7 +28,7 @@ namespace WebApplication1
 
             modelBuilder.Entity<ProductVariant>()
                 .HasIndex(p => p.SKU)
-                .IsUnique();
+                .IsUnique(false);
 
             // Tránh lỗi Cascade Delete khi xóa tài khoản hoặc biến thể (bảo toàn lịch sử đơn hàng)
             modelBuilder.Entity<OrderDetail>()

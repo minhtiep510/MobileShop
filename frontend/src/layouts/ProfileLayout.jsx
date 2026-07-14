@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { User, Package, Key, LogOut, Shield } from 'lucide-react';
-import './ProfileLayout.css';
+import '../styles/ProfileLayout.css';
 
 export default function ProfileLayout() {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, LogOut, Search, MapPin, PhoneCall } from 'lucide-react';
 import api from '../services/api';
-import './CustomerLayout.css';
+import '../styles/CustomerLayout.css';
 
 export default function CustomerLayout() {
   const navigate = useNavigate();

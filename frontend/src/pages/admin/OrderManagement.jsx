@@ -274,7 +274,7 @@ export default function OrderManagement() {
                               </Link>
                             </p>
                             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>SKU: {item.sku}</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{[item.color, item.capacity].filter(Boolean).join(' - ')}</p>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{[item.color, item.size].filter(Boolean).join(' - ')}</p>
                           </div>
                         </div>
                       </td>

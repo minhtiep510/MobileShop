@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, PackageX, ChevronRight, Home } from 'lucide-react';
 import api from '../../services/api';
-import './CategoryProducts.css';
+import '../../styles/CategoryProducts.css';
 
 export default function CategoryProducts() {
   const { id } = useParams();

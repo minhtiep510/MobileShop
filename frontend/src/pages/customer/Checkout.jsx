@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, ShieldCheck } from 'lucide-react';
 import api from '../../services/api';
-import './Checkout.css';
+import '../../styles/Checkout.css';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -250,7 +250,7 @@ export default function Checkout() {
                   <div className="summary-item-info">
                     <div className="summary-item-name">{item.productName}</div>
                     <div className="summary-item-variant">
-                      {item.color}{item.color && item.capacity ? ' | ' : ''}{item.capacity}
+                      {item.color}{item.color && item.size ? ' | ' : ''}{item.size}
                     </div>
                   </div>
                   <div className="summary-item-price-col">

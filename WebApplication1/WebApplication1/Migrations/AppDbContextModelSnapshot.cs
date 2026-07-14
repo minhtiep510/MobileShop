@@ -474,11 +474,6 @@ namespace WebApplication1.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Capacity")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -503,6 +498,11 @@ namespace WebApplication1.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int>("StockQuantity")
                         .IsConcurrencyToken()
                         .HasColumnType("int");
@@ -514,8 +514,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("SKU")
-                        .IsUnique();
+                    b.HasIndex("SKU");
 
                     b.ToTable("ProductVariants");
                 });

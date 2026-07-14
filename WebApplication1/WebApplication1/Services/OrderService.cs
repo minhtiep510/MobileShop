@@ -86,7 +86,7 @@ namespace WebApplication1.Services
                         ProductId = d.ProductVariant != null ? d.ProductVariant.ProductId : 0,
                         ProductName = d.ProductVariant != null && d.ProductVariant.Product != null ? d.ProductVariant.Product.Name : "Unknown",
                         Color = d.ProductVariant != null ? d.ProductVariant.Color : "",
-                        Capacity = d.ProductVariant != null ? d.ProductVariant.Capacity : "",
+                        Size = d.ProductVariant != null ? d.ProductVariant.Size : "",
                         Quantity = d.Quantity,
                         Price = d.UnitPrice,
                         ProductImage = d.ProductVariant != null && d.ProductVariant.Images != null ? 
@@ -139,7 +139,7 @@ namespace WebApplication1.Services
                     ProductId = d.ProductVariant?.ProductId ?? 0,
                     ProductName = d.ProductVariant?.Product?.Name ?? "Unknown",
                     Color = d.ProductVariant?.Color ?? "",
-                    Capacity = d.ProductVariant?.Capacity ?? "",
+                    Size = d.ProductVariant?.Size ?? "",
                     Quantity = d.Quantity,
                     Price = d.UnitPrice,
                     ProductImage = d.ProductVariant?.Images?

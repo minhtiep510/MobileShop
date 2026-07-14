@@ -14,7 +14,7 @@ namespace WebApplication1.DTOs
         public int VariantId { get; set; }
         public string VariantSku { get; set; } = string.Empty;
         public string Color { get; set; } = string.Empty;
-        public string Capacity { get; set; } = string.Empty;
+        public string Size { get; set; } = string.Empty;
         public string ThumbnailUrl { get; set; } = string.Empty;
         public decimal Price { get; set; }
     }

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, ChevronRight, Star, Truck, ShieldCheck, RefreshCw } from 'lucide-react';
-import api from '../../services/api';
-import './ProductDetail.css';
+import { ShoppingCart, ChevronRight, ChevronLeft, Star, Truck, ShieldCheck, RefreshCw } from 'lucide-react';
+import api, { API_BASE_URL } from '../../services/api';
+import '../../styles/ProductDetail.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -13,10 +13,37 @@ export default function ProductDetail() {
   const [error, setError] = useState(null);
 
   const [selectedVariant, setSelectedVariant] = useState(null);
-  const [selectedCapacity, setSelectedCapacity] = useState(null);
+  const [selectedsize, setSelectedsize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [addingToCart, setAddingToCart] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const thumbnailsRef = useRef(null);
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) => {
+      const newIndex = prev === 0 ? imageList.length - 1 : prev - 1;
+      scrollToThumbnail(newIndex);
+      return newIndex;
+    });
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => {
+      const newIndex = prev === imageList.length - 1 ? 0 : prev + 1;
+      scrollToThumbnail(newIndex);
+      return newIndex;
+    });
+  };
+
+  const scrollToThumbnail = (index) => {
+    if (thumbnailsRef.current) {
+      const thumbnailWidth = 70; // 60px width + 10px gap
+      thumbnailsRef.current.scrollTo({
+        left: index * thumbnailWidth - 100, // offset to center slightly
+        behavior: 'smooth'
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -28,7 +55,7 @@ export default function ProductDetail() {
         if (response.data.variants && response.data.variants.length > 0) {
           const firstInStock = response.data.variants.find(v => v.stockQuantity > 0) || response.data.variants[0];
           setSelectedVariant(firstInStock);
-          setSelectedCapacity(firstInStock.capacity);
+          setSelectedsize(firstInStock.size);
           setSelectedColor(firstInStock.color);
         }
       } catch (err) {
@@ -101,7 +128,7 @@ export default function ProductDetail() {
   }
 
   // Nếu là đường dẫn tương đối (từ backend), thêm domain vào
-  imageList = imageList.map(url => (url && url.startsWith('/')) ? `http://localhost:5136${url}` : url);
+  imageList = imageList.map(url => (url && url.startsWith('/')) ? `${API_BASE_URL}${url}` : url);
 
   const activeImage = imageList[currentImageIndex] || imageList[0];
 
@@ -144,11 +171,19 @@ export default function ProductDetail() {
           {product.categoryName || 'Điện thoại'}
         </span>
         <ChevronRight size={14} />
-        <span className="active">{product.name}</span>
+        <span className={selectedVariant?.sku ? "" : "active"}>{product.name}</span>
+        {selectedVariant?.sku && (
+          <>
+            <ChevronRight size={14} />
+            <span className="active">{selectedVariant.sku}</span>
+          </>
+        )}
       </div>
 
       <div className="cps-detail-header">
-        {/* Header content moved to right column in Samsung style */}
+        <h1 className="cps-detail-title-main" style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '1rem', color: '#1d1d1f' }}>
+          {product.name}
+        </h1>
       </div>
 
       <div className="cps-detail-main">
@@ -158,21 +193,69 @@ export default function ProductDetail() {
             <img src={activeImage} alt={product.name} />
           </div>
           {imageList.length > 1 && (
-            <div className="cps-image-thumbnails" style={{ display: 'flex', gap: '10px', marginTop: '10px', overflowX: 'auto', paddingBottom: '5px' }}>
-              {imageList.map((url, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setCurrentImageIndex(idx)}
-                  style={{
-                    width: '60px', height: '60px', border: currentImageIndex === idx ? '2px solid var(--cps-red)' : '1px solid var(--cps-border)',
-                    borderRadius: '8px', cursor: 'pointer', overflow: 'hidden', flexShrink: 0
-                  }}
-                >
-                  <img src={url} alt={`${product.name} - ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                </div>
-              ))}
+            <div className="cps-thumbnails-wrapper" style={{ position: 'relative', marginTop: '10px' }}>
+              <button 
+                onClick={handlePrevImage}
+                style={{
+                  position: 'absolute', left: '-15px', top: '50%', transform: 'translateY(-50%)',
+                  zIndex: 2, width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)',
+                  border: '1px solid #e5e5ea', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', color: '#1d1d1f'
+                }}
+              >
+                <ChevronLeft size={16} />
+              </button>
+              
+              <div 
+                className="cps-image-thumbnails" 
+                ref={thumbnailsRef}
+                style={{ 
+                  display: 'flex', gap: '10px', overflowX: 'auto', padding: '5px',
+                  scrollBehavior: 'smooth', scrollbarWidth: 'none', msOverflowStyle: 'none'
+                }}
+              >
+                {imageList.map((url, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => { setCurrentImageIndex(idx); scrollToThumbnail(idx); }}
+                    style={{
+                      width: '60px', height: '60px', border: currentImageIndex === idx ? '2px solid #1d1d1f' : '1px solid #e5e5ea',
+                      borderRadius: '8px', cursor: 'pointer', overflow: 'hidden', flexShrink: 0,
+                      opacity: currentImageIndex === idx ? 1 : 0.6,
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <img src={url} alt={`${product.name} - ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  </div>
+                ))}
+              </div>
+
+              <button 
+                onClick={handleNextImage}
+                style={{
+                  position: 'absolute', right: '-15px', top: '50%', transform: 'translateY(-50%)',
+                  zIndex: 2, width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)',
+                  border: '1px solid #e5e5ea', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', color: '#1d1d1f'
+                }}
+              >
+                <ChevronRight size={16} />
+              </button>
+
+              <style>{`
+                .cps-image-thumbnails::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
             </div>
           )}
+          
+          {selectedVariant?.sku && (
+            <div style={{ textAlign: 'center', marginTop: '15px', fontSize: '1.5rem', fontWeight: 'bold', color: '#1d1d1f' }}>
+              {selectedVariant.sku}
+            </div>
+          )}
+          
           <div className="cps-policy-box">
             <div className="policy-item">
               <RefreshCw size={24} color="var(--cps-red)" />
@@ -191,9 +274,6 @@ export default function ProductDetail() {
 
         {/* Right Column - Info & Actions */}
         <div className="cps-detail-right">
-
-          <h1 className="cps-detail-title-right">{product.name}</h1>
-
           {/* Variants Selection */}
           {product.variants && product.variants.length > 0 && (
             <>
@@ -201,7 +281,7 @@ export default function ProductDetail() {
                 // Chỉ hiển thị các dung lượng có ít nhất 1 màu còn hàng
                 const inStockVariants = product.variants.filter(v => v.stockQuantity > 0);
                 const uniqueCapacities = [...new Set(
-                  inStockVariants.map(v => v.capacity?.trim())
+                  inStockVariants.map(v => v.size?.trim())
                   .filter(c => c && c.toLowerCase() !== 'mặc định' && c.toLowerCase() !== 'default')
                 )];
 
@@ -211,9 +291,9 @@ export default function ProductDetail() {
                     <h2 className="cps-variant-label">Chọn Lưu trữ</h2>
                     <div className="cps-variants-grid">
                       {uniqueCapacities.map(cap => {
-                        const isActive = selectedCapacity === cap;
+                        const isActive = selectedsize === cap;
                         // Tính giá trị thấp nhất cho dung lượng này
-                        const varsWithCap = inStockVariants.filter(v => v.capacity === cap);
+                        const varsWithCap = inStockVariants.filter(v => v.size === cap);
                         const displayPrice = varsWithCap.length > 0 ? new Intl.NumberFormat('vi-VN').format(varsWithCap[0].price) + ' đ' : '';
                         
                         return (
@@ -221,10 +301,10 @@ export default function ProductDetail() {
                             key={cap}
                             className={`cps-variant-btn ${isActive ? 'active' : ''}`}
                             onClick={() => {
-                              setSelectedCapacity(cap);
-                              let newVar = product.variants.find(v => v.capacity === cap && v.color === selectedColor && v.stockQuantity > 0);
+                              setSelectedsize(cap);
+                              let newVar = product.variants.find(v => v.size === cap && v.color === selectedColor && v.stockQuantity > 0);
                               if (!newVar) {
-                                newVar = product.variants.find(v => v.capacity === cap && v.stockQuantity > 0);
+                                newVar = product.variants.find(v => v.size === cap && v.stockQuantity > 0);
                                 if (newVar) setSelectedColor(newVar.color);
                               }
                               if (newVar) {
@@ -261,7 +341,7 @@ export default function ProductDetail() {
                     <div className="color-swatches-grid">
                       {uniqueColors.map(col => {
                         const isActive = selectedColor === col;
-                        let varForCol = product.variants.find(v => v.color === col && v.capacity === selectedCapacity && v.stockQuantity > 0);
+                        let varForCol = product.variants.find(v => v.color === col && v.size === selectedsize && v.stockQuantity > 0);
                         const isCrossDisabled = !varForCol; // Đánh dấu mờ nếu màu này không có ở dung lượng hiện tại
 
                         return (
@@ -270,10 +350,10 @@ export default function ProductDetail() {
                             className={`color-swatch-wrapper ${isActive ? 'active' : ''} ${isCrossDisabled ? 'disabled' : ''}`}
                             onClick={() => {
                               setSelectedColor(col);
-                              let newVar = product.variants.find(v => v.capacity === selectedCapacity && v.color === col && v.stockQuantity > 0);
+                              let newVar = product.variants.find(v => v.size === selectedsize && v.color === col && v.stockQuantity > 0);
                               if (!newVar) {
                                 newVar = product.variants.find(v => v.color === col && v.stockQuantity > 0);
-                                if (newVar) setSelectedCapacity(newVar.capacity);
+                                if (newVar) setSelectedsize(newVar.size);
                               }
                               if (newVar) {
                                 setSelectedVariant(newVar);

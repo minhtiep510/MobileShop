@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../../services/api';
-import './Auth.css';
+import '../../styles/Auth.css';
 
 export default function VerifyOtp() {
   const [otp, setOtp] = useState(new Array(6).fill(''));

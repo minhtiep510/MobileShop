@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Smartphone, Laptop, Tablet, Watch, Headphones, Tv, ShieldCheck, Truck, RefreshCw, CreditCard, ChevronLeft, ChevronRight, Box } from 'lucide-react';
 import api from '../../services/api';
-import './Home.css';
+import '../../styles/Home.css';
 
 export default function Home() {
   const [products, setProducts] = useState([]);

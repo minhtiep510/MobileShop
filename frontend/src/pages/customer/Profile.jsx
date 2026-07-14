@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { RefreshCw, GraduationCap, Briefcase, MapPin, Package, Gift, Edit2, X } from 'lucide-react';
 import api from '../../services/api';
-import './Profile.css';
+import '../../styles/Profile.css';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);

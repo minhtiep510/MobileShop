@@ -95,7 +95,7 @@ namespace WebApplication1.Services
                     price = v.Price,
                     stockQuantity = v.StockQuantity,
                     color = v.Color,
-                    capacity = v.Capacity,
+                    size = v.Size,
                     condition = v.Condition,
                     images = v.Images.Select(i => new 
                     {
@@ -137,7 +137,7 @@ namespace WebApplication1.Services
                 {
                     SKU = string.IsNullOrWhiteSpace(vDto.SKU) ? $"SKU-{DateTime.Now.Ticks}" : vDto.SKU,
                     Color = vDto.Color ?? "Mặc định",
-                    Capacity = vDto.Capacity ?? "",
+                    Size = vDto.Size ?? "",
                     Condition = string.IsNullOrWhiteSpace(vDto.Condition) ? "Mới 100%" : vDto.Condition,
                     Price = vDto.Price,
                     StockQuantity = vDto.StockQuantity,
@@ -283,12 +283,14 @@ namespace WebApplication1.Services
 
         public async Task<(bool Success, string ErrorMessage)> CreateVariantAsync(int productId, ProductVariantDto dto)
         {
+            var skuToCheck = string.IsNullOrWhiteSpace(dto.SKU) ? $"SKU-{DateTime.Now.Ticks}" : dto.SKU;
+
             var variant = new ProductVariant
             {
                 ProductId = productId,
-                SKU = string.IsNullOrWhiteSpace(dto.SKU) ? $"SKU-{DateTime.Now.Ticks}" : dto.SKU,
+                SKU = skuToCheck,
                 Color = dto.Color ?? "Mặc định",
-                Capacity = dto.Capacity ?? "",
+                Size = dto.Size ?? "",
                 Condition = string.IsNullOrWhiteSpace(dto.Condition) ? "Mới 100%" : dto.Condition,
                 Price = dto.Price,
                 StockQuantity = dto.StockQuantity 
@@ -328,9 +330,10 @@ namespace WebApplication1.Services
             if (variant == null)
                 return (false, "Biến thể không tồn tại");
 
-            variant.SKU = string.IsNullOrWhiteSpace(dto.SKU) ? variant.SKU : dto.SKU;
+            var newSku = string.IsNullOrWhiteSpace(dto.SKU) ? variant.SKU : dto.SKU;
+            variant.SKU = newSku;
             variant.Color = dto.Color ?? variant.Color;
-            variant.Capacity = dto.Capacity ?? "";
+            variant.Size = dto.Size ?? "";
             variant.Condition = string.IsNullOrWhiteSpace(dto.Condition) ? variant.Condition : dto.Condition;
             variant.Price = dto.Price;
             variant.StockQuantity = dto.StockQuantity;

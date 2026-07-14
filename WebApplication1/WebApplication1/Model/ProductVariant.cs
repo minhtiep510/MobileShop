@@ -22,7 +22,7 @@ namespace WebApplication1.Model
             public string Color { get; set; } // Ví dụ: Titan tự nhiên, Đen
 
             [MaxLength(50)]
-            public string Capacity { get; set; } // Ví dụ: 128GB, 256GB
+            public string Size { get; set; } // Ví dụ: 128GB, 256GB, 41mm, 45mm
 
             [MaxLength(50)]
             public string Condition { get; set; } = "Mới 100%";

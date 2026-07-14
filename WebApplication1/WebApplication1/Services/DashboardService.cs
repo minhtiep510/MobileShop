@@ -63,7 +63,7 @@ namespace WebApplication1.Services
                     ProductName = od.ProductVariant.Product!.Name,
                     Sku = od.ProductVariant.SKU,
                     Color = od.ProductVariant.Color,
-                    Capacity = od.ProductVariant.Capacity,
+                    Size = od.ProductVariant.Size,
                     Price = od.ProductVariant.Price
                 })
                 .Select(g => new BestSellingProductDto
@@ -73,7 +73,7 @@ namespace WebApplication1.Services
                     VariantId = g.Key.VariantId,
                     VariantSku = g.Key.Sku,
                     Color = g.Key.Color ?? "",
-                    Capacity = g.Key.Capacity ?? "",
+                    Size = g.Key.Size ?? "",
                     Price = g.Key.Price,
                     TotalSold = g.Sum(od => od.Quantity)
                 })

@@ -279,3 +279,4 @@ D:\baocao\WebApplication1\WebApplication1\obj\Debug\net8.0\WebApplication1.sourc
 D:\baocao\WebApplication1\WebApplication1\bin\Debug\net8.0\WebApplication1.staticwebassets.runtime.json
 D:\baocao\WebApplication1\WebApplication1\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\baocao\WebApplication1\WebApplication1\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+D:\baocao\WebApplication1\WebApplication1\bin\Debug\net8.0\appsettings.Production.json

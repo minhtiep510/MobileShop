@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import api from '../../services/api';
-import './Auth.css';
+import '../../styles/Auth.css';
 
 export default function ResetPassword() {
   const [email, setEmail] = useState('');

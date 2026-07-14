@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Truck } from 'lucide-react';
 import api from '../../services/api';
-import './Cart.css';
+import '../../styles/Cart.css';
 
 export default function Cart() {
   const [cart, setCart] = useState(null);
@@ -127,7 +127,7 @@ export default function Cart() {
                 <h3 className="cart-item-name">{item.productName}</h3>
                 <div className="cart-item-variants">
                   {item.color && <span>Màu: {item.color}</span>}
-                  {item.capacity && <span style={{marginLeft: '10px'}}>Dung lượng: {item.capacity}</span>}
+                  {item.size && <span style={{marginLeft: '10px'}}>Phân loại: {item.size}</span>}
                 </div>
                 <div className="cps-cart-price">
                   {new Intl.NumberFormat('vi-VN').format(item.price)} đ

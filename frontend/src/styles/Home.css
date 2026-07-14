@@ -247,7 +247,38 @@ body {
 }
 
 .cps-carousel-btn {
-  display: none; /* Hide scroll buttons, rely on touch/trackpad */
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e5e5ea;
+  color: #1d1d1f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.cps-carousel-btn:hover {
+  background: #ffffff;
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.cps-carousel-prev {
+  left: -15px;
+}
+
+.cps-carousel-next {
+  right: -15px;
 }
 
 .cps-product-carousel {
