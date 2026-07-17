@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Star, PackageX, ChevronRight, Home } from 'lucide-react';
+import { Star, PackageX, ChevronRight, Home, ChevronDown } from 'lucide-react';
 import api from '../../services/api';
 import '../../styles/CategoryProducts.css';
+import BannerSlider from '../../components/BannerSlider';
 
 export default function CategoryProducts() {
   const { id } = useParams();
@@ -10,6 +11,43 @@ export default function CategoryProducts() {
   const [products, setProducts] = useState([]);
   const [categoryName, setCategoryName] = useState('Đang tải...');
   const [loading, setLoading] = useState(true);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [sortBy, setSortBy] = useState('Theo Khuyến Nghị');
+
+  const sortOptions = [
+    'Mới Nhất',
+    'Phổ Biến Nhất',
+    'Highest Rated',
+    'Theo Khuyến Nghị',
+    'Giá: từ cao đến thấp',
+    'Giá: từ thấp đến cao'
+  ];
+
+  const filterButtons = [
+    'Bộ nhớ',
+    'Khoảng Giá'
+  ];
+
+  const getSortedProducts = () => {
+    let sorted = [...products];
+    switch (sortBy) {
+      case 'Giá: từ thấp đến cao':
+        sorted.sort((a, b) => (a.startingPrice || 0) - (b.startingPrice || 0));
+        break;
+      case 'Giá: từ cao đến thấp':
+        sorted.sort((a, b) => (b.startingPrice || 0) - (a.startingPrice || 0));
+        break;
+      case 'Mới Nhất':
+        sorted.sort((a, b) => b.id - a.id);
+        break;
+      default:
+        // 'Theo Khuyến Nghị', 'Phổ Biến Nhất', 'Highest Rated' - giữ nguyên hoặc theo ID
+        break;
+    }
+    return sorted;
+  };
+
+  const displayedProducts = getSortedProducts();
 
   useEffect(() => {
     const fetchCategoryAndProducts = async () => {
@@ -66,6 +104,56 @@ export default function CategoryProducts() {
           <p className="category-banner-subtitle">Sự lựa chọn hoàn hảo của bạn.</p>
         </div>
 
+        {/* Dynamic Banner Slider */}
+        <BannerSlider />
+
+        {/* Filter Section */}
+        <div className="category-filter-section">
+          <div className="filter-top-bar">
+            <div className="filter-info">
+              <span className="filter-label">Bộ lọc</span>
+              <span className="filter-divider">|</span>
+              <span className="filter-results"><strong>{displayedProducts.length}</strong> Kết quả</span>
+            </div>
+            
+            <div className="filter-sort">
+              <span className="sort-label">Sắp xếp</span>
+              <div className="sort-dropdown-container">
+                <button 
+                  className="sort-dropdown-button"
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                >
+                  {sortBy} <ChevronDown size={18} />
+                </button>
+                {showSortDropdown && (
+                  <div className="sort-dropdown-menu">
+                    {sortOptions.map((option, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`sort-option ${sortBy === option ? 'selected' : ''}`}
+                        onClick={() => {
+                          setSortBy(option);
+                          setShowSortDropdown(false);
+                        }}
+                      >
+                        {option}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="filter-bottom-bar">
+            {filterButtons.map((btn, idx) => (
+              <button key={idx} className="filter-pill-button">
+                {btn} <ChevronDown size={16} />
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Loading State */}
         {loading ? (
           <div className="cps-product-grid">
@@ -75,9 +163,9 @@ export default function CategoryProducts() {
           </div>
         ) : (
           /* Products Grid */
-          products.length > 0 ? (
+          displayedProducts.length > 0 ? (
             <div className="cps-product-grid category-products-grid">
-              {products.map((product) => (
+              {displayedProducts.map((product) => (
                 <Link to={`/product/${product.id}`} key={product.id} className="cps-product-card">
                   <div className="cps-product-image">
                     <img 

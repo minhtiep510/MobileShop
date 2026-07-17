@@ -36,6 +36,140 @@
   letter-spacing: -0.01em;
 }
 
+/* Filter Section */
+.category-filter-section {
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+  padding: 0 20px;
+}
+
+.filter-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e5e5ea;
+  margin-bottom: 15px;
+}
+
+.filter-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 14px;
+}
+
+.filter-label {
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.filter-divider {
+  color: #d2d2d7;
+}
+
+.filter-results {
+  color: #86868b;
+}
+
+.filter-results strong {
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+.filter-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.sort-label {
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.sort-dropdown-container {
+  position: relative;
+}
+
+.sort-dropdown-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #86868b;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.sort-dropdown-button:hover {
+  color: #1d1d1f;
+}
+
+.sort-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  min-width: 200px;
+  z-index: 100;
+  padding: 8px 0;
+}
+
+.sort-option {
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #1d1d1f;
+  transition: background 0.2s;
+}
+
+.sort-option:hover {
+  background: #f5f5f7;
+}
+
+.sort-option.selected {
+  background: #f5f5f7;
+  color: #1d1d1f;
+  font-weight: 500;
+}
+
+.filter-bottom-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-pill-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #d2d2d7;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.filter-pill-button:hover {
+  border-color: #86868b;
+}
+
+.filter-pill-button svg {
+  color: #86868b;
+}
+
 /* Inherits .cps-product-card and .cps-product-grid from Home.css globally if defined, 
    but let's define them here just in case they are isolated */
 

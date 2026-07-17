@@ -1,0 +1,209 @@
+/* ==========================================================================
+   Banner Slider Styles
+   ========================================================================== */
+
+/* ── Grid Layout (Home page: 1 to + 2 nho) ── */
+.banner-grid-layout {
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.banner-grid-main {
+  width: 100%;
+  position: relative;
+  aspect-ratio: 16 / 5;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #1d1d1f;
+}
+
+.banner-grid-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.banner-grid-main.clickable {
+  cursor: pointer;
+}
+
+.banner-grid-main.clickable:hover img {
+  transform: scale(1.02);
+}
+
+.banner-grid-subs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.banner-grid-sub {
+  position: relative;
+  aspect-ratio: 16 / 5;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #1d1d1f;
+}
+
+.banner-grid-sub img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.banner-grid-sub.clickable {
+  cursor: pointer;
+}
+
+.banner-grid-sub.clickable:hover img {
+  transform: scale(1.03);
+}
+
+@media (max-width: 640px) {
+  .banner-grid-subs {
+    grid-template-columns: 1fr;
+  }
+  .banner-grid-main {
+    aspect-ratio: 16 / 8;
+  }
+}
+
+.banner-slider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 18px;
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+}
+
+.banner-track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+.banner-slide {
+  min-width: 100%;
+  position: relative;
+  aspect-ratio: 16 / 5;
+  overflow: hidden;
+  background: #1d1d1f;
+}
+
+.banner-slide.clickable {
+  cursor: pointer;
+}
+
+.banner-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.banner-slide.clickable:hover img {
+  transform: scale(1.02);
+}
+
+.banner-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 30px 40px;
+  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+}
+
+.banner-slide-title {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Navigation buttons */
+.banner-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s, transform 0.2s;
+  line-height: 1;
+  color: #1d1d1f;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.banner-nav:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.banner-prev { left: 16px; }
+.banner-next { right: 16px; }
+
+/* Dots */
+.banner-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.banner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 0;
+}
+
+.banner-dot.active {
+  background: white;
+  width: 24px;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .banner-slide {
+    aspect-ratio: 16 / 7;
+  }
+  .banner-slide-title {
+    font-size: 1.2rem;
+  }
+  .banner-overlay {
+    padding: 20px;
+  }
+  .banner-nav {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+}
