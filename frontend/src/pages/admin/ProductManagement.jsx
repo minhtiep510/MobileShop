@@ -7,6 +7,10 @@ export default function ProductManagement() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const searchTimeoutRef = React.useRef(null);
   const navigate = useNavigate();
 
   // Product Modal states
@@ -24,14 +28,19 @@ export default function ProductManagement() {
 
 
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page = currentPage, search = searchTerm) => {
     try {
       setLoading(true);
-      const res = await api.get('/Product?page=1&pageSize=50');
+      const url = search
+        ? `/Product?page=${page}&pageSize=8&searchTerm=${encodeURIComponent(search)}`
+        : `/Product?page=${page}&pageSize=8`;
+      const res = await api.get(url);
       if (res.data && res.data.items) {
         setProducts(res.data.items);
+        setTotalPages(res.data.totalPages || 1);
       } else if (Array.isArray(res.data)) {
         setProducts(res.data);
+        setTotalPages(1);
       }
     } catch (err) {
       console.error('Lỗi khi tải sản phẩm:', err);
@@ -54,7 +63,16 @@ export default function ProductManagement() {
   };
 
   useEffect(() => {
-    fetchProducts();
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchProducts(currentPage, searchTerm);
+    }, 400);
+
+    return () => clearTimeout(searchTimeoutRef.current);
+  }, [currentPage, searchTerm]);
+
+  useEffect(() => {
     fetchCategories();
   }, []);
 
@@ -68,7 +86,7 @@ export default function ProductManagement() {
           name: detail.name,
           description: detail.description || '',
           categoryId: detail.categoryId || (categories[0]?.id || ''),
-          variants: detail.variants && detail.variants.length > 0 ? detail.variants : [{ sku: `SKU-${Date.now()}`, price: 0, stockQuantity: 0, condition: 'Mới 100%' }], 
+          variants: detail.variants && detail.variants.length > 0 ? detail.variants : [{ sku: `SKU-${Date.now()}`, price: 0, stockQuantity: 0, condition: 'Mới 100%' }],
           specifications: detail.specifications || []
         });
       } catch (err) {
@@ -157,7 +175,7 @@ export default function ProductManagement() {
       const currentImages = newVariants[0].images || [];
       const updatedImages = [...currentImages, ...newImages];
       if (updatedImages.length > 0) updatedImages[0].isMain = true;
-      
+
       newVariants[0].images = updatedImages;
       setFormData({ ...formData, variants: newVariants });
     } catch (err) {
@@ -213,6 +231,11 @@ export default function ProductManagement() {
               type="text"
               placeholder="Tìm kiếm sản phẩm..."
               className="admin-search-input"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset trang về 1 khi tìm kiếm
+              }}
             />
           </div>
         </div>
@@ -272,6 +295,29 @@ export default function ProductManagement() {
                 )}
               </tbody>
             </table>
+
+            {/* Pagination UI */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', marginTop: '1.5rem', padding: '1rem 0' }}>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="btn-outline"
+                  style={{ padding: '0.4rem 0.8rem' }}
+                >
+                  Trước
+                </button>
+                <span style={{ margin: '0 1rem', fontWeight: '500' }}>Trang {currentPage} / {totalPages}</span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="btn-outline"
+                  style={{ padding: '0.4rem 0.8rem' }}
+                >
+                  Sau
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

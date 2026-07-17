@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, LogOut, Search, MapPin, PhoneCall } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Search, MapPin, PhoneCall, X } from 'lucide-react';
 import api from '../services/api';
 import '../styles/CustomerLayout.css';
 
@@ -14,6 +14,59 @@ export default function CustomerLayout() {
   }
 
   const [cartCount, setCartCount] = useState(0);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchTimeoutRef = useRef(null);
+  const searchBoxRef = useRef(null);
+
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setSuggestions([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await api.get(`/Product?searchTerm=${encodeURIComponent(searchTerm)}&pageSize=5`);
+        if (res.data && res.data.items) {
+          setSuggestions(res.data.items);
+        }
+      } catch (err) {
+        console.error('Lỗi tìm kiếm:', err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 500);
+
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleProductClick = (id) => {
+    setShowSuggestions(false);
+    navigate(`/product/${id}`);
+  };
+
 
   useEffect(() => {
     const fetchCartCount = async () => {
@@ -57,9 +110,62 @@ export default function CustomerLayout() {
         <div className="cps-container cps-header-inner">
           <Link to="/" className="cps-logo">Apple Store</Link>
 
-          <div className="cps-search-box">
-            <input type="text" placeholder="Bạn cần tìm gì?" className="cps-search-input" />
-            <button className="cps-search-btn"><Search size={20} /></button>
+          <div className="cps-search-box" ref={searchBoxRef}>
+            <Search className="cps-search-icon-left" size={18} />
+            <input 
+              type="text" 
+              placeholder="Bạn cần tìm gì?" 
+              className="cps-search-input" 
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => {
+                if (searchTerm.trim() !== '') setShowSuggestions(true);
+              }}
+            />
+            {searchTerm && (
+              <button className="cps-clear-btn" onClick={() => { setSearchTerm(''); setSuggestions([]); }}>
+                <X size={16} />
+              </button>
+            )}
+
+            {/* Suggestions Dropdown */}
+            {showSuggestions && searchTerm.trim() !== '' && (
+              <div className="cps-search-suggestions">
+                <div className="suggestions-section-title fire">
+                  <span role="img" aria-label="fire">🔥</span> Sản phẩm gợi ý
+                </div>
+                
+                {isSearching ? (
+                  <div className="suggestions-loading">Đang tìm kiếm...</div>
+                ) : suggestions.length > 0 ? (
+                  <div className="suggestions-list">
+                    {suggestions.map(product => {
+                      const discountPrice = product.startingPrice || 0;
+                      const originalPrice = discountPrice > 0 ? discountPrice + 1000000 : 0;
+                      return (
+                        <div key={product.id} className="suggestion-item" onClick={() => handleProductClick(product.id)}>
+                          <img src={product.thumbnailUrl || 'https://via.placeholder.com/50'} alt={product.name} />
+                          <div className="suggestion-info">
+                            <h4>{product.name} | Chính hãng</h4>
+                            <div className="suggestion-price">
+                              <span className="price-discount">{new Intl.NumberFormat('vi-VN').format(discountPrice)}</span>
+                              {originalPrice > 0 && (
+                                <span className="price-original">{new Intl.NumberFormat('vi-VN').format(originalPrice)}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="suggestions-empty">Không tìm thấy sản phẩm nào</div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="cps-header-actions">

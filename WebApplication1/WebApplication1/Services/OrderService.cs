@@ -17,12 +17,20 @@ namespace WebApplication1.Services
             _context = context;
         }
 
-        public async Task<PagedResult<object>> GetAllAsync(int page = 1, int pageSize = 10)
+        public async Task<PagedResult<object>> GetAllAsync(int page = 1, int pageSize = 10, string searchTerm = null)
         {
             var query = _context.Orders
                 .Include(o => o.User)
                 .OrderByDescending(o => o.OrderDate)
                 .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(o => 
+                    o.Id.ToString() == searchTerm || 
+                    (o.User != null && o.User.FullName.Contains(searchTerm)) || 
+                    (o.User != null && o.User.PhoneNumber.Contains(searchTerm)));
+            }
 
             var totalCount = await query.CountAsync();
             var items = await query

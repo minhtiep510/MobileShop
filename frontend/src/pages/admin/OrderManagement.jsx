@@ -6,19 +6,28 @@ import api from '../../services/api';
 export default function OrderManagement() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const searchTimeoutRef = React.useRef(null);
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page = currentPage, search = searchTerm) => {
     try {
       setLoading(true);
-      const res = await api.get('/Order?page=1&pageSize=50');
+      const url = search 
+        ? `/Order?page=${page}&pageSize=10&searchTerm=${encodeURIComponent(search)}` 
+        : `/Order?page=${page}&pageSize=10`;
+      const res = await api.get(url);
       if (res.data && res.data.items) {
         setOrders(res.data.items);
+        setTotalPages(res.data.totalPages || 1);
       } else if (Array.isArray(res.data)) {
         setOrders(res.data);
+        setTotalPages(1);
       }
     } catch (err) {
       console.error('Lỗi khi tải đơn hàng:', err);
@@ -28,8 +37,14 @@ export default function OrderManagement() {
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchOrders(currentPage, searchTerm);
+    }, 400);
+
+    return () => clearTimeout(searchTimeoutRef.current);
+  }, [currentPage, searchTerm]);
 
   const handleUpdateStatus = async (id, status) => {
     try {
@@ -98,8 +113,13 @@ export default function OrderManagement() {
             <Search className="admin-search-icon" size={18} />
             <input
               type="text"
-              placeholder="Tìm kiếm đơn hàng..."
+              placeholder="Tìm kiếm mã ĐH, KH, SĐT..."
               className="admin-search-input"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
             />
           </div>
         </div>
@@ -184,6 +204,37 @@ export default function OrderManagement() {
                 )}
               </tbody>
             </table>
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="admin-pagination">
+                <button 
+                  className="page-btn" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                >
+                  &laquo;
+                </button>
+                
+                {[...Array(totalPages)].map((_, i) => (
+                  <button 
+                    key={i + 1} 
+                    className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                
+                <button 
+                  className="page-btn" 
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                >
+                  &raquo;
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

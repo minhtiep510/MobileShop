@@ -17,9 +17,15 @@ namespace WebApplication1.Services
             _context = context;
         }
 
-        public async Task<PagedResult<CategoryDto>> GetAllAsync(int page = 1, int pageSize = 10)
+        public async Task<PagedResult<CategoryDto>> GetAllAsync(int page = 1, int pageSize = 10, string searchTerm = null)
         {
             var query = _context.Categories.AsQueryable();
+            
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(c => c.Name.Contains(searchTerm));
+            }
+            
             var totalCount = await query.CountAsync();
             var items = await query
                 .Skip((page - 1) * pageSize)

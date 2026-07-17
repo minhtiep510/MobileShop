@@ -27,9 +27,9 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] int? categoryId = null)
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] int? categoryId = null, [FromQuery] string searchTerm = null)
         {
-            var products = await _productService.GetAllAsync(page, pageSize, categoryId);
+            var products = await _productService.GetAllAsync(page, pageSize, categoryId, searchTerm);
             return Ok(products);
         }
 
@@ -60,9 +60,10 @@ namespace WebApplication1.Controllers
 
                 return Ok(data);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Đã xảy ra lỗi trong quá trình thêm sản phẩm.");
+                var inner = ex.InnerException != null ? ex.InnerException.Message : "";
+                return StatusCode(500, new { message = $"Lỗi: {ex.Message}. Inner: {inner}" });
             }
         }
 

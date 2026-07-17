@@ -6,7 +6,7 @@ namespace WebApplication1.Services.Interfaces
 {
     public interface IOrderService
     {
-        Task<PagedResult<object>> GetAllAsync(int page = 1, int pageSize = 10);
+        Task<PagedResult<object>> GetAllAsync(int page = 1, int pageSize = 10, string searchTerm = null);
         Task<PagedResult<object>> GetMyOrdersAsync(int userId, int page = 1, int pageSize = 10);
         Task<OrderItemResponseDto?> GetDetailAsync(int id);
         Task<(bool Success, object? Data)> UpdateStatusAsync(int id, string status);

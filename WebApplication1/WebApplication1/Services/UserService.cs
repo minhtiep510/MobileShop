@@ -24,9 +24,18 @@ namespace WebApplication1.Services
             return await _context.Users.CountAsync();
         }
 
-        public async Task<PagedResult<UserDto>> GetAllAsync(int page = 1, int pageSize = 10)
+        public async Task<PagedResult<UserDto>> GetAllAsync(int page = 1, int pageSize = 10, string searchTerm = null)
         {
             var query = _context.Users.AsQueryable();
+            
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(u => 
+                    u.FullName.Contains(searchTerm) || 
+                    u.Email.Contains(searchTerm) || 
+                    (u.PhoneNumber != null && u.PhoneNumber.Contains(searchTerm)));
+            }
+
             var totalCount = await query.CountAsync();
             var items = await query
                 .Skip((page - 1) * pageSize)

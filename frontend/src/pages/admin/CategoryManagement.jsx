@@ -5,6 +5,8 @@ import api from '../../services/api';
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const searchTimeoutRef = React.useRef(null);
   
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -14,10 +16,13 @@ export default function CategoryManagement() {
     description: ''
   });
 
-  const fetchCategories = async () => {
+  const fetchCategories = async (search = searchTerm) => {
     try {
       setLoading(true);
-      const res = await api.get('/Category?page=1&pageSize=100');
+      const url = search 
+        ? `/Category?page=1&pageSize=100&searchTerm=${encodeURIComponent(search)}` 
+        : '/Category?page=1&pageSize=100';
+      const res = await api.get(url);
       if (res.data && res.data.items) {
         setCategories(res.data.items);
       } else if (Array.isArray(res.data)) {
@@ -31,8 +36,14 @@ export default function CategoryManagement() {
   };
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchCategories(searchTerm);
+    }, 400);
+
+    return () => clearTimeout(searchTimeoutRef.current);
+  }, [searchTerm]);
 
   const handleOpenModal = (category = null) => {
     if (category) {
@@ -99,6 +110,8 @@ export default function CategoryManagement() {
               type="text" 
               placeholder="Tìm kiếm danh mục..." 
               className="admin-search-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>

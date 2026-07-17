@@ -24,7 +24,7 @@ namespace WebApplication1.Services
             return await _context.ProductVariants.SumAsync(v => v.StockQuantity);
         }
 
-        public async Task<PagedResult<ProductListDto>> GetAllAsync(int page = 1, int pageSize = 10, int? categoryId = null)
+        public async Task<PagedResult<ProductListDto>> GetAllAsync(int page = 1, int pageSize = 10, int? categoryId = null, string searchTerm = null)
         {
             var query = _context.Products
                 .Include(p => p.Category)
@@ -35,6 +35,11 @@ namespace WebApplication1.Services
             if (categoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(p => p.Name.Contains(searchTerm));
             }
 
             var totalCount = await query.CountAsync();

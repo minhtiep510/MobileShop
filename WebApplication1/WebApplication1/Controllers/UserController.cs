@@ -37,12 +37,12 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = null)
         {
             try
             {
                 _logger.LogInformation("Fetching all users");
-                var users = await _userService.GetAllAsync(page, pageSize);
+                var users = await _userService.GetAllAsync(page, pageSize, searchTerm);
                 return Ok(users);
             }
             catch (Exception ex)

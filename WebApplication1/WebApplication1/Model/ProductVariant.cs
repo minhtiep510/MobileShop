@@ -8,7 +8,7 @@ namespace WebApplication1.Model
 
             public int ProductId { get; set; }
 
-            [MaxLength(50)]
+            [MaxLength(255)]
             public string SKU { get; set; } // Ví dụ: IPH15-PRO-256-TITAN
 
             [Required]

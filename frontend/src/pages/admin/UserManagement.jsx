@@ -5,6 +5,10 @@ import api from '../../services/api';
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const searchTimeoutRef = React.useRef(null);
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -17,14 +21,19 @@ export default function UserManagement() {
     role: 'customer'
   });
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = currentPage, search = searchTerm) => {
     try {
       setLoading(true);
-      const res = await api.get('/User?page=1&pageSize=50');
+      const url = search 
+        ? `/User?page=${page}&pageSize=10&searchTerm=${encodeURIComponent(search)}` 
+        : `/User?page=${page}&pageSize=10`;
+      const res = await api.get(url);
       if (res.data && res.data.items) {
         setUsers(res.data.items);
+        setTotalPages(res.data.totalPages || 1);
       } else if (Array.isArray(res.data)) {
         setUsers(res.data);
+        setTotalPages(1);
       }
     } catch (err) {
       console.error('Lỗi khi tải người dùng:', err);
@@ -34,8 +43,14 @@ export default function UserManagement() {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchUsers(currentPage, searchTerm);
+    }, 400);
+
+    return () => clearTimeout(searchTimeoutRef.current);
+  }, [currentPage, searchTerm]);
 
   const handleOpenModal = (user = null) => {
     if (user) {
@@ -106,8 +121,13 @@ export default function UserManagement() {
             <Search className="admin-search-icon" size={18} />
             <input
               type="text"
-              placeholder="Tìm kiếm người dùng..."
+              placeholder="Tìm kiếm tên, email, sđt..."
               className="admin-search-input"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
             />
           </div>
         </div>
@@ -165,6 +185,37 @@ export default function UserManagement() {
                 )}
               </tbody>
             </table>
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="admin-pagination">
+                <button 
+                  className="page-btn" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                >
+                  &laquo;
+                </button>
+                
+                {[...Array(totalPages)].map((_, i) => (
+                  <button 
+                    key={i + 1} 
+                    className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                
+                <button 
+                  className="page-btn" 
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                >
+                  &raquo;
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

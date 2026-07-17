@@ -18,9 +18,9 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = null)
         {
-            var data = await _categoryService.GetAllAsync(page, pageSize);
+            var data = await _categoryService.GetAllAsync(page, pageSize, searchTerm);
             return Ok(data);
         }
 

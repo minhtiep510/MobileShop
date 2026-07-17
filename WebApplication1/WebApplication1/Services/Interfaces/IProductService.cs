@@ -7,7 +7,7 @@ namespace WebApplication1.Services.Interfaces
     public interface IProductService
     {
         Task<int> GetTotalStockAsync();
-        Task<PagedResult<ProductListDto>> GetAllAsync(int page = 1, int pageSize = 10, int? categoryId = null);
+        Task<PagedResult<ProductListDto>> GetAllAsync(int page = 1, int pageSize = 10, int? categoryId = null, string searchTerm = null);
         Task<object?> GetDetailAsync(int id);
         Task<(bool Success, string ErrorMessage, object? Data)> CreateAsync(ProductCreateDto dto);
         Task<(bool Success, string ErrorMessage, object? Data)> UpdateAsync(int id, ProductCreateDto dto);
