@@ -69,7 +69,7 @@ export default function Home() {
       const elements = document.querySelectorAll('.animate-on-scroll');
       elements.forEach(el => observer.unobserve(el));
     };
-  }, [products, categories]);
+  }, [products, categories, selectedCategory, currentPage]);
 
   // Lọc sản phẩm theo danh mục đang chọn
   const filteredProducts = selectedCategory === 'all'
