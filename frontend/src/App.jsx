@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastProvider } from './components/Toast';
+import { ConfirmProvider } from './components/ConfirmDialog';
 import CustomerLayout from './layouts/CustomerLayout';
 import AdminLayout from './layouts/AdminLayout';
 
@@ -31,8 +32,9 @@ import BannerManagement from './pages/admin/BannerManagement';
 function App() {
   return (
     <ToastProvider>
-      <BrowserRouter>
-        <Routes>
+      <ConfirmProvider>
+        <BrowserRouter>
+          <Routes>
         {/* Customer Routes */}
         <Route path="/" element={<CustomerLayout />}>
           <Route index element={<Home />} />
@@ -64,8 +66,9 @@ function App() {
           <Route path="users" element={<UserManagement />} />
           <Route path="banners" element={<BannerManagement />} />
         </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </ConfirmProvider>
     </ToastProvider>
   );
 }

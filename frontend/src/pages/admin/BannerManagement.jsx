@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, Image, ToggleLeft, ToggleRight } from 'lucide-react';
 import api, { API_BASE_URL } from '../../services/api';
+import { useToast } from '../../components/Toast';
+import { useConfirm } from '../../components/ConfirmDialog';
 
 export default function BannerManagement() {
   const [banners, setBanners] = useState([]);
@@ -8,6 +10,8 @@ export default function BannerManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const toast = useToast();
+  const confirm = useConfirm();
   const [formData, setFormData] = useState({
     title: '',
     imageUrl: '',
@@ -57,7 +61,7 @@ export default function BannerManagement() {
       const res = await api.post('/Upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setFormData(prev => ({ ...prev, imageUrl: res.data.url }));
     } catch (err) {
-      alert('Upload ảnh thất bại!');
+      toast.error('Upload ảnh thất bại!');
     } finally {
       setUploading(false);
     }
@@ -65,29 +69,35 @@ export default function BannerManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.imageUrl) { alert('Vui lòng chọn ảnh banner!'); return; }
+    if (!formData.imageUrl) { toast.warning('Vui lòng chọn ảnh banner!'); return; }
     try {
       if (editingId) {
         await api.put(`/Banner/${editingId}`, formData);
-        alert('Cập nhật banner thành công!');
+        toast.success('Cập nhật banner thành công!');
       } else {
         await api.post('/Banner', formData);
-        alert('Thêm banner thành công!');
+        toast.success('Thêm banner thành công!');
       }
       setShowModal(false);
       fetchBanners();
     } catch (err) {
-      alert(err.response?.data?.message || 'Có lỗi xảy ra!');
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra!');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa banner này?')) return;
+    const ok = await confirm({
+      title: 'Xóa banner',
+      message: 'Bạn có chắc muốn xóa banner này?',
+      confirmLabel: 'Xóa',
+      confirmType: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/Banner/${id}`);
       fetchBanners();
     } catch (err) {
-      alert('Không thể xóa banner!');
+      toast.error('Không thể xóa banner!');
     }
   };
 
@@ -96,7 +106,7 @@ export default function BannerManagement() {
       await api.put(`/Banner/${banner.id}`, { ...banner, isActive: !banner.isActive });
       fetchBanners();
     } catch (err) {
-      alert('Có lỗi xảy ra!');
+      toast.error('Có lỗi xảy ra!');
     }
   };
 

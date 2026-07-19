@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, ShieldCheck } from 'lucide-react';
 import api from '../../services/api';
@@ -13,9 +13,13 @@ export default function Checkout() {
   const [loading, setLoading] = useState(true);
   const [checkingOut, setCheckingOut] = useState(false);
   
+  // Dữ liệu Tỉnh/Thành API
+  const [locationData, setLocationData] = useState([]);
+  
   // Form state
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  
   const [province, setProvince] = useState('');
   const [district, setDistrict] = useState('');
   const [ward, setWard] = useState('');
@@ -24,46 +28,111 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [shippingFee] = useState(30000);
   
+  // Lấy danh sách địa giới hành chính Việt Nam
   useEffect(() => {
-    // Check auth
+    fetch('https://provinces.open-api.vn/api/?depth=3')
+      .then(res => res.json())
+      .then(data => setLocationData(data))
+      .catch(err => console.error("Lỗi lấy dữ liệu tỉnh/thành:", err));
+  }, []);
+
+  useEffect(() => {
     if (!localStorage.getItem('token')) {
       toast.warning('Vui lòng đăng nhập để thanh toán.');
       navigate('/login');
       return;
     }
     
-    // Fetch cart data
-    const fetchCart = async () => {
+    const fetchCheckoutData = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/Cart');
-        if (!response.data || !response.data.items || response.data.items.length === 0) {
-          toast.warning('Giỏ hàng của bạn đang trống.');
+        const [cartRes, profileRes] = await Promise.all([
+          api.get('/Cart'),
+          api.get('/Profile').catch(() => null)
+        ]);
+        
+        let items = cartRes.data?.items || [];
+        
+        const selectedIdsStr = sessionStorage.getItem('checkoutItemIds');
+        if (selectedIdsStr) {
+          const selectedIds = JSON.parse(selectedIdsStr);
+          if (selectedIds.length > 0) {
+            items = items.filter(item => selectedIds.includes(item.id));
+          }
+        }
+
+        if (items.length === 0) {
+          toast.warning('Không có sản phẩm nào để thanh toán.');
           navigate('/cart');
           return;
         }
-        setCart(response.data);
+        
+        const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        setCart({ ...cartRes.data, items, totalPrice });
+
+        if (profileRes?.data) {
+          setFullName(profileRes.data.fullName || '');
+          setPhone(profileRes.data.phoneNumber || '');
+          
+          if (profileRes.data.address) {
+            const parts = profileRes.data.address.split(',').map(s => s.trim());
+            if (parts.length >= 4) {
+              // Gán tạm giá trị. Vì API lấy từ text cũ có thể không khớp 100% với select
+              // Nếu tên Tỉnh khớp với danh sách API thì select sẽ tự nhận.
+              setProvince(parts[parts.length - 1]);
+              setDistrict(parts[parts.length - 2]);
+              setWard(parts[parts.length - 3]);
+              setStreet(parts.slice(0, parts.length - 3).join(', '));
+            } else {
+              setStreet(profileRes.data.address);
+            }
+          }
+        }
+
       } catch (err) {
-        console.error('Lỗi khi lấy giỏ hàng:', err);
-        toast.error('Không thể tải giỏ hàng để thanh toán.');
+        console.error('Lỗi khi lấy dữ liệu:', err);
+        toast.error('Không thể tải dữ liệu để thanh toán.');
         navigate('/cart');
       } finally {
         setLoading(false);
       }
     };
     
-    fetchCart();
+    fetchCheckoutData();
   }, [navigate]);
+
+  // Tính toán danh sách Quận/Huyện và Phường/Xã dựa trên Tỉnh/Thành đã chọn
+  const availableDistricts = useMemo(() => {
+    // Tìm province object theo tên
+    const p = locationData.find(item => item.name === province || item.name.includes(province) || province.includes(item.name));
+    return p?.districts || [];
+  }, [locationData, province]);
+
+  const availableWards = useMemo(() => {
+    const d = availableDistricts.find(item => item.name === district || item.name.includes(district) || district.includes(item.name));
+    return d?.wards || [];
+  }, [availableDistricts, district]);
+
+  // Handle changes to reset child dropdowns
+  const handleProvinceChange = (e) => {
+    setProvince(e.target.value);
+    setDistrict('');
+    setWard('');
+  };
+
+  const handleDistrictChange = (e) => {
+    setDistrict(e.target.value);
+    setWard('');
+  };
 
   const handleCheckout = async (e) => {
     e.preventDefault();
     
     if (!province || !district || !ward || !street) {
-      toast.warning('Vui lòng điền đầy đủ thông tin địa chỉ giao hàng.');
+      toast.warning('Vui lòng điền đầy đủ thông tin địa chỉ.');
       return;
     }
     
-    // Ghép địa chỉ
     const fullAddress = `${street}, ${ward}, ${district}, ${province}`;
     
     try {
@@ -76,6 +145,7 @@ export default function Checkout() {
       });
       
       toast.success('Đặt hàng thành công!');
+      sessionStorage.removeItem('checkoutItemIds');
       navigate('/account/orders');
     } catch (err) {
       console.error('Lỗi khi đặt hàng:', err);
@@ -100,7 +170,6 @@ export default function Checkout() {
     <div className="cps-checkout-page">
       <div className="cps-checkout-container">
         
-        {/* Stepper */}
         <div className="cps-checkout-stepper">
           <div className="stepper-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/cart')}>
             <div className="stepper-number"><Check size={14} /></div>
@@ -120,18 +189,17 @@ export default function Checkout() {
         
         <form onSubmit={handleCheckout} className="cps-checkout-layout">
           
-          {/* Left Column: Customer Info */}
           <div className="cps-checkout-form-box">
             <h2 className="checkout-section-title">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#0071e3' }}>
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              Thông tin khách hàng
+              Thông tin giao hàng
             </h2>
             
             <div className="checkout-form-grid">
-              <div className="form-group">
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="form-label">Họ và tên</label>
                 <input 
                   type="text" 
@@ -143,7 +211,7 @@ export default function Checkout() {
                 />
               </div>
               
-              <div className="form-group">
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="form-label">Số điện thoại</label>
                 <input 
                   type="tel" 
@@ -155,49 +223,62 @@ export default function Checkout() {
                 />
               </div>
               
-
               <div className="form-group">
                 <label className="form-label">Tỉnh / Thành phố</label>
-                <input 
-                  type="text" 
+                <select 
                   className="form-input" 
-                  placeholder="Nhập Tỉnh / Thành phố" 
-                  value={province}
-                  onChange={e => setProvince(e.target.value)}
-                  required 
-                />
+                  value={province} 
+                  onChange={handleProvinceChange}
+                  required
+                  style={{ cursor: 'pointer', appearance: 'auto' }}
+                >
+                  <option value="" disabled>-- Chọn Tỉnh / Thành phố --</option>
+                  {locationData.map(p => (
+                    <option key={p.code} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
               </div>
               
               <div className="form-group">
                 <label className="form-label">Quận / Huyện</label>
-                <input 
-                  type="text" 
+                <select 
                   className="form-input" 
-                  placeholder="Nhập Quận / Huyện" 
-                  value={district}
-                  onChange={e => setDistrict(e.target.value)}
-                  required 
-                />
+                  value={district} 
+                  onChange={handleDistrictChange}
+                  disabled={!province || availableDistricts.length === 0}
+                  required
+                  style={{ cursor: 'pointer', appearance: 'auto' }}
+                >
+                  <option value="" disabled>-- Chọn Quận / Huyện --</option>
+                  {availableDistricts.map(d => (
+                    <option key={d.code} value={d.name}>{d.name}</option>
+                  ))}
+                </select>
               </div>
               
               <div className="form-group">
                 <label className="form-label">Phường / Xã</label>
-                <input 
-                  type="text" 
+                <select 
                   className="form-input" 
-                  placeholder="Nhập Phường / Xã" 
-                  value={ward}
+                  value={ward} 
                   onChange={e => setWard(e.target.value)}
-                  required 
-                />
+                  disabled={!district || availableWards.length === 0}
+                  required
+                  style={{ cursor: 'pointer', appearance: 'auto' }}
+                >
+                  <option value="" disabled>-- Chọn Phường / Xã --</option>
+                  {availableWards.map(w => (
+                    <option key={w.code} value={w.name}>{w.name}</option>
+                  ))}
+                </select>
               </div>
               
               <div className="form-group">
-                <label className="form-label">Địa chỉ chi tiết</label>
+                <label className="form-label">Số nhà, ngõ ngách, tên đường</label>
                 <input 
                   type="text" 
                   className="form-input" 
-                  placeholder="Số nhà, tên đường..." 
+                  placeholder="Ví dụ: Số 12, Ngõ 34..." 
                   value={street}
                   onChange={e => setStreet(e.target.value)}
                   required 
@@ -205,7 +286,7 @@ export default function Checkout() {
               </div>
             </div>
 
-            <div className="payment-method-section">
+            <div className="payment-method-section" style={{ marginTop: '20px' }}>
               <h2 className="checkout-section-title">
                 <ShieldCheck style={{ color: '#0071e3' }} />
                 Phương thức thanh toán
@@ -236,9 +317,8 @@ export default function Checkout() {
             
           </div>
           
-          {/* Right Column: Order Summary */}
           <div className="cps-checkout-summary-box">
-            <h2 className="checkout-section-title">Tóm tắt đơn hàng</h2>
+            <h2 className="checkout-section-title">Tóm tắt đơn hàng ({cart.items.length} sản phẩm)</h2>
             
             <div className="summary-item-list">
               {cart.items.map(item => (

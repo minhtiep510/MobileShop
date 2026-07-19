@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, Save } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../components/Toast';
+import { useConfirm } from '../../components/ConfirmDialog';
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
@@ -9,6 +10,7 @@ export default function CategoryManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const searchTimeoutRef = React.useRef(null);
   const toast = useToast();
+  const confirm = useConfirm();
   
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -83,7 +85,13 @@ export default function CategoryManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa danh mục này? Hệ thống có thể không cho phép xóa nếu danh mục đang chứa sản phẩm.')) return;
+    const ok = await confirm({
+      title: 'Xóa danh mục',
+      message: 'Bạn có chắc muốn xóa danh mục này? Hệ thống có thể không cho phép xóa nếu danh mục đang chứa sản phẩm.',
+      confirmLabel: 'Xóa',
+      confirmType: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/Category/${id}`);
       fetchCategories();

@@ -248,3 +248,107 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* ───────────────────────────────────────────
+   Shopee-style Checkbox Selection
+   ─────────────────────────────────────────── */
+
+/* Custom checkbox */
+.cart-checkbox-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cart-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid #d1d5db;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.cart-checkbox.checked {
+  background: #f97316;
+  border-color: #f97316;
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.35);
+}
+
+.cart-checkbox.indeterminate {
+  border-color: #f97316;
+  background: #fff;
+}
+
+.cart-checkbox-dash {
+  width: 10px;
+  height: 2px;
+  background: #f97316;
+  border-radius: 2px;
+}
+
+/* Select-all bar */
+.cart-select-all-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border);
+  gap: 12px;
+}
+
+.cart-select-all-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.cart-delete-selected {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #ef4444;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #fecaca;
+  background: #fff5f5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.cart-delete-selected:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+/* Item checkbox position */
+.cart-item-check {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Selected item highlight */
+.cart-item-selected {
+  border: 1.5px solid rgba(249, 115, 22, 0.4);
+  background: rgba(249, 115, 22, 0.03);
+}
+
+/* Line total per item */
+.cart-item-line-total {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f97316;
+  text-align: right;
+  white-space: nowrap;
+}

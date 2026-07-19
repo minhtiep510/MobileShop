@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, Save, ArrowLeft } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../components/Toast';
+import { useConfirm } from '../../components/ConfirmDialog';
 
 export default function VariantManagement() {
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const confirm = useConfirm();
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -147,7 +149,13 @@ export default function VariantManagement() {
   };
 
   const handleDeleteVariant = async (variantId) => {
-    if (!window.confirm('Bạn có chắc muốn xóa biến thể này?')) return;
+    const ok = await confirm({
+      title: 'Xóa biến thể',
+      message: 'Bạn có chắc muốn xóa biến thể này?',
+      confirmLabel: 'Xóa',
+      confirmType: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/Product/variant/${variantId}`);
       toast.success('Xóa biến thể thành công!');

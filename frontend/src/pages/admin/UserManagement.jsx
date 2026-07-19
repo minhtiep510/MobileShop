@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, X, Shield, User } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../components/Toast';
+import { useConfirm } from '../../components/ConfirmDialog';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -11,6 +12,7 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const searchTimeoutRef = React.useRef(null);
   const toast = useToast();
+  const confirm = useConfirm();
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -96,7 +98,13 @@ export default function UserManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa người dùng này?')) return;
+    const ok = await confirm({
+      title: 'Xóa người dùng',
+      message: 'Bạn có chắc muốn xóa người dùng này?',
+      confirmLabel: 'Xóa',
+      confirmType: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/User/${id}`);
       fetchUsers();

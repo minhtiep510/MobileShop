@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Search, Eye, Trash2 } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../components/Toast';
+import { useConfirm } from '../../components/ConfirmDialog';
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState([]);
@@ -12,6 +13,7 @@ export default function OrderManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const searchTimeoutRef = React.useRef(null);
   const toast = useToast();
+  const confirm = useConfirm();
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -81,7 +83,13 @@ export default function OrderManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa đơn hàng này? Việc này không thể hoàn tác!')) return;
+    const ok = await confirm({
+      title: 'Xóa đơn hàng',
+      message: 'Bạn có chắc muốn xóa đơn hàng này? Việc này không thể hoàn tác!',
+      confirmLabel: 'Xóa',
+      confirmType: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/Order/${id}`);
       fetchOrders();
@@ -256,10 +264,10 @@ export default function OrderManagement() {
               <div className="admin-form-row">
                 <div>
                   <h3 className="admin-variant-title" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Thông tin khách hàng</h3>
-                  <p style={{ marginBottom: '0.5rem' }}><span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>Khách hàng:</span> <strong>{selectedOrder.customerName}</strong></p>
-                  <p style={{ marginBottom: '0.5rem' }}><span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>Số điện thoại:</span> {selectedOrder.phone}</p>
-                  <p style={{ marginBottom: '0.5rem' }}><span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>Địa chỉ:</span> {selectedOrder.shippingAddress}</p>
-                  <p style={{ marginBottom: '0.5rem' }}><span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>Ngày đặt:</span> {new Date(selectedOrder.orderDate).toLocaleString('vi-VN')}</p>
+                  <p style={{ marginBottom: '0.5rem', display: 'flex', gap: '8px' }}><span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '120px' }}>Khách hàng:</span> <strong>{selectedOrder.customerName}</strong></p>
+                  <p style={{ marginBottom: '0.5rem', display: 'flex', gap: '8px' }}><span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '120px' }}>Số điện thoại:</span> {selectedOrder.phone}</p>
+                  <p style={{ marginBottom: '0.5rem', display: 'flex', gap: '8px' }}><span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '120px' }}>Địa chỉ:</span> <span>{selectedOrder.shippingAddress}</span></p>
+                  <p style={{ marginBottom: '0.5rem', display: 'flex', gap: '8px' }}><span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '120px' }}>Ngày đặt:</span> {new Date(selectedOrder.orderDate).toLocaleString('vi-VN')}</p>
                 </div>
                 <div>
                   <h3 className="admin-variant-title" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Thông tin thanh toán</h3>
@@ -267,37 +275,64 @@ export default function OrderManagement() {
 
                   <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>TT Thanh toán:</span>
-                    <select
-                      value={selectedOrder.paymentStatus}
-                      onChange={(e) => handleUpdatePaymentStatus(selectedOrder.id, e.target.value)}
-                      className="admin-form-select"
-                      style={{ padding: '0.25rem 0.5rem', width: 'auto' }}
-                    >
-                      <option value="Unpaid">Unpaid (Chưa thanh toán)</option>
-                      <option value="Paid">Paid (Đã thanh toán)</option>
-                    </select>
+                    {selectedOrder.paymentStatus === 'Paid' ? (
+                      <span style={{
+                        padding: '0.25rem 0.75rem',
+                        background: 'rgba(52,199,89,0.12)',
+                        color: '#34c759',
+                        borderRadius: '20px',
+                        fontWeight: '600',
+                        fontSize: '0.85rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        ✓ Đã thanh toán
+                      </span>
+                    ) : (
+                      <select
+                        value={selectedOrder.paymentStatus}
+                        onChange={(e) => handleUpdatePaymentStatus(selectedOrder.id, e.target.value)}
+                        className="admin-form-select"
+                        style={{ padding: '0.25rem 0.5rem', width: 'auto' }}
+                      >
+                        <option value="Unpaid">Unpaid (Chưa thanh toán)</option>
+                        <option value="Paid">Paid (Đã thanh toán)</option>
+                      </select>
+                    )}
                   </div>
 
                   <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ color: 'var(--text-muted)', display: 'inline-block', width: '120px' }}>TT Giao hàng:</span>
-                    <select
-                      value={selectedOrder.status?.toLowerCase() || 'pending'}
-                      onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
-                      disabled={selectedOrder.status?.toLowerCase() === 'delivered' || selectedOrder.status?.toLowerCase() === 'cancelled'}
-                      className="admin-form-select"
-                      style={{
-                        padding: '0.25rem 0.5rem',
-                        width: 'auto',
-                        cursor: (selectedOrder.status?.toLowerCase() === 'delivered' || selectedOrder.status?.toLowerCase() === 'cancelled') ? 'not-allowed' : 'pointer',
-                        opacity: (selectedOrder.status?.toLowerCase() === 'delivered' || selectedOrder.status?.toLowerCase() === 'cancelled') ? 0.7 : 1
-                      }}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="processing">Processing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
+                    {['delivered', 'cancelled'].includes(selectedOrder.status?.toLowerCase()) ? (
+                      <span style={{
+                        padding: '0.25rem 0.75rem',
+                        background: selectedOrder.status?.toLowerCase() === 'delivered'
+                          ? 'rgba(52,199,89,0.12)' : 'rgba(255,59,48,0.12)',
+                        color: selectedOrder.status?.toLowerCase() === 'delivered' ? '#34c759' : '#ff3b30',
+                        borderRadius: '20px',
+                        fontWeight: '600',
+                        fontSize: '0.85rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        {selectedOrder.status?.toLowerCase() === 'delivered' ? '✓ Đã giao hàng' : '✕ Đã hủy'}
+                      </span>
+                    ) : (
+                      <select
+                        value={selectedOrder.status?.toLowerCase() || 'pending'}
+                        onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
+                        className="admin-form-select"
+                        style={{ padding: '0.25rem 0.5rem', width: 'auto' }}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    )}
                   </div>
                 </div>
               </div>
@@ -342,10 +377,8 @@ export default function OrderManagement() {
                 <tfoot>
                   <tr>
                     <td colSpan="3" style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.1rem' }}>Tổng cộng:</td>
-                    <td style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.25rem', color: 'var(--primary)' }}>
-                      <h2 style={{ color: 'var(--primary)', margin: 0 }}>
-                        {new Intl.NumberFormat('vi-VN').format(selectedOrder.totalAmount)} đ
-                      </h2>
+                    <td style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.25rem', color: 'var(--primary)', whiteSpace: 'nowrap' }}>
+                      {new Intl.NumberFormat('vi-VN').format(selectedOrder.totalAmount)} đ
                     </td>
                   </tr>
                 </tfoot>

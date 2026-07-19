@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Package, Clock, CheckCircle, XCircle } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../components/Toast';
+import { useConfirm } from '../../components/ConfirmDialog';
 import '../../styles/MyOrders.css';
 
 export default function MyOrders() {
@@ -12,6 +13,7 @@ export default function MyOrders() {
   const [activeTab, setActiveTab] = useState('all');
   const navigate = useNavigate();
   const toast = useToast();
+  const confirm = useConfirm();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -39,9 +41,13 @@ export default function MyOrders() {
   }, [navigate]);
 
   const handleCancelOrder = async (orderId) => {
-    if (!window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Việc này không thể hoàn tác.')) {
-      return;
-    }
+    const ok = await confirm({
+      title: 'Hủy đơn hàng',
+      message: 'Bạn có chắc chắn muốn hủy đơn hàng này không? Việc này không thể hoàn tác.',
+      confirmLabel: 'Hủy đơn',
+      confirmType: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.put(`/Order/${orderId}/cancel`);
       toast.success('Hủy đơn hàng thành công!');

@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, Search, X, Layers, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useToast } from '../../components/Toast';
+import { useConfirm } from '../../components/ConfirmDialog';
 
 export default function ProductManagement() {
   const [products, setProducts] = useState([]);
@@ -14,6 +15,7 @@ export default function ProductManagement() {
   const searchTimeoutRef = React.useRef(null);
   const navigate = useNavigate();
   const toast = useToast();
+  const confirm = useConfirm();
 
   // Product Modal states
   const [showModal, setShowModal] = useState(false);
@@ -138,7 +140,13 @@ export default function ProductManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
+    const ok = await confirm({
+      title: 'Xóa sản phẩm',
+      message: 'Bạn có chắc muốn xóa sản phẩm này?',
+      confirmLabel: 'Xóa',
+      confirmType: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/Product/${id}`);
       fetchProducts();
