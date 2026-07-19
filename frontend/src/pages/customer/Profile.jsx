@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { RefreshCw, GraduationCap, Briefcase, MapPin, Package, Gift, Edit2, X } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 import '../../styles/Profile.css';
 
 export default function Profile() {
@@ -9,6 +10,7 @@ export default function Profile() {
   const [totalOrders, setTotalOrders] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const toast = useToast();
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState({ fullName: '', phoneNumber: '', address: '' });
@@ -45,7 +47,7 @@ export default function Profile() {
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     if (!editForm.fullName.trim()) {
-      alert('Vui lòng nhập họ và tên.');
+      toast.warning('Vui lòng nhập họ và tên.');
       return;
     }
     
@@ -54,10 +56,10 @@ export default function Profile() {
       await api.put('/Profile', editForm);
       setProfile({ ...profile, ...editForm });
       setShowEditModal(false);
-      alert('Cập nhật hồ sơ thành công!');
+      toast.success('Cập nhật hồ sơ thành công!');
     } catch (err) {
       console.error('Lỗi khi cập nhật:', err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật.');
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật.');
     } finally {
       setIsSaving(false);
     }

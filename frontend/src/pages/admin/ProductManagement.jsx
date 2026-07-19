@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, X, Layers, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 
 export default function ProductManagement() {
   const [products, setProducts] = useState([]);
@@ -12,6 +13,7 @@ export default function ProductManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const searchTimeoutRef = React.useRef(null);
   const navigate = useNavigate();
+  const toast = useToast();
 
   // Product Modal states
   const [showModal, setShowModal] = useState(false);
@@ -91,7 +93,7 @@ export default function ProductManagement() {
         });
       } catch (err) {
         console.error('Lỗi lấy chi tiết sản phẩm:', err);
-        alert('Không thể tải thông tin sản phẩm.');
+        toast.error('Không thể tải thông tin sản phẩm.');
         return;
       }
     } else {
@@ -122,16 +124,16 @@ export default function ProductManagement() {
 
       if (editingId) {
         await api.put(`/Product/${editingId}`, payload);
-        alert('Cập nhật sản phẩm thành công!');
+        toast.success('Cập nhật sản phẩm thành công!');
       } else {
         await api.post('/Product', payload);
-        alert('Thêm sản phẩm thành công!');
+        toast.success('Thêm sản phẩm thành công!');
       }
       setShowModal(false);
       fetchProducts();
     } catch (err) {
       console.error('Lỗi khi lưu sản phẩm:', err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
     }
   };
 
@@ -140,10 +142,10 @@ export default function ProductManagement() {
     try {
       await api.delete(`/Product/${id}`);
       fetchProducts();
-      alert('Xóa sản phẩm thành công!');
+      toast.success('Xóa sản phẩm thành công!');
     } catch (err) {
       console.error('Lỗi khi xóa:', err);
-      alert('Không thể xóa sản phẩm này.');
+      toast.error('Không thể xóa sản phẩm này.');
     }
   };
 
@@ -180,7 +182,7 @@ export default function ProductManagement() {
       setFormData({ ...formData, variants: newVariants });
     } catch (err) {
       console.error('Lỗi upload ảnh:', err);
-      alert('Không thể upload ảnh, vui lòng thử lại.');
+      toast.error('Không thể upload ảnh, vui lòng thử lại.');
     }
   };
 

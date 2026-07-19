@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, Save, ArrowLeft } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 
 export default function VariantManagement() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +25,7 @@ export default function VariantManagement() {
       resetVariantForm();
     } catch (err) {
       console.error('Lỗi lấy chi tiết sản phẩm:', err);
-      alert('Không thể tải thông tin sản phẩm.');
+      toast.error('Không thể tải thông tin sản phẩm.');
     } finally {
       setLoading(false);
     }
@@ -66,7 +68,7 @@ export default function VariantManagement() {
       });
     } catch (err) {
       console.error('Lỗi upload ảnh:', err);
-      alert('Không thể upload ảnh, vui lòng thử lại.');
+      toast.error('Không thể upload ảnh, vui lòng thử lại.');
     }
   };
 
@@ -113,11 +115,11 @@ export default function VariantManagement() {
         }))
       };
       await api.put(`/Product/${selectedProduct.id}`, payload);
-      alert('Cập nhật thông số kỹ thuật thành công!');
+      toast.success('Cập nhật thông số kỹ thuật thành công!');
       fetchProduct();
     } catch (err) {
       console.error('Lỗi khi lưu thông số:', err);
-      alert('Không thể lưu thông số kỹ thuật.');
+      toast.error('Không thể lưu thông số kỹ thuật.');
     }
   };
 
@@ -131,16 +133,16 @@ export default function VariantManagement() {
     try {
       if (isEditingVariant) {
         await api.put(`/Product/variant/${variantForm.id}`, variantForm);
-        alert('Cập nhật biến thể thành công!');
+        toast.success('Cập nhật biến thể thành công!');
       } else {
         const { id: _id, ...createForm } = variantForm;
         await api.post(`/Product/${selectedProduct.id}/variants`, createForm);
-        alert('Thêm biến thể thành công!');
+        toast.success('Thêm biến thể thành công!');
       }
       fetchProduct();
     } catch (err) {
       console.error('Lỗi khi lưu biến thể:', err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra khi lưu biến thể.');
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi lưu biến thể.');
     }
   };
 
@@ -148,11 +150,11 @@ export default function VariantManagement() {
     if (!window.confirm('Bạn có chắc muốn xóa biến thể này?')) return;
     try {
       await api.delete(`/Product/variant/${variantId}`);
-      alert('Xóa biến thể thành công!');
+      toast.success('Xóa biến thể thành công!');
       fetchProduct();
     } catch (err) {
       console.error('Lỗi khi xóa biến thể:', err);
-      alert('Không thể xóa biến thể này.');
+      toast.error('Không thể xóa biến thể này.');
     }
   };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Eye, Trash2 } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState([]);
@@ -10,6 +11,7 @@ export default function OrderManagement() {
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const searchTimeoutRef = React.useRef(null);
+  const toast = useToast();
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -51,14 +53,14 @@ export default function OrderManagement() {
       await api.put(`/Order/${id}/status`, `"${status}"`, {
         headers: { 'Content-Type': 'application/json' }
       });
-      alert('Cập nhật trạng thái thành công!');
+      toast.success('Cập nhật trạng thái thành công!');
       fetchOrders();
       if (selectedOrder && selectedOrder.id === id) {
         setSelectedOrder({ ...selectedOrder, status });
       }
     } catch (err) {
       console.error('Lỗi khi cập nhật trạng thái:', err);
-      alert('Không thể cập nhật trạng thái.');
+      toast.error('Không thể cập nhật trạng thái.');
     }
   };
 
@@ -67,14 +69,14 @@ export default function OrderManagement() {
       await api.put(`/Order/${id}/payment-status`, `"${status}"`, {
         headers: { 'Content-Type': 'application/json' }
       });
-      alert('Cập nhật trạng thái thanh toán thành công!');
+      toast.success('Cập nhật trạng thái thanh toán thành công!');
       fetchOrders();
       if (selectedOrder && selectedOrder.id === id) {
         setSelectedOrder({ ...selectedOrder, paymentStatus: status });
       }
     } catch (err) {
       console.error('Lỗi khi cập nhật trạng thái thanh toán:', err);
-      alert('Không thể cập nhật trạng thái thanh toán.');
+      toast.error('Không thể cập nhật trạng thái thanh toán.');
     }
   };
 
@@ -83,10 +85,10 @@ export default function OrderManagement() {
     try {
       await api.delete(`/Order/${id}`);
       fetchOrders();
-      alert('Xóa đơn hàng thành công!');
+      toast.success('Xóa đơn hàng thành công!');
     } catch (err) {
       console.error('Lỗi khi xóa:', err);
-      alert('Không thể xóa đơn hàng này.');
+      toast.error('Không thể xóa đơn hàng này.');
     }
   };
 
@@ -97,7 +99,7 @@ export default function OrderManagement() {
       setShowModal(true);
     } catch (err) {
       console.error('Lỗi lấy chi tiết đơn hàng:', err);
-      alert('Không thể tải chi tiết đơn hàng.');
+      toast.error('Không thể tải chi tiết đơn hàng.');
     }
   };
 

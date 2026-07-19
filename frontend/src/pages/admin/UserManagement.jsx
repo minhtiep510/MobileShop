@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, X, Shield, User } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -9,6 +10,7 @@ export default function UserManagement() {
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const searchTimeoutRef = React.useRef(null);
+  const toast = useToast();
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -80,16 +82,16 @@ export default function UserManagement() {
     try {
       if (editingId) {
         await api.put(`/User/${editingId}`, formData);
-        alert('Cập nhật người dùng thành công!');
+        toast.success('Cập nhật người dùng thành công!');
       } else {
         await api.post('/User', formData);
-        alert('Thêm người dùng thành công!');
+        toast.success('Thêm người dùng thành công!');
       }
       setShowModal(false);
       fetchUsers();
     } catch (err) {
       console.error('Lỗi khi lưu người dùng:', err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
     }
   };
 
@@ -98,10 +100,10 @@ export default function UserManagement() {
     try {
       await api.delete(`/User/${id}`);
       fetchUsers();
-      alert('Xóa người dùng thành công!');
+      toast.success('Xóa người dùng thành công!');
     } catch (err) {
       console.error('Lỗi khi xóa:', err);
-      alert('Không thể xóa người dùng này.');
+      toast.error('Không thể xóa người dùng này.');
     }
   };
 

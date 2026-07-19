@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, ShieldCheck } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 import '../../styles/Checkout.css';
 
 export default function Checkout() {
   const navigate = useNavigate();
+  const toast = useToast();
   
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,7 @@ export default function Checkout() {
   useEffect(() => {
     // Check auth
     if (!localStorage.getItem('token')) {
-      alert('Vui lòng đăng nhập để thanh toán.');
+      toast.warning('Vui lòng đăng nhập để thanh toán.');
       navigate('/login');
       return;
     }
@@ -36,14 +38,14 @@ export default function Checkout() {
         setLoading(true);
         const response = await api.get('/Cart');
         if (!response.data || !response.data.items || response.data.items.length === 0) {
-          alert('Giỏ hàng của bạn đang trống.');
+          toast.warning('Giỏ hàng của bạn đang trống.');
           navigate('/cart');
           return;
         }
         setCart(response.data);
       } catch (err) {
         console.error('Lỗi khi lấy giỏ hàng:', err);
-        alert('Không thể tải giỏ hàng để thanh toán.');
+        toast.error('Không thể tải giỏ hàng để thanh toán.');
         navigate('/cart');
       } finally {
         setLoading(false);
@@ -57,7 +59,7 @@ export default function Checkout() {
     e.preventDefault();
     
     if (!province || !district || !ward || !street) {
-      alert('Vui lòng điền đầy đủ thông tin địa chỉ giao hàng.');
+      toast.warning('Vui lòng điền đầy đủ thông tin địa chỉ giao hàng.');
       return;
     }
     
@@ -73,11 +75,11 @@ export default function Checkout() {
         shippingFee
       });
       
-      alert('Đặt hàng thành công!');
+      toast.success('Đặt hàng thành công!');
       navigate('/account/orders');
     } catch (err) {
       console.error('Lỗi khi đặt hàng:', err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
     } finally {
       setCheckingOut(false);
     }

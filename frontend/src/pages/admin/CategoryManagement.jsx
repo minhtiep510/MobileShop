@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, Save } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const searchTimeoutRef = React.useRef(null);
+  const toast = useToast();
   
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -67,16 +69,16 @@ export default function CategoryManagement() {
     try {
       if (editingId) {
         await api.put(`/Category/${editingId}`, formData);
-        alert('Cập nhật danh mục thành công!');
+        toast.success('Cập nhật danh mục thành công!');
       } else {
         await api.post('/Category', formData);
-        alert('Thêm danh mục thành công!');
+        toast.success('Thêm danh mục thành công!');
       }
       setShowModal(false);
       fetchCategories();
     } catch (err) {
       console.error('Lỗi khi lưu danh mục:', err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
     }
   };
 
@@ -85,10 +87,10 @@ export default function CategoryManagement() {
     try {
       await api.delete(`/Category/${id}`);
       fetchCategories();
-      alert('Xóa danh mục thành công!');
+      toast.success('Xóa danh mục thành công!');
     } catch (err) {
       console.error('Lỗi khi xóa:', err);
-      alert(err.response?.data?.message || 'Không thể xóa danh mục này.');
+      toast.error(err.response?.data?.message || 'Không thể xóa danh mục này.');
     }
   };
 

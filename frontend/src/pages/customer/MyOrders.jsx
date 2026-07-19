@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Package, Clock, CheckCircle, XCircle } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 import '../../styles/MyOrders.css';
 
 export default function MyOrders() {
@@ -10,6 +11,7 @@ export default function MyOrders() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
   const navigate = useNavigate();
+  const toast = useToast();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -42,7 +44,7 @@ export default function MyOrders() {
     }
     try {
       await api.put(`/Order/${orderId}/cancel`);
-      alert('Hủy đơn hàng thành công!');
+      toast.success('Hủy đơn hàng thành công!');
       // Reload orders
       const response = await api.get('/Order/my-orders');
       if (response.data && response.data.items) {
@@ -52,7 +54,7 @@ export default function MyOrders() {
       }
     } catch (err) {
       console.error('Lỗi khi hủy đơn hàng:', err);
-      alert(err.response?.data?.message || 'Không thể hủy đơn hàng.');
+      toast.error(err.response?.data?.message || 'Không thể hủy đơn hàng.');
     }
   };
 

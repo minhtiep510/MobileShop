@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, ChevronRight, ChevronLeft, Star, Truck, ShieldCheck, RefreshCw } from 'lucide-react';
 import api, { API_BASE_URL } from '../../services/api';
+import { useToast } from '../../components/Toast';
 import '../../styles/ProductDetail.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,9 +39,9 @@ export default function ProductDetail() {
 
   const scrollToThumbnail = (index) => {
     if (thumbnailsRef.current) {
-      const thumbnailWidth = 70; // 60px width + 10px gap
+      const thumbnailWidth = 70;
       thumbnailsRef.current.scrollTo({
-        left: index * thumbnailWidth - 100, // offset to center slightly
+        left: index * thumbnailWidth - 100,
         behavior: 'smooth'
       });
     }
@@ -73,7 +75,7 @@ export default function ProductDetail() {
     if (!selectedVariant) return;
 
     if (!localStorage.getItem('token')) {
-      alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
+      toast.warning('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
       navigate('/login');
       return;
     }
@@ -87,12 +89,12 @@ export default function ProductDetail() {
       if (buyNow) {
         navigate('/cart');
       } else {
-        alert('Đã thêm sản phẩm vào giỏ hàng thành công!');
+        toast.success('Đã thêm sản phẩm vào giỏ hàng thành công!');
         window.dispatchEvent(new Event('cartUpdated'));
       }
     } catch (err) {
       console.error('Lỗi khi thêm vào giỏ:', err);
-      alert(err.response?.data?.message || 'Không thể thêm vào giỏ hàng. Vui lòng thử lại.');
+      toast.error(err.response?.data?.message || 'Không thể thêm vào giỏ hàng. Vui lòng thử lại.');
     } finally {
       setAddingToCart(false);
     }
@@ -127,7 +129,6 @@ export default function ProductDetail() {
     imageList = ['https://via.placeholder.com/500'];
   }
 
-  // Nếu là đường dẫn tương đối (từ backend), thêm domain vào
   imageList = imageList.map(url => (url && url.startsWith('/')) ? `${API_BASE_URL}${url}` : url);
 
   const activeImage = imageList[currentImageIndex] || imageList[0];
@@ -136,8 +137,7 @@ export default function ProductDetail() {
     if (!colorName) return '#cccccc';
     const name = colorName.toLowerCase();
     
-    // Check specific full names first if needed
-    if (name.includes('cam')) return '#f9a826'; // Orange
+    if (name.includes('cam')) return '#f9a826';
     if (name.includes('đỏ') || name.includes('red')) return '#e3001b';
     if (name.includes('vàng') || name.includes('yellow') || name.includes('gold')) return '#fde047';
     if (name.includes('tím') || name.includes('purple')) return '#d8b4e2';
@@ -145,14 +145,10 @@ export default function ProductDetail() {
     if (name.includes('xanh lá') || name.includes('green') || name.includes('olive')) return '#a3e4d7';
     if (name.includes('xanh dương') || name.includes('xanh thẳm') || name.includes('blue')) return '#2b547e';
     if (name.includes('xanh') || name.includes('cyan')) return '#87ceeb';
-    
-    // Grayscale
     if (name.includes('trắng') || name.includes('white') || name.includes('starlight')) return '#f5f5f7';
     if (name.includes('bạc') || name.includes('silver')) return '#c0c0c0';
     if (name.includes('titan') || name.includes('gray') || name.includes('xám')) return '#8c8c8c';
     if (name.includes('đen') || name.includes('black') || name.includes('midnight')) return '#333333';
-    
-    // Fallback for modifiers without base color (like 'vũ trụ' without 'cam' or 'đen')
     if (name.includes('vũ trụ')) return '#444444'; 
     
     return '#cccccc';
@@ -278,7 +274,6 @@ export default function ProductDetail() {
           {product.variants && product.variants.length > 0 && (
             <>
               {(() => {
-                // Chỉ hiển thị các dung lượng có ít nhất 1 màu còn hàng
                 const inStockVariants = product.variants.filter(v => v.stockQuantity > 0);
                 const uniqueCapacities = [...new Set(
                   inStockVariants.map(v => v.size?.trim())
@@ -292,7 +287,6 @@ export default function ProductDetail() {
                     <div className="cps-variants-grid">
                       {uniqueCapacities.map(cap => {
                         const isActive = selectedsize === cap;
-                        // Tính giá trị thấp nhất cho dung lượng này
                         const varsWithCap = inStockVariants.filter(v => v.size === cap);
                         const displayPrice = varsWithCap.length > 0 ? new Intl.NumberFormat('vi-VN').format(varsWithCap[0].price) + ' đ' : '';
                         
@@ -342,7 +336,7 @@ export default function ProductDetail() {
                       {uniqueColors.map(col => {
                         const isActive = selectedColor === col;
                         let varForCol = product.variants.find(v => v.color === col && v.size === selectedsize && v.stockQuantity > 0);
-                        const isCrossDisabled = !varForCol; // Đánh dấu mờ nếu màu này không có ở dung lượng hiện tại
+                        const isCrossDisabled = !varForCol;
 
                         return (
                           <div

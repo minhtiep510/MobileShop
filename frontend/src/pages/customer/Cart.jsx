@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 import '../../styles/Cart.css';
 
 export default function Cart() {
@@ -11,6 +12,7 @@ export default function Cart() {
   const [shippingFee] = useState(30000); // Vẫn giữ fee ở giỏ hàng để nhẩm tính tổng
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const carouselRef = useRef(null);
+  const toast = useToast();
   
   const navigate = useNavigate();
 
@@ -76,9 +78,8 @@ export default function Cart() {
       window.dispatchEvent(new Event('cartUpdated'));
     } catch (err) {
       console.error('Lỗi khi cập nhật số lượng:', err);
-      // Revert on error by refetching
       fetchCart();
-      alert('Không thể cập nhật số lượng. Vui lòng thử lại.');
+      toast.error('Không thể cập nhật số lượng. Vui lòng thử lại.');
     }
   };
 
@@ -90,7 +91,7 @@ export default function Cart() {
       fetchCart();
     } catch (err) {
       console.error('Lỗi khi xóa sản phẩm:', err);
-      alert('Không thể xóa sản phẩm. Vui lòng thử lại.');
+      toast.error('Không thể xóa sản phẩm. Vui lòng thử lại.');
     }
   };
 

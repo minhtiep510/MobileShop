@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import api from '../../services/api';
+import { useToast } from '../../components/Toast';
 import '../../styles/Auth.css';
 
 export default function ResetPassword() {
@@ -9,9 +10,10 @@ export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
-  const [step, setStep] = useState(1); // 1: Enter OTP, 2: Enter New Password
+  const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,7 +71,7 @@ export default function ResetPassword() {
         newPassword 
       });
       
-      alert('Đổi mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.');
+      toast.success('Đổi mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.');
       navigate('/login');
       
     } catch (err) {
