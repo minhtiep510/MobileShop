@@ -8,26 +8,26 @@ import '../../styles/Checkout.css';
 export default function Checkout() {
   const navigate = useNavigate();
   const toast = useToast();
-  
+
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkingOut, setCheckingOut] = useState(false);
-  
+
   // Dữ liệu Tỉnh/Thành API
   const [locationData, setLocationData] = useState([]);
-  
+
   // Form state
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  
+
   const [province, setProvince] = useState('');
   const [district, setDistrict] = useState('');
   const [ward, setWard] = useState('');
   const [street, setStreet] = useState('');
-  
+
   const [paymentMethod, setPaymentMethod] = useState('COD');
-  const [shippingFee] = useState(30000);
-  
+  const [shippingFee] = useState(0);
+
   // Lấy danh sách địa giới hành chính Việt Nam
   useEffect(() => {
     fetch('https://provinces.open-api.vn/api/?depth=3')
@@ -42,7 +42,7 @@ export default function Checkout() {
       navigate('/login');
       return;
     }
-    
+
     const fetchCheckoutData = async () => {
       try {
         setLoading(true);
@@ -50,9 +50,9 @@ export default function Checkout() {
           api.get('/Cart'),
           api.get('/Profile').catch(() => null)
         ]);
-        
+
         let items = cartRes.data?.items || [];
-        
+
         const selectedIdsStr = sessionStorage.getItem('checkoutItemIds');
         if (selectedIdsStr) {
           const selectedIds = JSON.parse(selectedIdsStr);
@@ -66,14 +66,14 @@ export default function Checkout() {
           navigate('/cart');
           return;
         }
-        
+
         const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         setCart({ ...cartRes.data, items, totalPrice });
 
         if (profileRes?.data) {
           setFullName(profileRes.data.fullName || '');
           setPhone(profileRes.data.phoneNumber || '');
-          
+
           if (profileRes.data.address) {
             const parts = profileRes.data.address.split(',').map(s => s.trim());
             if (parts.length >= 4) {
@@ -97,7 +97,7 @@ export default function Checkout() {
         setLoading(false);
       }
     };
-    
+
     fetchCheckoutData();
   }, [navigate]);
 
@@ -127,14 +127,14 @@ export default function Checkout() {
 
   const handleCheckout = async (e) => {
     e.preventDefault();
-    
+
     if (!province || !district || !ward || !street) {
       toast.warning('Vui lòng điền đầy đủ thông tin địa chỉ.');
       return;
     }
-    
+
     const fullAddress = `${street}, ${ward}, ${district}, ${province}`;
-    
+
     try {
       setCheckingOut(true);
       await api.post('/Order/checkout', {
@@ -143,7 +143,7 @@ export default function Checkout() {
         paymentMethod,
         shippingFee
       });
-      
+
       toast.success('Đặt hàng thành công!');
       sessionStorage.removeItem('checkoutItemIds');
       navigate('/account/orders');
@@ -169,7 +169,7 @@ export default function Checkout() {
   return (
     <div className="cps-checkout-page">
       <div className="cps-checkout-container">
-        
+
         <div className="cps-checkout-stepper">
           <div className="stepper-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/cart')}>
             <div className="stepper-number"><Check size={14} /></div>
@@ -186,9 +186,9 @@ export default function Checkout() {
             <span>Hoàn tất</span>
           </div>
         </div>
-        
+
         <form onSubmit={handleCheckout} className="cps-checkout-layout">
-          
+
           <div className="cps-checkout-form-box">
             <h2 className="checkout-section-title">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#0071e3' }}>
@@ -197,37 +197,37 @@ export default function Checkout() {
               </svg>
               Thông tin giao hàng
             </h2>
-            
+
             <div className="checkout-form-grid">
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="form-label">Họ và tên</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="Nguyễn Văn A" 
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Nguyễn Văn A"
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
-                  required 
+                  required
                 />
               </div>
-              
+
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="form-label">Số điện thoại</label>
-                <input 
-                  type="tel" 
-                  className="form-input" 
-                  placeholder="0912345678" 
+                <input
+                  type="tel"
+                  className="form-input"
+                  placeholder="0912345678"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
-                  required 
+                  required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Tỉnh / Thành phố</label>
-                <select 
-                  className="form-input" 
-                  value={province} 
+                <select
+                  className="form-input"
+                  value={province}
                   onChange={handleProvinceChange}
                   required
                   style={{ cursor: 'pointer', appearance: 'auto' }}
@@ -238,12 +238,12 @@ export default function Checkout() {
                   ))}
                 </select>
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Quận / Huyện</label>
-                <select 
-                  className="form-input" 
-                  value={district} 
+                <select
+                  className="form-input"
+                  value={district}
                   onChange={handleDistrictChange}
                   disabled={!province || availableDistricts.length === 0}
                   required
@@ -255,12 +255,12 @@ export default function Checkout() {
                   ))}
                 </select>
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Phường / Xã</label>
-                <select 
-                  className="form-input" 
-                  value={ward} 
+                <select
+                  className="form-input"
+                  value={ward}
                   onChange={e => setWard(e.target.value)}
                   disabled={!district || availableWards.length === 0}
                   required
@@ -272,16 +272,16 @@ export default function Checkout() {
                   ))}
                 </select>
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Số nhà, ngõ ngách, tên đường</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="Ví dụ: Số 12, Ngõ 34..." 
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Ví dụ: Số 12, Ngõ 34..."
                   value={street}
                   onChange={e => setStreet(e.target.value)}
-                  required 
+                  required
                 />
               </div>
             </div>
@@ -293,20 +293,20 @@ export default function Checkout() {
               </h2>
               <div className="payment-method-options">
                 <label className="payment-option">
-                  <input 
-                    type="radio" 
-                    name="paymentMethod" 
-                    value="COD" 
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="COD"
                     checked={paymentMethod === 'COD'}
                     onChange={() => setPaymentMethod('COD')}
                   />
                   <span>Thanh toán khi nhận hàng (COD)</span>
                 </label>
                 <label className="payment-option">
-                  <input 
-                    type="radio" 
-                    name="paymentMethod" 
-                    value="BankTransfer" 
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="BankTransfer"
                     checked={paymentMethod === 'BankTransfer'}
                     onChange={() => setPaymentMethod('BankTransfer')}
                   />
@@ -314,19 +314,19 @@ export default function Checkout() {
                 </label>
               </div>
             </div>
-            
+
           </div>
-          
+
           <div className="cps-checkout-summary-box">
             <h2 className="checkout-section-title">Tóm tắt đơn hàng ({cart.items.length} sản phẩm)</h2>
-            
+
             <div className="summary-item-list">
               {cart.items.map(item => (
                 <div className="summary-item" key={item.id}>
-                  <img 
-                    src={item.productImage || 'https://via.placeholder.com/60'} 
-                    alt={item.productName} 
-                    className="summary-item-img" 
+                  <img
+                    src={item.productImage || 'https://via.placeholder.com/60'}
+                    alt={item.productName}
+                    className="summary-item-img"
                     onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
                   />
                   <div className="summary-item-info">
@@ -342,7 +342,7 @@ export default function Checkout() {
                 </div>
               ))}
             </div>
-            
+
             <div className="voucher-section">
               <div className="voucher-label">Mã giảm giá / Quà tặng</div>
               <div className="voucher-input-group">
@@ -350,32 +350,32 @@ export default function Checkout() {
                 <button type="button" className="voucher-btn">Áp dụng</button>
               </div>
             </div>
-            
+
             <div className="summary-totals">
               <div className="summary-row">
-                <span>Tạm tính</span>
+                <span>Tạm tính:</span>
                 <span>{new Intl.NumberFormat('vi-VN').format(subTotal)}đ</span>
               </div>
               <div className="summary-row">
-                <span>Phí vận chuyển</span>
+                <span>Phí vận chuyển:</span>
                 <span>{new Intl.NumberFormat('vi-VN').format(shippingFee)}đ</span>
               </div>
               <div className="summary-row total">
-                <span>Tổng tiền</span>
+                <span>Tổng tiền:</span>
                 <span style={{ color: '#0071e3' }}>{new Intl.NumberFormat('vi-VN').format(finalTotal)}đ</span>
               </div>
             </div>
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               className="cps-btn-submit-order"
               disabled={checkingOut}
             >
               {checkingOut ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}
             </button>
-            
+
           </div>
-          
+
         </form>
       </div>
     </div>

@@ -25,7 +25,7 @@ export default function Dashboard() {
         setLoading(true);
         const ordersRes = await api.get('/Order?page=1&pageSize=5');
         const ordersData = ordersRes.data;
-        
+
         const productsRes = await api.get('/Product?page=1&pageSize=1');
         const productsData = productsRes.data;
 
@@ -33,15 +33,10 @@ export default function Dashboard() {
 
         let calculatedRevenue = 0;
         if (ordersData.items && Array.isArray(ordersData.items)) {
-           calculatedRevenue = ordersData.items.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+          calculatedRevenue = ordersData.items
+            .filter(order => order.status?.toLowerCase() === 'delivered')
+            .reduce((sum, order) => sum + (order.totalAmount || 0), 0);
         }
-
-        setStats({
-          totalOrders: ordersData.totalCount || 0,
-          totalRevenue: calculatedRevenue,
-          totalProducts: productsData.totalCount || 0,
-          totalStock: stockRes.data?.totalStock || 0
-        });
 
         if (ordersData.items) {
           setRecentOrders(ordersData.items);
@@ -52,6 +47,16 @@ export default function Dashboard() {
           name: `Tháng ${item.month}`,
           revenue: item.revenue
         })));
+
+        // Tính tổng doanh thu thực tế trong năm (vì API backend monthly-revenue chỉ tính các đơn Delivered)
+        const realTotalRevenue = revenueRes.data.reduce((sum, item) => sum + item.revenue, 0);
+
+        setStats({
+          totalOrders: ordersData.totalCount || 0,
+          totalRevenue: realTotalRevenue,
+          totalProducts: productsData.totalCount || 0,
+          totalStock: stockRes.data?.totalStock || 0
+        });
 
         const bestSellersRes = await api.get('/Dashboard/best-sellers?limit=10');
         setBestSellersData(bestSellersRes.data);
@@ -69,10 +74,10 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '64vh' }}>
-        <div className="loader" style={{ 
-          border: '3px solid var(--background)', 
-          borderTop: '3px solid var(--primary)', 
-          borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' 
+        <div className="loader" style={{
+          border: '3px solid var(--background)',
+          borderTop: '3px solid var(--primary)',
+          borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite'
         }}></div>
       </div>
     );
@@ -80,7 +85,7 @@ export default function Dashboard() {
 
   const statCards = [
     { title: 'Tổng đơn hàng', value: stats.totalOrders, icon: <ShoppingCart size={24} />, colorClass: 'blue', link: '/admin/orders' },
-    { title: 'Doanh thu ước tính (Trang 1)', value: new Intl.NumberFormat('vi-VN').format(stats.totalRevenue) + ' đ', icon: <DollarSign size={24} />, colorClass: 'green', link: '/admin/orders' },
+    { title: 'Tổng doanh thu (Năm nay)', value: new Intl.NumberFormat('vi-VN').format(stats.totalRevenue) + ' đ', icon: <DollarSign size={24} />, colorClass: 'green', link: '/admin/orders' },
     { title: 'Sản phẩm', value: stats.totalProducts, icon: <Package size={24} />, colorClass: 'purple', link: '/admin/products' },
     { title: 'Tồn kho', value: stats.totalStock, icon: <TrendingUp size={24} />, colorClass: 'orange', link: '/admin/products' },
   ];
@@ -90,7 +95,7 @@ export default function Dashboard() {
       <div className="admin-header">
         <h1 className="admin-title">Tổng quan thống kê</h1>
       </div>
-      
+
       {/* Stats Grid */}
       <div className="stat-grid">
         {statCards.map((card, index) => (
@@ -116,15 +121,21 @@ export default function Dashboard() {
             <ResponsiveContainer>
               <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                <YAxis 
+                <XAxis 
+                  dataKey="name" 
                   axisLine={false} 
-                  tickLine={false}
-                  tickFormatter={(value) => new Intl.NumberFormat('vi-VN', { notation: "compact", compactDisplay: "short" }).format(value)} 
+                  tickLine={false} 
+                  interval={0} 
+                  tick={{ fontSize: 12 }} 
                 />
-                <Tooltip 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(value) => new Intl.NumberFormat('vi-VN', { notation: "compact", compactDisplay: "short" }).format(value)}
+                />
+                <Tooltip
                   formatter={(value) => new Intl.NumberFormat('vi-VN').format(value) + ' đ'}
-                  cursor={{fill: 'transparent'}}
+                  cursor={{ fill: 'transparent' }}
                 />
                 <Legend />
                 <Bar dataKey="revenue" name="Doanh thu" fill="#4f46e5" radius={[4, 4, 0, 0]} maxBarSize={50} />
@@ -139,7 +150,7 @@ export default function Dashboard() {
           </div>
           <div style={{ width: '100%', height: 350, overflowY: 'auto', padding: '0 20px' }}>
             {bestSellersData.length === 0 ? (
-              <div style={{display:'flex', height:'100%', alignItems:'center', justifyContent:'center', color:'var(--text-muted)'}}>
+              <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
                 Chưa có dữ liệu
               </div>
             ) : (
@@ -197,13 +208,12 @@ export default function Dashboard() {
                       {new Intl.NumberFormat('vi-VN').format(order.totalAmount)} đ
                     </td>
                     <td>
-                      <span className={`admin-badge badge-${
-                        order.status?.toLowerCase() === 'pending' ? 'yellow' :
+                      <span className={`admin-badge badge-${order.status?.toLowerCase() === 'pending' ? 'yellow' :
                         order.status?.toLowerCase() === 'processing' ? 'blue' :
-                        order.status?.toLowerCase() === 'shipped' ? 'blue' :
-                        order.status?.toLowerCase() === 'delivered' ? 'green' :
-                        order.status?.toLowerCase() === 'cancelled' ? 'red' : 'gray'
-                      }`} style={{ textTransform: 'capitalize', display: 'inline-block', padding: '4px 12px', borderRadius: '20px' }}>
+                          order.status?.toLowerCase() === 'shipped' ? 'blue' :
+                            order.status?.toLowerCase() === 'delivered' ? 'green' :
+                              order.status?.toLowerCase() === 'cancelled' ? 'red' : 'gray'
+                        }`} style={{ textTransform: 'capitalize', display: 'inline-block', padding: '4px 12px', borderRadius: '20px' }}>
                         {order.status}
                       </span>
                     </td>

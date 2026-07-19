@@ -10,7 +10,7 @@ export default function Cart() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [shippingFee] = useState(30000);
+  const [shippingFee] = useState(0);
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const carouselRef = useRef(null);
@@ -242,7 +242,7 @@ export default function Cart() {
           <div className="cart-select-all-bar">
             <label className="cart-checkbox-wrap" onClick={toggleSelectAll}>
               <span className={`cart-checkbox ${isAllSelected ? 'checked' : ''} ${isIndeterminate ? 'indeterminate' : ''}`}>
-                {isAllSelected && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                {isAllSelected && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                 {isIndeterminate && !isAllSelected && <span className="cart-checkbox-dash" />}
               </span>
               <span className="cart-select-all-label">
@@ -269,7 +269,7 @@ export default function Cart() {
                 {/* Checkbox */}
                 <label className="cart-checkbox-wrap cart-item-check" onClick={() => toggleSelectItem(item.id)}>
                   <span className={`cart-checkbox ${isSelected ? 'checked' : ''}`}>
-                    {isSelected && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    {isSelected && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                   </span>
                 </label>
 
@@ -340,7 +340,7 @@ export default function Cart() {
           </div>
 
           <div className="cps-summary-row">
-            <span>Tạm tính</span>
+            <span>Tạm tính:</span>
             <span>{new Intl.NumberFormat('vi-VN').format(selectedSubtotal)} đ</span>
           </div>
 
@@ -350,7 +350,7 @@ export default function Cart() {
           </div>
 
           <div className="cps-summary-total">
-            <span>Tổng tiền</span>
+            <span>Tổng tiền:</span>
             <span>{new Intl.NumberFormat('vi-VN').format(selectedSubtotal + (selectedIds.size > 0 ? shippingFee : 0))} đ</span>
           </div>
 
