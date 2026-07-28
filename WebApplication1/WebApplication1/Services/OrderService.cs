@@ -17,7 +17,7 @@ namespace WebApplication1.Services
             _context = context;
         }
 
-        public async Task<PagedResult<object>> GetAllAsync(int page = 1, int pageSize = 10, string searchTerm = null)
+        public async Task<PagedResult<object>> GetAllAsync(int page = 1, int pageSize = 10, string searchTerm = null, string status = null)
         {
             var query = _context.Orders
                 .Include(o => o.User)
@@ -30,6 +30,11 @@ namespace WebApplication1.Services
                     o.Id.ToString() == searchTerm || 
                     (o.User != null && o.User.FullName.Contains(searchTerm)) || 
                     (o.User != null && o.User.PhoneNumber.Contains(searchTerm)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(o => o.Status.ToLower() == status.ToLower());
             }
 
             var totalCount = await query.CountAsync();

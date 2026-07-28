@@ -12,6 +12,7 @@ export default function ProductManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
   const searchTimeoutRef = React.useRef(null);
   const navigate = useNavigate();
   const toast = useToast();
@@ -32,12 +33,12 @@ export default function ProductManagement() {
 
 
 
-  const fetchProducts = async (page = currentPage, search = searchTerm) => {
+  const fetchProducts = async (page = currentPage, search = searchTerm, category = filterCategory) => {
     try {
       setLoading(true);
-      const url = search
-        ? `/Product?page=${page}&pageSize=8&searchTerm=${encodeURIComponent(search)}`
-        : `/Product?page=${page}&pageSize=8`;
+      let url = `/Product?page=${page}&pageSize=8`;
+      if (search) url += `&searchTerm=${encodeURIComponent(search)}`;
+      if (category) url += `&categoryId=${category}`;
       const res = await api.get(url);
       if (res.data && res.data.items) {
         setProducts(res.data.items);
@@ -70,11 +71,11 @@ export default function ProductManagement() {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
 
     searchTimeoutRef.current = setTimeout(() => {
-      fetchProducts(currentPage, searchTerm);
+      fetchProducts(currentPage, searchTerm, filterCategory);
     }, 400);
 
     return () => clearTimeout(searchTimeoutRef.current);
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, filterCategory]);
 
   useEffect(() => {
     fetchCategories();
@@ -234,7 +235,7 @@ export default function ProductManagement() {
       </div>
 
       <div className="admin-card">
-        <div className="admin-card-header">
+        <div className="admin-card-header" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <div className="admin-search-box">
             <Search className="admin-search-icon" size={18} />
             <input
@@ -247,6 +248,22 @@ export default function ProductManagement() {
                 setCurrentPage(1); // Reset trang về 1 khi tìm kiếm
               }}
             />
+          </div>
+          <div className="admin-filter-box" style={{ marginLeft: 'auto' }}>
+            <select
+              value={filterCategory}
+              onChange={(e) => {
+                setFilterCategory(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="admin-form-select"
+              style={{ width: '250px' }}
+            >
+              <option value="">Tất cả danh mục</option>
+              {categories.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </div>
         </div>
 

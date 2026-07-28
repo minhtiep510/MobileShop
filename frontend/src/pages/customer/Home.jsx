@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, ShieldCheck, Truck, RefreshCw, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, ShieldCheck, Truck, RefreshCw, CreditCard, ChevronLeft, ChevronRight, Smartphone, Laptop, Tablet, Watch, Headphones, Monitor, Box } from 'lucide-react';
 import api from '../../services/api';
 import '../../styles/Home.css';
 import BannerSlider from '../../components/BannerSlider';
@@ -84,9 +84,36 @@ export default function Home() {
     setCurrentPage(1); // reset về trang 1 khi đổi danh mục
   };
 
+  const getCategoryIcon = (name) => {
+    const n = name.toLowerCase();
+    if (n.includes('iphone') || n.includes('điện thoại') || n.includes('phone')) return <Smartphone />;
+    if (n.includes('mac') || n.includes('laptop')) return <Laptop />;
+    if (n.includes('ipad') || n.includes('tablet')) return <Tablet />;
+    if (n.includes('watch') || n.includes('đồng hồ')) return <Watch />;
+    if (n.includes('airpods') || n.includes('tai nghe') || n.includes('audio')) return <Headphones />;
+    if (n.includes('màn hình') || n.includes('display')) return <Monitor />;
+    return <Box />;
+  };
+
   return (
     <div className="cps-home">
       <div className="cps-container">
+        
+        {/* Category Navigation Bar (Links to Category Page) */}
+        {!loading && categories.length > 0 && (
+          <nav className="cps-home-menu animate-on-scroll">
+            <ul className="cps-menu-list">
+              {categories.map(cat => (
+                <li key={`nav-${cat.id}`}>
+                  <Link to={`/category/${cat.id}`} className="cps-menu-item">
+                    {getCategoryIcon(cat.name)}
+                    <span>{cat.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
 
         {/* Dynamic Banner Slider - Grid layout: 1 lớn + 2 nhỏ */}
         <BannerSlider mode="grid" />

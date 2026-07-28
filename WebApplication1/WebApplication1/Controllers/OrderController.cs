@@ -19,9 +19,9 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = null)
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = null, [FromQuery] string status = null)
         {
-            var orders = await _orderService.GetAllAsync(page, pageSize, searchTerm);
+            var orders = await _orderService.GetAllAsync(page, pageSize, searchTerm, status);
             return Ok(orders);
         }
 

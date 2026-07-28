@@ -11,6 +11,7 @@ export default function OrderManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
   const searchTimeoutRef = React.useRef(null);
   const toast = useToast();
   const confirm = useConfirm();
@@ -19,12 +20,12 @@ export default function OrderManagement() {
   const [showModal, setShowModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  const fetchOrders = async (page = currentPage, search = searchTerm) => {
+  const fetchOrders = async (page = currentPage, search = searchTerm, status = filterStatus) => {
     try {
       setLoading(true);
-      const url = search 
-        ? `/Order?page=${page}&pageSize=10&searchTerm=${encodeURIComponent(search)}` 
-        : `/Order?page=${page}&pageSize=10`;
+      let url = `/Order?page=${page}&pageSize=10`;
+      if (search) url += `&searchTerm=${encodeURIComponent(search)}`;
+      if (status) url += `&status=${status}`;
       const res = await api.get(url);
       if (res.data && res.data.items) {
         setOrders(res.data.items);
@@ -44,11 +45,11 @@ export default function OrderManagement() {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     
     searchTimeoutRef.current = setTimeout(() => {
-      fetchOrders(currentPage, searchTerm);
+      fetchOrders(currentPage, searchTerm, filterStatus);
     }, 400);
 
     return () => clearTimeout(searchTimeoutRef.current);
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, filterStatus]);
 
   const handleUpdateStatus = async (id, status) => {
     try {
@@ -118,7 +119,7 @@ export default function OrderManagement() {
       </div>
 
       <div className="admin-card">
-        <div className="admin-card-header">
+        <div className="admin-card-header" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <div className="admin-search-box">
             <Search className="admin-search-icon" size={18} />
             <input
@@ -131,6 +132,24 @@ export default function OrderManagement() {
                 setCurrentPage(1);
               }}
             />
+          </div>
+          <div className="admin-filter-box" style={{ marginLeft: 'auto' }}>
+            <select
+              value={filterStatus}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="admin-form-select"
+              style={{ width: '200px' }}
+            >
+              <option value="">Tất cả trạng thái</option>
+              <option value="pending">Pending (Chờ xử lý)</option>
+              <option value="processing">Processing (Đang xử lý)</option>
+              <option value="shipped">Shipped (Đang giao)</option>
+              <option value="delivered">Delivered (Đã giao)</option>
+              <option value="cancelled">Cancelled (Đã hủy)</option>
+            </select>
           </div>
         </div>
 

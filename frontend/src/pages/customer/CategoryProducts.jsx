@@ -23,10 +23,6 @@ export default function CategoryProducts() {
     'Giá: từ thấp đến cao'
   ];
 
-  const filterButtons = [
-    'Bộ nhớ',
-    'Khoảng Giá'
-  ];
 
   const getSortedProducts = () => {
     let sorted = [...products];
@@ -145,13 +141,6 @@ export default function CategoryProducts() {
             </div>
           </div>
           
-          <div className="filter-bottom-bar">
-            {filterButtons.map((btn, idx) => (
-              <button key={idx} className="filter-pill-button">
-                {btn} <ChevronDown size={16} />
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Loading State */}
@@ -166,22 +155,30 @@ export default function CategoryProducts() {
           displayedProducts.length > 0 ? (
             <div className="cps-product-grid category-products-grid">
               {displayedProducts.map((product) => (
-                <Link to={`/product/${product.id}`} key={product.id} className="cps-product-card">
-                  <div className="cps-product-image">
+                <Link to={`/product/${product.id}`} key={product.id} className="cps-product-card-new">
+                  <div className="cps-card-header">
+                    <h3 className="cps-product-title">{product.name}</h3>
+                  </div>
+                  
+                  <div className="cps-card-image-wrapper">
                     <img 
                       src={product.thumbnailUrl || 'https://via.placeholder.com/200'} 
                       alt={product.name} 
                       onError={(e) => { e.target.src = 'https://via.placeholder.com/200' }}
                     />
+                    <div className="cps-learn-more">Tìm hiểu sâu hơn</div>
                   </div>
-                  <div className="cps-product-info">
-                    <h3 className="cps-product-name">{product.name}</h3>
-                    {/* Price removed based on user request */}
-                    <div className="cps-product-rating">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} fill="#f59e0b" color="#f59e0b" />
-                      ))}
+                  
+                  <div className="cps-card-footer">
+                    <div className="cps-price-text">
+                      Từ {new Intl.NumberFormat('vi-VN').format(product.startingPrice || product.price || 0)}đ
                     </div>
+                    <button 
+                      className="cps-buy-btn"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      Mua
+                    </button>
                   </div>
                 </Link>
               ))}
