@@ -121,12 +121,12 @@ export default function Dashboard() {
             <ResponsiveContainer>
               <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  interval={0} 
-                  tick={{ fontSize: 12 }} 
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  interval={0}
+                  tick={{ fontSize: 12 }}
                 />
                 <YAxis
                   axisLine={false}
@@ -146,7 +146,7 @@ export default function Dashboard() {
 
         <div className="admin-card">
           <div className="admin-card-header">
-            <h2 className="admin-card-title">Top 10 Biến thể bán chạy nhất</h2>
+            <h2 className="admin-card-title">Top 10 sản phẩm bán chạy nhất</h2>
           </div>
           <div style={{ width: '100%', height: 350, overflowY: 'auto', padding: '0 20px' }}>
             {bestSellersData.length === 0 ? (

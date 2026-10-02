@@ -19,7 +19,7 @@ namespace WebApplication1.Services
 
         public async Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync(int year)
         {
-            // Initialize with all 12 months set to 0 revenue
+            
             var revenueByMonth = Enumerable.Range(1, 12).Select(m => new MonthlyRevenueDto
             {
                 Month = m,

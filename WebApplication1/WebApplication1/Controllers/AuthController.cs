@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using WebApplication1.DTOs;
 using WebApplication1.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
@@ -53,6 +54,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("resend-otp")]
+        [Authorize]
         public async Task<IActionResult> ResendOtp([FromBody] ResendOtpDto dto)
         {
             var (success, errorMsg) = await _authService.ResendOtpAsync(dto);

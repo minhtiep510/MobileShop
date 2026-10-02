@@ -44,9 +44,9 @@ export default function BannerSlider({ mode = 'slider' }) {
   useEffect(() => {
     if (mode !== 'grid' || banners.length <= 1) return;
     const len = banners.length;
-    const t0 = setInterval(() => setIdx0(p => (p + 1) % len), 30000);
-    const t1 = setInterval(() => setIdx1(p => (p + 1) % len), 30000);
-    const t2 = setInterval(() => setIdx2(p => (p + 1) % len), 30000);
+    const t0 = setInterval(() => setIdx0(p => (p + 1) % len), 10000);
+    const t1 = setInterval(() => setIdx1(p => (p + 1) % len), 10000);
+    const t2 = setInterval(() => setIdx2(p => (p + 1) % len), 10000);
     return () => { clearInterval(t0); clearInterval(t1); clearInterval(t2); };
   }, [banners.length, mode]);
 

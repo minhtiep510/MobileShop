@@ -4,7 +4,6 @@ namespace WebApplication1.Model
 {
     public class Category : EntityBase
     {
-
         [Required]
         [MaxLength(100)]
         public string Name { get; set; }
