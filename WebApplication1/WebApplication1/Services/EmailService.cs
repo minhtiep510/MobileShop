@@ -24,7 +24,7 @@ namespace WebApplication1.Services
                 var smtpPort = int.Parse(_configuration["SmtpSettings:Port"] ?? "587");
                 var senderName = _configuration["SmtpSettings:SenderName"];
                 var senderEmail = _configuration["SmtpSettings:SenderEmail"];
-                var password = _configuration["SmtpSettings:Password"];
+                var password = _configuration["SmtpSettings:Password"]?.Replace(" ", "").Trim();
 
                 using (var client = new SmtpClient(smtpServer, smtpPort))
                 {

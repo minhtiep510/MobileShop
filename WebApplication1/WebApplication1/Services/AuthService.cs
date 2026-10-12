@@ -157,6 +157,10 @@ namespace WebApplication1.Services
             if (user == null) return (false, "Tài khoản không tồn tại");
 
             var otp = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+            
+            // In OTP ra console để tiện test (khi mail chậm hoặc không dùng mail thật)
+            Console.WriteLine($"\n\n[DEBUG OTP QUÊN MẬT KHẨU] >>> MÃ OTP CHO EMAIL {user.Email} LÀ: {otp} <<<\n\n");
+
             var emailBody = $"<h3>Quên mật khẩu</h3><p>Mã OTP để đặt lại mật khẩu của bạn là: <strong>{otp}</strong></p><p>Mã có hiệu lực trong vài phút.</p>";
             await _emailService.SendEmailAsync(user.Email ?? "", "Mã OTP đặt lại mật khẩu - MyApp", emailBody);
 
@@ -176,7 +180,8 @@ namespace WebApplication1.Services
 
             if (!result.Succeeded)
             {
-                return (false, "Đã có lỗi xảy ra khi đặt lại mật khẩu");
+                var errors = string.Join(" ", result.Errors.Select(e => e.Description));
+                return (false, string.IsNullOrEmpty(errors) ? "Đã có lỗi xảy ra khi đặt lại mật khẩu" : errors);
             }
 
             return (true, "");
