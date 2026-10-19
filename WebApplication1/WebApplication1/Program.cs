@@ -84,6 +84,10 @@ builder.Services.AddCors(options => {
 });
 var app = builder.Build();
 
+// Custom Middlewares
+app.UseMiddleware<WebApplication1.Middlewares.GlobalExceptionMiddleware>();
+app.UseMiddleware<WebApplication1.Middlewares.RequestLoggingMiddleware>();
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
