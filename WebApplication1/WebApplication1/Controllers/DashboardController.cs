@@ -32,5 +32,12 @@ namespace WebApplication1.Controllers
             var data = await _dashboardService.GetBestSellingProductsAsync(limit);
             return Ok(data);
         }
+
+        [HttpGet("category-revenue")]
+        public async Task<IActionResult> GetCategoryRevenue()
+        {
+            var data = await _dashboardService.GetCategoryRevenueAsync();
+            return Ok(data);
+        }
     }
 }

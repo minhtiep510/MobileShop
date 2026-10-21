@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Package, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, QrCode } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../components/Toast';
 import { useConfirm } from '../../components/ConfirmDialog';
@@ -15,28 +15,28 @@ export default function MyOrders() {
   const toast = useToast();
   const confirm = useConfirm();
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get('/Order/my-orders');
-        if (response.data && response.data.items) {
-          setOrders(response.data.items);
-        } else if (Array.isArray(response.data)) {
-          setOrders(response.data);
-        }
-      } catch (err) {
-        console.error('Lỗi khi tải đơn hàng:', err);
-        setError('Không thể tải danh sách đơn hàng.');
-      } finally {
-        setLoading(false);
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/Order/my-orders');
+      if (response.data && response.data.items) {
+        setOrders(response.data.items);
+      } else if (Array.isArray(response.data)) {
+        setOrders(response.data);
       }
-    };
+    } catch (err) {
+      console.error('Lỗi khi tải đơn hàng:', err);
+      setError('Không thể tải danh sách đơn hàng.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (localStorage.getItem('token')) {
       fetchOrders();
     } else {
-      navigate('/auth');
+      navigate('/login');
     }
   }, [navigate]);
 
@@ -51,17 +51,20 @@ export default function MyOrders() {
     try {
       await api.put(`/Order/${orderId}/cancel`);
       toast.success('Hủy đơn hàng thành công!');
-      // Reload orders
-      const response = await api.get('/Order/my-orders');
-      if (response.data && response.data.items) {
-        setOrders(response.data.items);
-      } else if (Array.isArray(response.data)) {
-        setOrders(response.data);
-      }
+      fetchOrders();
     } catch (err) {
       console.error('Lỗi khi hủy đơn hàng:', err);
       toast.error(err.response?.data?.message || 'Không thể hủy đơn hàng.');
     }
+  };
+
+  const handleContinuePayment = (order) => {
+    navigate('/payment/vietqr', {
+      state: {
+        orderId: order.id,
+        amount: order.totalAmount
+      }
+    });
   };
 
   const getStatusDisplay = (status) => {
@@ -163,6 +166,10 @@ export default function MyOrders() {
           <div className="orders-list">
             {filteredOrders.map((order) => {
             const statusInfo = getStatusDisplay(order.status);
+            const isUnpaid = order.paymentStatus !== 'Paid';
+            const isCancelable = order.status?.toLowerCase() === 'pending';
+            const isQrPayment = order.paymentMethod === 'VietQR' || order.paymentMethod === 'BankTransfer' || order.paymentMethod === 'Momo';
+
             return (
               <div key={order.id} className="order-card glass">
                 <div className="order-header-row">
@@ -206,7 +213,12 @@ export default function MyOrders() {
 
                 <div className="order-footer">
                   <div className="text-sm text-text-muted flex flex-col gap-1">
-                    <div>Thanh toán: {order.paymentMethod} - <strong className={order.paymentStatus === 'Paid' ? 'text-success' : 'text-warning'}>{order.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}</strong></div>
+                    <div>
+                      Phương thức: <strong>{order.paymentMethod}</strong> - {' '}
+                      <span className={`inline-block font-semibold ${order.paymentStatus === 'Paid' ? 'text-success' : 'text-warning'}`}>
+                        {order.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                      </span>
+                    </div>
                     <div>Giao đến: {order.shippingAddress || 'N/A'}</div>
                   </div>
                   <div className="text-right">
@@ -214,27 +226,59 @@ export default function MyOrders() {
                     <div className="myorders-total-amount">
                       {new Intl.NumberFormat('vi-VN').format(order.totalAmount)} đ
                     </div>
-                    {order.status?.toLowerCase() === 'pending' && (
-                      <button 
-                        onClick={() => handleCancelOrder(order.id)}
-                        style={{ 
-                          marginTop: '10px', 
-                          padding: '8px 16px', 
-                          fontSize: '0.9rem', 
-                          borderRadius: '8px', 
-                          cursor: 'pointer', 
-                          border: '1px solid #6b7280', 
-                          background: 'transparent', 
-                          color: '#4b5563', 
-                          fontWeight: '600',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseOver={(e) => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#1f2937'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#4b5563'; }}
-                      >
-                        Hủy đơn hàng
-                      </button>
-                    )}
+                    
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px', flexWrap: 'wrap' }}>
+                      {/* Nút Tiếp tục thanh toán QR nếu chưa thanh toán và đơn chưa bị hủy */}
+                      {isUnpaid && order.status?.toLowerCase() !== 'cancelled' && isQrPayment && (
+                        <button
+                          type="button"
+                          onClick={() => handleContinuePayment(order)}
+                          style={{
+                            padding: '8px 16px',
+                            fontSize: '0.9rem',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            border: 'none',
+                            background: '#0071e3',
+                            color: '#ffffff',
+                            fontWeight: '600',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'all 0.2s ease',
+                            boxShadow: '0 2px 6px rgba(0, 113, 227, 0.25)'
+                          }}
+                          onMouseOver={(e) => { e.currentTarget.style.background = '#0077ed'; }}
+                          onMouseOut={(e) => { e.currentTarget.style.background = '#0071e3'; }}
+                        >
+                          <QrCode size={16} /> Quét mã thanh toán
+                        </button>
+                      )}
+
+                      {/* Nút Hủy đơn hàng */}
+                      {isCancelable && (
+                        <button 
+                          type="button"
+                          onClick={() => handleCancelOrder(order.id)}
+                          style={{ 
+                            padding: '8px 16px', 
+                            fontSize: '0.9rem', 
+                            borderRadius: '8px', 
+                            cursor: 'pointer', 
+                            border: '1px solid #d2d2d7', 
+                            background: '#ffffff', 
+                            color: '#e03e2d', 
+                            fontWeight: '600',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseOver={(e) => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#ef4444'; }}
+                          onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#d2d2d7'; }}
+                        >
+                          Hủy đơn hàng
+                        </button>
+                      )}
+                    </div>
+
                   </div>
                 </div>
               </div>

@@ -18,4 +18,12 @@ namespace WebApplication1.DTOs
         public string ThumbnailUrl { get; set; } = string.Empty;
         public decimal Price { get; set; }
     }
+
+    public class CategoryRevenueDto
+    {
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public decimal TotalRevenue { get; set; }
+        public int TotalSold { get; set; }
+    }
 }

@@ -389,6 +389,27 @@ export default function ProductManagement() {
                   </select>
                 </div>
 
+                {editingId && (
+                  <div className="admin-variant-box" style={{ background: '#f8f9fa', borderLeft: '4px solid var(--primary)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 0.25rem 0', color: 'var(--text-main)', fontSize: '0.95rem' }}>Quản lý Giá & Tồn kho sản phẩm</h4>
+                        <p style={{ margin: 0, fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+                          Sản phẩm có <strong>{formData.variants?.length || 0}</strong> biến thể (màu sắc / kích thước). Giá bán và kho được quản lý theo từng biến thể.
+                        </p>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => navigate(`/admin/products/${editingId}/variants`)}
+                        className="btn-primary"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.5rem 0.85rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                      >
+                        <Layers size={16} /> Sửa Giá & Biến thể
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {!editingId && (
                   <div className="admin-variant-box">
                     <h3 className="admin-variant-title">Biến thể đầu tiên (Bắt buộc)</h3>

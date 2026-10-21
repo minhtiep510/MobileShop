@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, Save, ArrowLeft } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, ArrowLeft, Layers } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../components/Toast';
 import { useConfirm } from '../../components/ConfirmDialog';
+import '../../styles/VariantManagement.css';
 
 export default function VariantManagement() {
   const { id } = useParams();
@@ -128,6 +129,7 @@ export default function VariantManagement() {
   const handleEditVariantClick = (variant) => {
     setVariantForm({ ...variant });
     setIsEditingVariant(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSaveVariant = async (e) => {
@@ -135,7 +137,7 @@ export default function VariantManagement() {
     try {
       if (isEditingVariant) {
         await api.put(`/Product/variant/${variantForm.id}`, variantForm);
-        toast.success('Cập nhật biến thể thành công!');
+        toast.success('Cập nhật giá và biến thể thành công!');
       } else {
         const { id: _id, ...createForm } = variantForm;
         await api.post(`/Product/${selectedProduct.id}/variants`, createForm);
@@ -168,11 +170,11 @@ export default function VariantManagement() {
 
   if (loading) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
         <div className="loader inline-block" style={{
           border: '3px solid var(--background)',
           borderTop: '3px solid var(--primary)',
-          borderRadius: '50%', width: '30px', height: '30px', animation: 'spin 1s linear infinite'
+          borderRadius: '50%', width: '36px', height: '36px', animation: 'spin 1s linear infinite', margin: '0 auto'
         }}></div>
       </div>
     );
@@ -180,178 +182,290 @@ export default function VariantManagement() {
 
   if (!selectedProduct) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-        Không tìm thấy sản phẩm.
+      <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+        Không tìm thấy thông tin sản phẩm.
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '2rem' }}>
-      <div className="admin-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+    <div className="variant-mgmt-container">
+      {/* Header */}
+      <div className="variant-mgmt-header">
         <button
           onClick={() => navigate('/admin/products')}
-          className="btn-outline"
-          style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          className="variant-back-btn"
           title="Quay lại danh sách sản phẩm"
         >
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="admin-title" style={{ marginBottom: 0 }}>
-            Quản lý Biến thể
-          </h1>
-          <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-            Sản phẩm: <strong style={{ color: 'var(--primary)' }}>{selectedProduct.name}</strong>
+          <h1 className="variant-header-title">Quản lý Biến thể & Giá bán</h1>
+          <p className="variant-header-subtitle">
+            Sản phẩm: <strong>{selectedProduct.name}</strong>
           </p>
         </div>
       </div>
 
-      <div className="admin-card">
-        <div className="admin-card-body">
-          {/* Variant Form */}
-          <div className="admin-variant-box" style={{ marginBottom: '2rem' }}>
-            <h3 className="admin-variant-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              {isEditingVariant ? <Edit size={16} /> : <Plus size={16} />}
-              {isEditingVariant ? 'Cập nhật biến thể' : 'Thêm biến thể mới'}
-            </h3>
-            <form onSubmit={handleSaveVariant} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', alignItems: 'start' }}>
-              <div>
-                <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>SKU *</label>
-                <input type="text" required value={variantForm.sku} onChange={e => setVariantForm({ ...variantForm, sku: e.target.value })} className="admin-form-input" style={{ padding: '0.5rem' }} />
-              </div>
-              <div>
-                <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Giá (đ) *</label>
-                <input type="number" required min="0" value={variantForm.price} onChange={e => setVariantForm({ ...variantForm, price: parseFloat(e.target.value) })} className="admin-form-input" style={{ padding: '0.5rem' }} />
-              </div>
-              <div>
-                <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Kho *</label>
-                <input type="number" required min="0" value={variantForm.stockQuantity} onChange={e => setVariantForm({ ...variantForm, stockQuantity: parseInt(e.target.value) })} className="admin-form-input" style={{ padding: '0.5rem' }} />
-              </div>
-              <div>
-                <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Màu sắc</label>
-                <input type="text" value={variantForm.color} onChange={e => setVariantForm({ ...variantForm, color: e.target.value })} className="admin-form-input" style={{ padding: '0.5rem' }} />
-              </div>
-              <div>
-                <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Phân loại/Kích thước</label>
-                <input type="text" value={variantForm.size} onChange={e => setVariantForm({ ...variantForm, size: e.target.value })} className="admin-form-input" style={{ padding: '0.5rem' }} />
-              </div>
-              <div>
-                <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Tình trạng *</label>
-                <input type="text" required value={variantForm.condition} onChange={e => setVariantForm({ ...variantForm, condition: e.target.value })} className="admin-form-input" style={{ padding: '0.5rem' }} />
-              </div>
-              <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ flex: 1 }}>
-                  <label className="admin-form-label" style={{ fontSize: '0.75rem' }}>Hình ảnh biến thể</label>
-                  <input type="file" multiple accept="image/*" onChange={handleVariantImageUpload} className="admin-form-input" style={{ padding: '0.4rem' }} />
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+      <div className="variant-card">
+        {/* Variant Form */}
+        <div className={`variant-form-box ${isEditingVariant ? 'editing' : ''}`}>
+          <h3 className="variant-box-title">
+            {isEditingVariant ? <Edit size={18} color="#0071e3" /> : <Plus size={18} color="#0071e3" />}
+            {isEditingVariant ? `Đang chỉnh sửa biến thể (${variantForm.sku})` : 'Thêm biến thể mới'}
+          </h3>
+          
+          <form onSubmit={handleSaveVariant} className="variant-form-grid">
+            <div className="variant-form-group">
+              <label className="variant-label">Mã SKU *</label>
+              <input 
+                type="text" 
+                required 
+                value={variantForm.sku} 
+                onChange={e => setVariantForm({ ...variantForm, sku: e.target.value })} 
+                className="variant-input" 
+              />
+            </div>
+            
+            <div className="variant-form-group">
+              <label className="variant-label">Giá bán (VNĐ) *</label>
+              <input 
+                type="number" 
+                required 
+                min="0" 
+                step="1000"
+                value={variantForm.price} 
+                onChange={e => setVariantForm({ ...variantForm, price: parseFloat(e.target.value) || 0 })} 
+                className="variant-input" 
+                placeholder="Nhập giá bán..."
+              />
+            </div>
+
+            <div className="variant-form-group">
+              <label className="variant-label">Số lượng tồn kho *</label>
+              <input 
+                type="number" 
+                required 
+                min="0" 
+                value={variantForm.stockQuantity} 
+                onChange={e => setVariantForm({ ...variantForm, stockQuantity: parseInt(e.target.value) || 0 })} 
+                className="variant-input" 
+              />
+            </div>
+
+            <div className="variant-form-group">
+              <label className="variant-label">Màu sắc</label>
+              <input 
+                type="text" 
+                placeholder="VD: Titan Tự Nhiên, Đen, Xanh..."
+                value={variantForm.color} 
+                onChange={e => setVariantForm({ ...variantForm, color: e.target.value })} 
+                className="variant-input" 
+              />
+            </div>
+
+            <div className="variant-form-group">
+              <label className="variant-label">Dung lượng / Kích thước</label>
+              <input 
+                type="text" 
+                placeholder="VD: 128GB, 256GB, 512GB..."
+                value={variantForm.size} 
+                onChange={e => setVariantForm({ ...variantForm, size: e.target.value })} 
+                className="variant-input" 
+              />
+            </div>
+
+            <div className="variant-form-group">
+              <label className="variant-label">Tình trạng máy *</label>
+              <input 
+                type="text" 
+                required 
+                placeholder="VD: Mới 100%, 99%..."
+                value={variantForm.condition} 
+                onChange={e => setVariantForm({ ...variantForm, condition: e.target.value })} 
+                className="variant-input" 
+              />
+            </div>
+
+            <div className="variant-form-group full-width">
+              <label className="variant-label">Hình ảnh biến thể</label>
+              <div className="variant-image-upload-wrapper">
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handleVariantImageUpload} 
+                  style={{ fontSize: '0.85rem' }} 
+                />
+                <div className="variant-image-preview-list">
                   {variantForm.images && variantForm.images.map((img, idx) => (
-                    <div key={idx} style={{ position: 'relative' }}>
-                      <img src={img.imageUrl} alt="preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }} />
-                      <button type="button" onClick={() => removeVariantImage(idx)} style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', fontSize: '10px' }}>&times;</button>
+                    <div key={idx} className="variant-img-item">
+                      <img src={img.imageUrl} alt="preview" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeVariantImage(idx)} 
+                        className="variant-img-remove-btn"
+                        title="Xóa ảnh"
+                      >
+                        &times;
+                      </button>
                     </div>
                   ))}
                 </div>
               </div>
-              <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
-                {isEditingVariant && (
-                  <button type="button" onClick={resetVariantForm} className="btn-outline" style={{ padding: '0.6rem 1.5rem' }}>
-                    Hủy sửa
-                  </button>
-                )}
-                <button type="submit" className="btn-primary" style={{ padding: '0.6rem 2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Save size={18} /> {isEditingVariant ? 'Lưu cập nhật' : 'Thêm biến thể'}
+            </div>
+
+            <div className="variant-form-actions">
+              {isEditingVariant && (
+                <button type="button" onClick={resetVariantForm} className="btn-cancel-edit">
+                  Hủy chỉnh sửa
                 </button>
-              </div>
-            </form>
-          </div>
-
-          <div style={{ marginTop: '3rem' }}>
-            <h3 className="admin-variant-title" style={{ marginBottom: '1.5rem', fontSize: '1.25rem' }}>Danh sách Biến thể hiện tại</h3>
-            <div className="admin-table-container" style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }}>
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Ảnh</th>
-                    <th>SKU</th>
-                    <th>Màu sắc</th>
-                    <th>Phân loại/Kích thước</th>
-                    <th>Tình trạng</th>
-                    <th>Giá</th>
-                    <th style={{ textAlign: 'center' }}>Kho</th>
-                    <th style={{ textAlign: 'right' }}>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(!selectedProduct.variants || selectedProduct.variants.length === 0) ? (
-                    <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Chưa có biến thể nào.</td>
-                    </tr>
-                  ) : (
-                    selectedProduct.variants.map((v) => (
-                      <tr key={v.id} style={{ backgroundColor: isEditingVariant && variantForm.id === v.id ? 'var(--primary-light)' : 'transparent' }}>
-                        <td>
-                          <img src={v.images && v.images.length > 0 ? v.images[0].imageUrl : 'https://via.placeholder.com/30'} alt="variant" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} onError={(e) => { e.target.src = 'https://via.placeholder.com/30' }} />
-                        </td>
-                        <td><strong>{v.sku}</strong></td>
-                        <td>{v.color || '-'}</td>
-                        <td>{v.size || '-'}</td>
-                        <td>{v.condition || 'Mới 100%'}</td>
-                        <td style={{ color: 'var(--primary)', fontWeight: '600' }}>{new Intl.NumberFormat('vi-VN').format(v.price)} đ</td>
-                        <td style={{ textAlign: 'center' }}>
-                          <span className={`admin-badge badge-${v.stockQuantity > 0 ? 'green' : 'red'}`}>
-                            {v.stockQuantity}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="admin-actions">
-                            <button className="action-btn edit" onClick={() => handleEditVariantClick(v)} title="Sửa biến thể">
-                              <Edit size={16} />
-                            </button>
-                            <button className="action-btn delete" onClick={() => handleDeleteVariant(v.id)} title="Xóa biến thể">
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 className="admin-variant-title" style={{ margin: 0, fontSize: '1.25rem' }}>Thông số kỹ thuật của sản phẩm</h3>
-              <button type="button" onClick={addVariantSpec} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }}>
-                <Plus size={16} /> Thêm thông số
+              )}
+              <button type="submit" className="btn-save-variant">
+                <Save size={18} /> {isEditingVariant ? 'Lưu Cập Nhật Giá' : 'Thêm Biến Thể Mới'}
               </button>
             </div>
-            {(!selectedProduct.specifications || selectedProduct.specifications.length === 0) ? (
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, marginBottom: '1rem' }}>Chưa có thông số kỹ thuật nào.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-                {selectedProduct.specifications.map((spec, index) => (
-                  <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <input type="text" placeholder="Tên (VD: Màn hình)" value={spec.key} onChange={e => handleVariantSpecChange(index, 'key', e.target.value)} className="admin-form-input" style={{ flex: 1 }} required />
-                    <input type="text" placeholder="Giá trị (VD: 6.1 inch)" value={spec.value} onChange={e => handleVariantSpecChange(index, 'value', e.target.value)} className="admin-form-input" style={{ flex: 2 }} required />
-                    <button type="button" onClick={() => removeVariantSpec(index)} className="action-btn delete" style={{ padding: '0.4rem' }}>
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div style={{ textAlign: 'right', marginTop: '1.5rem' }}>
-              <button type="button" onClick={handleSaveVariantSpecs} className="btn-primary" style={{ padding: '0.6rem 2rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Save size={18} /> Lưu thông số
-              </button>
-            </div>
-          </div>
-
+          </form>
         </div>
+
+        {/* Danh sách biến thể */}
+        <div style={{ marginTop: '2.5rem' }}>
+          <h3 className="variant-section-title">Danh sách Biến thể & Bảng Giá ({selectedProduct.variants?.length || 0})</h3>
+          
+          <div className="variant-table-box">
+            <table className="variant-table">
+              <thead>
+                <tr>
+                  <th>Ảnh</th>
+                  <th>SKU</th>
+                  <th>Màu sắc</th>
+                  <th>Phiên bản / Bộ nhớ</th>
+                  <th>Tình trạng</th>
+                  <th>Giá bán</th>
+                  <th style={{ textAlign: 'center' }}>Tồn kho</th>
+                  <th style={{ textAlign: 'right' }}>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(!selectedProduct.variants || selectedProduct.variants.length === 0) ? (
+                  <tr>
+                    <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#86868b' }}>Chưa có biến thể nào.</td>
+                  </tr>
+                ) : (
+                  selectedProduct.variants.map((v) => (
+                    <tr key={v.id} className={isEditingVariant && variantForm.id === v.id ? 'editing-row' : ''}>
+                      <td>
+                        <img 
+                          src={v.images && v.images.length > 0 ? v.images[0].imageUrl : 'https://via.placeholder.com/44'} 
+                          alt="variant" 
+                          className="variant-thumb"
+                          onError={(e) => { e.target.src = 'https://via.placeholder.com/44' }} 
+                        />
+                      </td>
+                      <td><strong>{v.sku}</strong></td>
+                      <td>{v.color || '-'}</td>
+                      <td><strong>{v.size || '-'}</strong></td>
+                      <td>{v.condition || 'Mới 100%'}</td>
+                      <td>
+                        <span className="variant-price-tag">
+                          {new Intl.NumberFormat('vi-VN').format(v.price)} đ
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={`stock-pill ${v.stockQuantity > 0 ? 'in-stock' : 'out-stock'}`}>
+                          {v.stockQuantity > 0 ? `Còn ${v.stockQuantity}` : 'Hết hàng'}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <button 
+                            className="action-btn edit" 
+                            onClick={() => handleEditVariantClick(v)} 
+                            title="Sửa giá & thông tin"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button 
+                            className="action-btn delete" 
+                            onClick={() => handleDeleteVariant(v.id)} 
+                            title="Xóa biến thể"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Thông số kỹ thuật */}
+        <div className="variant-specs-box">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <h3 className="variant-section-title" style={{ margin: 0 }}>Thông số kỹ thuật sản phẩm</h3>
+            <button 
+              type="button" 
+              onClick={addVariantSpec} 
+              className="btn-outline" 
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+            >
+              <Plus size={16} /> Thêm thông số
+            </button>
+          </div>
+
+          {(!selectedProduct.specifications || selectedProduct.specifications.length === 0) ? (
+            <p style={{ fontSize: '0.9rem', color: '#86868b', margin: '0 0 1rem 0' }}>Chưa có thông số kỹ thuật nào.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.25rem' }}>
+              {selectedProduct.specifications.map((spec, index) => (
+                <div key={index} className="spec-row">
+                  <input 
+                    type="text" 
+                    placeholder="Tên (VD: Màn hình, Chip, RAM...)" 
+                    value={spec.key} 
+                    onChange={e => handleVariantSpecChange(index, 'key', e.target.value)} 
+                    className="variant-input" 
+                    style={{ flex: 1 }} 
+                    required 
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Giá trị (VD: OLED 6.7 inch, Apple A17 Pro...)" 
+                    value={spec.value} 
+                    onChange={e => handleVariantSpecChange(index, 'value', e.target.value)} 
+                    className="variant-input" 
+                    style={{ flex: 2 }} 
+                    required 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => removeVariantSpec(index)} 
+                    className="action-btn delete" 
+                    style={{ padding: '0.55rem' }}
+                    title="Xóa thông số"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ textAlign: 'right', marginTop: '1.5rem' }}>
+            <button 
+              type="button" 
+              onClick={handleSaveVariantSpecs} 
+              className="btn-primary" 
+              style={{ padding: '0.65rem 2rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              <Save size={18} /> Lưu Thông Số Kỹ Thuật
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   );

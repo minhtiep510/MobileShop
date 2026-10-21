@@ -1,0 +1,335 @@
+.variant-mgmt-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: 2.5rem;
+}
+
+.variant-mgmt-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.variant-back-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #e5e5ea;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.variant-back-btn:hover {
+  background: #f5f5f7;
+  border-color: #0071e3;
+  color: #0071e3;
+  transform: translateX(-2px);
+}
+
+.variant-header-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.variant-header-subtitle {
+  margin: 0.25rem 0 0 0;
+  color: #86868b;
+  font-size: 0.95rem;
+}
+
+.variant-header-subtitle strong {
+  color: #0071e3;
+}
+
+/* Card Wrapper */
+.variant-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #f0f0f4;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  padding: 2rem;
+}
+
+/* Form Box */
+.variant-form-box {
+  background: #fafafc;
+  border: 1px solid #e8e8ed;
+  border-radius: 16px;
+  padding: 1.75rem;
+  margin-bottom: 2.5rem;
+  transition: all 0.2s ease;
+}
+
+.variant-form-box.editing {
+  border-color: #0071e3;
+  background: #f4f8ff;
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.08);
+}
+
+.variant-box-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0 0 1.25rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.variant-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.variant-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.variant-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.variant-label {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #48484a;
+}
+
+.variant-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 0.9rem;
+  color: #1d1d1f;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.variant-input:focus {
+  outline: none;
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+/* Image Upload Section */
+.variant-image-upload-wrapper {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px dashed #c7c7cc;
+}
+
+.variant-image-preview-list {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.variant-img-item {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e5ea;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.variant-img-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.variant-img-remove-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #ff3b30;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Form Actions */
+.variant-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.btn-cancel-edit {
+  padding: 0.65rem 1.5rem;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #d2d2d7;
+  color: #1d1d1f;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel-edit:hover {
+  background: #f5f5f7;
+}
+
+.btn-save-variant {
+  padding: 0.65rem 2rem;
+  border-radius: 10px;
+  background: #0071e3;
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.25);
+}
+
+.btn-save-variant:hover {
+  background: #0077ed;
+  transform: translateY(-1px);
+}
+
+/* Table Section */
+.variant-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0 0 1.25rem 0;
+}
+
+.variant-table-box {
+  border: 1px solid #e8e8ed;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.variant-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.variant-table th {
+  background: #fbfbfd;
+  padding: 1rem 1.25rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #6e6e73;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e8e8ed;
+}
+
+.variant-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f0f0f4;
+  font-size: 0.9rem;
+  color: #1d1d1f;
+  vertical-align: middle;
+}
+
+.variant-table tr:hover {
+  background-color: #f9f9fb;
+}
+
+.variant-table tr.editing-row {
+  background-color: #eef6ff !important;
+}
+
+.variant-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #e5e5ea;
+}
+
+.variant-price-tag {
+  color: #0071e3;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.stock-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.stock-pill.in-stock {
+  background-color: #e6f7ec;
+  color: #107e3e;
+}
+
+.stock-pill.out-stock {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Specs Section */
+.variant-specs-box {
+  margin-top: 3.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid #e8e8ed;
+}
+
+.spec-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .variant-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .variant-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -8,5 +8,6 @@ namespace WebApplication1.Services.Interfaces
     {
         Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync(int year);
         Task<List<BestSellingProductDto>> GetBestSellingProductsAsync(int limit = 5);
+        Task<List<CategoryRevenueDto>> GetCategoryRevenueAsync();
     }
 }

@@ -77,8 +77,6 @@ export default function Checkout() {
           if (profileRes.data.address) {
             const parts = profileRes.data.address.split(',').map(s => s.trim());
             if (parts.length >= 4) {
-              // Gán tạm giá trị. Vì API lấy từ text cũ có thể không khớp 100% với select
-              // Nếu tên Tỉnh khớp với danh sách API thì select sẽ tự nhận.
               setProvince(parts[parts.length - 1]);
               setDistrict(parts[parts.length - 2]);
               setWard(parts[parts.length - 3]);
@@ -101,17 +99,25 @@ export default function Checkout() {
     fetchCheckoutData();
   }, [navigate]);
 
-  // Tính toán danh sách Quận/Huyện và Phường/Xã dựa trên Tỉnh/Thành đã chọn
-  const availableDistricts = useMemo(() => {
-    // Tìm province object theo tên
-    const p = locationData.find(item => item.name === province || item.name.includes(province) || province.includes(item.name));
-    return p?.districts || [];
+  // Tìm đối tượng tỉnh đang được chọn
+  const selectedProvinceObj = useMemo(() => {
+    return locationData.find(p => p.name === province);
   }, [locationData, province]);
 
-  const availableWards = useMemo(() => {
-    const d = availableDistricts.find(item => item.name === district || item.name.includes(district) || district.includes(item.name));
-    return d?.wards || [];
+  // Danh sách Quận/Huyện dựa theo Tỉnh
+  const availableDistricts = useMemo(() => {
+    return selectedProvinceObj ? selectedProvinceObj.districts : [];
+  }, [selectedProvinceObj]);
+
+  // Tìm đối tượng huyện đang được chọn
+  const selectedDistrictObj = useMemo(() => {
+    return availableDistricts.find(d => d.name === district);
   }, [availableDistricts, district]);
+
+  // Danh sách Phường/Xã dựa theo Huyện
+  const availableWards = useMemo(() => {
+    return selectedDistrictObj ? selectedDistrictObj.wards : [];
+  }, [selectedDistrictObj]);
 
   // Handle changes to reset child dropdowns
   const handleProvinceChange = (e) => {
@@ -137,15 +143,29 @@ export default function Checkout() {
 
     try {
       setCheckingOut(true);
-      await api.post('/Order/checkout', {
+      const res = await api.post('/Order/checkout', {
         shippingAddress: fullAddress,
         phone,
         paymentMethod,
         shippingFee
       });
 
-      toast.success('Đặt hàng thành công!');
+      const orderId = res.data?.orderId;
       sessionStorage.removeItem('checkoutItemIds');
+
+      // Nếu khách chọn chuyển khoản qua VietQR
+      if ((paymentMethod === 'VietQR' || paymentMethod === 'BankTransfer') && orderId) {
+        toast.success('Đơn hàng đã được tạo. Chuyển sang trang quét mã VietQR...');
+        navigate('/payment/vietqr', {
+          state: {
+            orderId: orderId,
+            amount: finalTotal
+          }
+        });
+        return;
+      }
+
+      toast.success('Đặt hàng thành công!');
       navigate('/account/orders');
     } catch (err) {
       console.error('Lỗi khi đặt hàng:', err);
@@ -292,6 +312,24 @@ export default function Checkout() {
                 Phương thức thanh toán
               </h2>
               <div className="payment-method-options">
+                <label className={`payment-option ${paymentMethod === 'VietQR' ? 'active-vietqr' : ''}`} style={paymentMethod === 'VietQR' ? { borderColor: '#0071e3', background: '#f0f7ff' } : {}}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="VietQR"
+                    checked={paymentMethod === 'VietQR'}
+                    onChange={() => setPaymentMethod('VietQR')}
+                  />
+                  <div className="payment-option-content" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <img 
+                      src="https://vietqr.net/img/vietqr-viet-nam-1.png" 
+                      alt="VietQR" 
+                      style={{ height: '24px', objectFit: 'contain' }} 
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                    <span><strong>Chuyển khoản VietQR</strong> (MB Bank - Quét mã tự động)</span>
+                  </div>
+                </label>
                 <label className="payment-option">
                   <input
                     type="radio"
@@ -301,16 +339,6 @@ export default function Checkout() {
                     onChange={() => setPaymentMethod('COD')}
                   />
                   <span>Thanh toán khi nhận hàng (COD)</span>
-                </label>
-                <label className="payment-option">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="BankTransfer"
-                    checked={paymentMethod === 'BankTransfer'}
-                    onChange={() => setPaymentMethod('BankTransfer')}
-                  />
-                  <span>Chuyển khoản qua ngân hàng</span>
                 </label>
               </div>
             </div>
@@ -343,15 +371,7 @@ export default function Checkout() {
               ))}
             </div>
 
-            <div className="voucher-section">
-              <div className="voucher-label">Mã giảm giá / Quà tặng</div>
-              <div className="voucher-input-group">
-                <input type="text" className="voucher-input" placeholder="Nhập mã ưu đãi" />
-                <button type="button" className="voucher-btn">Áp dụng</button>
-              </div>
-            </div>
-
-            <div className="summary-totals">
+            <div className="summary-pricing">
               <div className="summary-row">
                 <span>Tạm tính:</span>
                 <span>{new Intl.NumberFormat('vi-VN').format(subTotal)}đ</span>
@@ -370,8 +390,13 @@ export default function Checkout() {
               type="submit"
               className="cps-btn-submit-order"
               disabled={checkingOut}
+              style={paymentMethod === 'Momo' ? { backgroundColor: '#d82d8b' } : {}}
             >
-              {checkingOut ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}
+              {checkingOut 
+                ? 'Đang xử lý...' 
+                : paymentMethod === 'Momo' 
+                  ? 'Thanh toán ngay bằng Ví MoMo' 
+                  : 'Xác nhận đặt hàng'}
             </button>
 
           </div>

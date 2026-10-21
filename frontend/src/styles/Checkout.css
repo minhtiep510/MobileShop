@@ -353,3 +353,12 @@
     grid-column: span 1;
   }
 }
+
+.payment-option.active-momo {
+  border-color: #d82d8b;
+  background-color: #fff0f7;
+}
+
+.payment-option.active-momo input[type="radio"] {
+  accent-color: #d82d8b;
+}

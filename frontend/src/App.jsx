@@ -10,6 +10,7 @@ import ProductDetail from './pages/customer/ProductDetail';
 import CategoryProducts from './pages/customer/CategoryProducts';
 import Cart from './pages/customer/Cart';
 import Checkout from './pages/customer/Checkout';
+import VietQrPayment from './pages/customer/VietQrPayment';
 import Login from './pages/customer/Login';
 import Register from './pages/customer/Register';
 import VerifyOtp from './pages/customer/VerifyOtp';
@@ -42,6 +43,7 @@ function App() {
           <Route path="category/:id" element={<CategoryProducts />} />
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="payment/vietqr" element={<VietQrPayment />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="verify-otp" element={<VerifyOtp />} />
@@ -61,13 +63,17 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="products" element={<ProductManagement />} />
           <Route path="products/:id/variants" element={<VariantManagement />} />
+          <Route path="variants" element={<VariantManagement />} />
           <Route path="categories" element={<CategoryManagement />} />
           <Route path="orders" element={<OrderManagement />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="banners" element={<BannerManagement />} />
         </Route>
-          </Routes>
-        </BrowserRouter>
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
       </ConfirmProvider>
     </ToastProvider>
   );
