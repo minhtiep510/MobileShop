@@ -88,12 +88,6 @@ var app = builder.Build();
 app.UseMiddleware<WebApplication1.Middlewares.GlobalExceptionMiddleware>();
 app.UseMiddleware<WebApplication1.Middlewares.RequestLoggingMiddleware>();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    await SeedData.InitializeAsync(services);
-}
-
 app.UseCors("AllowAll");
 app.UseStaticFiles(); 
 if (app.Environment.IsDevelopment())
