@@ -2,7 +2,7 @@ namespace WebApplication1.DTOs
 {
     public class OrderDto
     {        
-         public int Id { get; set; }
+        public int Id { get; set; }
 
         public string CustomerName { get; set; }
         public string Phone { get; set; }
@@ -17,6 +17,10 @@ namespace WebApplication1.DTOs
         public string PaymentMethod { get; set; }
         public string PaymentStatus { get; set; }
 
+        public int? CouponId { get; set; }
+        public string? CouponCode { get; set; }
+        public decimal DiscountAmount { get; set; }
+
         public List<OrderDetailDto> Items { get; set; }
     }
 
@@ -30,5 +34,7 @@ namespace WebApplication1.DTOs
         public string PaymentMethod { get; set; } = "COD";
         
         public decimal ShippingFee { get; set; } = 0;
+
+        public string? CouponCode { get; set; }
     }
 }

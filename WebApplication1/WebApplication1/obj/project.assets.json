@@ -4367,11 +4367,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
+      "projectUniqueName": "d:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
       "projectName": "WebApplication1",
-      "projectPath": "D:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
+      "projectPath": "d:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
       "packagesPath": "C:\\Users\\Tiep\\.nuget\\packages\\",
-      "outputPath": "D:\\baocao\\WebApplication1\\WebApplication1\\obj\\",
+      "outputPath": "d:\\baocao\\WebApplication1\\WebApplication1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -4462,5 +4462,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: No such host is known. (api.nuget.org:443)"
+    }
+  ]
 }

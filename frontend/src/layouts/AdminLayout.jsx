@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, Navigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, LogOut, Users, Home, List, Image } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Users, Home, List, Image, Tag } from 'lucide-react';
 import '../styles/Admin.css';
 
 export default function AdminLayout() {
@@ -57,6 +57,10 @@ export default function AdminLayout() {
           <Link to="/admin/orders" className={`admin-nav-link ${isActive('orders')}`}>
             <ShoppingCart size={20} />
             <span>Đơn hàng</span>
+          </Link>
+          <Link to="/admin/coupons" className={`admin-nav-link ${isActive('coupons')}`}>
+            <Tag size={20} />
+            <span>Mã giảm giá</span>
           </Link>
           <Link to="/admin/users" className={`admin-nav-link ${isActive('users')}`}>
             <Users size={20} />

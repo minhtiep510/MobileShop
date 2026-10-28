@@ -360,22 +360,26 @@ export default function Cart() {
             disabled={selectedIds.size === 0}
             style={{
               width: '100%',
-              marginTop: '1rem',
+              marginTop: '1.4rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem',
+              gap: '0.6rem',
               background: selectedIds.size === 0
                 ? '#ccc'
-                : 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                : 'linear-gradient(135deg, #0071e3 0%, #0056b3 100%)',
               border: 'none',
-              boxShadow: selectedIds.size > 0 ? '0 4px 12px rgba(234, 88, 12, 0.3)' : 'none',
+              boxShadow: selectedIds.size > 0 ? '0 6px 18px rgba(0, 113, 227, 0.35)' : 'none',
               cursor: selectedIds.size === 0 ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
+              padding: '1.1rem',
+              fontSize: '1.1rem',
+              fontWeight: 700,
+              borderRadius: '14px'
             }}
           >
             Thanh toán ({selectedIds.size})
-            <ArrowRight size={18} />
+            <ArrowRight size={20} />
           </button>
         </div>
       </div>

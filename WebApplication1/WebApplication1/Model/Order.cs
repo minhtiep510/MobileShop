@@ -24,6 +24,12 @@ namespace WebApplication1.Model
 
         [MaxLength(50)]
         public string PaymentStatus { get; set; } = "Unpaid";
+        public int? CouponId { get; set; }
+[       ForeignKey("CouponId")]
+        public Coupon Coupon { get; set; }
+// Lưu lại số tiền đã giảm tại thời điểm mua
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal DiscountAmount { get; set; } = 0;
 
         // Navigation properties
         [ForeignKey("UserId")]

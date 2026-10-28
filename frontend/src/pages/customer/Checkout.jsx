@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Tag, Check, X, ShieldCheck, MapPin, CreditCard, ChevronRight } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../components/Toast';
 import '../../styles/Checkout.css';
@@ -28,12 +28,23 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [shippingFee] = useState(0);
 
+  // Coupon state
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [checkingCoupon, setCheckingCoupon] = useState(false);
+
   // Lấy danh sách địa giới hành chính Việt Nam
   useEffect(() => {
     fetch('https://provinces.open-api.vn/api/?depth=3')
       .then(res => res.json())
-      .then(data => setLocationData(data))
-      .catch(err => console.error("Lỗi lấy dữ liệu tỉnh/thành:", err));
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setLocationData(data);
+        }
+      })
+      .catch(err => {
+        console.warn("API provinces chậm/lỗi:", err);
+      });
   }, []);
 
   useEffect(() => {
@@ -73,23 +84,22 @@ export default function Checkout() {
         if (profileRes?.data) {
           setFullName(profileRes.data.fullName || '');
           setPhone(profileRes.data.phoneNumber || '');
-
-          if (profileRes.data.address) {
-            const parts = profileRes.data.address.split(',').map(s => s.trim());
+          const addr = profileRes.data.address || '';
+          if (addr) {
+            const parts = addr.split(',').map(p => p.trim());
             if (parts.length >= 4) {
-              setProvince(parts[parts.length - 1]);
-              setDistrict(parts[parts.length - 2]);
-              setWard(parts[parts.length - 3]);
               setStreet(parts.slice(0, parts.length - 3).join(', '));
+              setWard(parts[parts.length - 3]);
+              setDistrict(parts[parts.length - 2]);
+              setProvince(parts[parts.length - 1]);
             } else {
-              setStreet(profileRes.data.address);
+              setStreet(addr);
             }
           }
         }
-
       } catch (err) {
         console.error('Lỗi khi lấy dữ liệu:', err);
-        toast.error('Không thể tải dữ liệu để thanh toán.');
+        toast.error('Không thể tải thông tin thanh toán.');
         navigate('/cart');
       } finally {
         setLoading(false);
@@ -131,6 +141,43 @@ export default function Checkout() {
     setWard('');
   };
 
+  const subTotal = cart ? cart.items.reduce((sum, i) => sum + i.price * i.quantity, 0) : 0;
+  const discountAmount = appliedCoupon ? Math.min(appliedCoupon.discountAmount, subTotal) : 0;
+  const finalTotal = Math.max(0, subTotal - discountAmount + shippingFee);
+
+  // Áp dụng mã giảm giá qua API Backend
+  const handleApplyCoupon = async (e) => {
+    e.preventDefault();
+    if (!couponCodeInput.trim()) {
+      toast.warning('Vui lòng nhập mã giảm giá');
+      return;
+    }
+
+    try {
+      setCheckingCoupon(true);
+      const res = await api.post('/Coupon/apply', {
+        code: couponCodeInput.trim().toUpperCase(),
+        orderAmount: subTotal
+      });
+
+      if (res.data && res.data.success) {
+        setAppliedCoupon(res.data);
+        toast.success(res.data.message || 'Áp dụng mã giảm giá thành công!');
+      }
+    } catch (err) {
+      console.error('Lỗi kiểm tra coupon:', err);
+      toast.error(err.response?.data?.message || 'Mã giảm giá không hợp lệ.');
+    } finally {
+      setCheckingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCodeInput('');
+    toast.info('Đã hủy áp dụng mã giảm giá');
+  };
+
   const handleCheckout = async (e) => {
     e.preventDefault();
 
@@ -147,7 +194,8 @@ export default function Checkout() {
         shippingAddress: fullAddress,
         phone,
         paymentMethod,
-        shippingFee
+        shippingFee,
+        couponCode: appliedCoupon ? appliedCoupon.code : null
       });
 
       const orderId = res.data?.orderId;
@@ -178,65 +226,65 @@ export default function Checkout() {
   if (loading || !cart) {
     return (
       <div className="cps-checkout-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div className="loader" style={{ borderTopColor: '#0071e3', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
+        <div className="loader inline-block"></div>
       </div>
     );
   }
-
-  const subTotal = cart.totalPrice;
-  const finalTotal = subTotal + shippingFee;
 
   return (
     <div className="cps-checkout-page">
       <div className="cps-checkout-container">
 
+        {/* Stepper Header */}
         <div className="cps-checkout-stepper">
-          <div className="stepper-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/cart')}>
-            <div className="stepper-number"><Check size={14} /></div>
+          <div className="stepper-item">
+            <span className="stepper-number">1</span>
             <span>Giỏ hàng</span>
           </div>
-          <div className="stepper-line active"></div>
+          <div className="stepper-line active" />
           <div className="stepper-item active">
-            <div className="stepper-number">2</div>
-            <span>Thông tin thanh toán</span>
+            <span className="stepper-number">2</span>
+            <span>Đặt hàng & Thanh toán</span>
           </div>
-          <div className="stepper-line"></div>
+          <div className="stepper-line" />
           <div className="stepper-item">
-            <div className="stepper-number">3</div>
+            <span className="stepper-number">3</span>
             <span>Hoàn tất</span>
           </div>
         </div>
 
+        {/* Back Link */}
+        <button type="button" className="cps-btn-back" onClick={() => navigate('/cart')} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#0071e3', cursor: 'pointer', marginBottom: '20px', fontSize: '0.95rem', fontWeight: 500 }}>
+          <ArrowLeft size={16} /> Quay lại giỏ hàng
+        </button>
+
         <form onSubmit={handleCheckout} className="cps-checkout-layout">
 
+          {/* CỘT TRÁI: Form Địa Chỉ & Thanh Toán */}
           <div className="cps-checkout-form-box">
             <h2 className="checkout-section-title">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#0071e3' }}>
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              Thông tin giao hàng
+              <MapPin size={22} color="#0071e3" /> Thông tin giao hàng
             </h2>
 
             <div className="checkout-form-grid">
-              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label className="form-label">Họ và tên</label>
+              <div className="form-group">
+                <label className="form-label">Họ và tên người nhận *</label>
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="Nguyễn Văn A"
+                  placeholder="Nhập họ và tên"
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label className="form-label">Số điện thoại</label>
+              <div className="form-group">
+                <label className="form-label">Số điện thoại *</label>
                 <input
                   type="tel"
                   className="form-input"
-                  placeholder="0912345678"
+                  placeholder="Nhập số điện thoại"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                   required
@@ -244,13 +292,12 @@ export default function Checkout() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Tỉnh / Thành phố</label>
+                <label className="form-label">Tỉnh / Thành phố *</label>
                 <select
-                  className="form-input"
+                  className="form-select"
                   value={province}
                   onChange={handleProvinceChange}
                   required
-                  style={{ cursor: 'pointer', appearance: 'auto' }}
                 >
                   <option value="" disabled>-- Chọn Tỉnh / Thành phố --</option>
                   {locationData.map(p => (
@@ -260,14 +307,13 @@ export default function Checkout() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Quận / Huyện</label>
+                <label className="form-label">Quận / Huyện *</label>
                 <select
-                  className="form-input"
+                  className="form-select"
                   value={district}
                   onChange={handleDistrictChange}
                   disabled={!province || availableDistricts.length === 0}
                   required
-                  style={{ cursor: 'pointer', appearance: 'auto' }}
                 >
                   <option value="" disabled>-- Chọn Quận / Huyện --</option>
                   {availableDistricts.map(d => (
@@ -277,14 +323,13 @@ export default function Checkout() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Phường / Xã</label>
+                <label className="form-label">Phường / Xã *</label>
                 <select
-                  className="form-input"
+                  className="form-select"
                   value={ward}
                   onChange={e => setWard(e.target.value)}
                   disabled={!district || availableWards.length === 0}
                   required
-                  style={{ cursor: 'pointer', appearance: 'auto' }}
                 >
                   <option value="" disabled>-- Chọn Phường / Xã --</option>
                   {availableWards.map(w => (
@@ -294,11 +339,11 @@ export default function Checkout() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Số nhà, ngõ ngách, tên đường</label>
+                <label className="form-label">Số nhà, ngõ ngách, tên đường *</label>
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="Ví dụ: Số 12, Ngõ 34..."
+                  placeholder="Ví dụ: Số 12, Ngõ 45, Đường Cầu Giấy"
                   value={street}
                   onChange={e => setStreet(e.target.value)}
                   required
@@ -306,47 +351,50 @@ export default function Checkout() {
               </div>
             </div>
 
-            <div className="payment-method-section" style={{ marginTop: '20px' }}>
-              <h2 className="checkout-section-title">
-                <ShieldCheck style={{ color: '#0071e3' }} />
-                Phương thức thanh toán
+            {/* Phương thức thanh toán */}
+            <div className="payment-method-section">
+              <h2 className="checkout-section-title" style={{ marginTop: '1.5rem' }}>
+                <CreditCard size={22} color="#0071e3" /> Phương thức thanh toán
               </h2>
+
               <div className="payment-method-options">
-                <label className={`payment-option ${paymentMethod === 'VietQR' ? 'active-vietqr' : ''}`} style={paymentMethod === 'VietQR' ? { borderColor: '#0071e3', background: '#f0f7ff' } : {}}>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="VietQR"
-                    checked={paymentMethod === 'VietQR'}
-                    onChange={() => setPaymentMethod('VietQR')}
-                  />
-                  <div className="payment-option-content" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <img 
-                      src="https://vietqr.net/img/vietqr-viet-nam-1.png" 
-                      alt="VietQR" 
-                      style={{ height: '24px', objectFit: 'contain' }} 
-                      onError={(e) => { e.target.style.display = 'none'; }}
-                    />
-                    <span><strong>Chuyển khoản VietQR</strong> (MB Bank - Quét mã tự động)</span>
-                  </div>
-                </label>
-                <label className="payment-option">
+                <label className={`payment-option ${paymentMethod === 'COD' ? 'active' : ''}`}>
                   <input
                     type="radio"
                     name="paymentMethod"
                     value="COD"
                     checked={paymentMethod === 'COD'}
-                    onChange={() => setPaymentMethod('COD')}
+                    onChange={e => setPaymentMethod(e.target.value)}
                   />
-                  <span>Thanh toán khi nhận hàng (COD)</span>
+                  <div>
+                    <span>Thanh toán khi nhận hàng (COD)</span>
+                    <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#8c8c8c' }}>Thanh toán tiền mặt cho shipper khi nhận kiện hàng</p>
+                  </div>
+                </label>
+
+                <label className={`payment-option ${paymentMethod === 'VietQR' ? 'active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="VietQR"
+                    checked={paymentMethod === 'VietQR'}
+                    onChange={e => setPaymentMethod(e.target.value)}
+                  />
+                  <div>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      Chuyển khoản Ngân hàng (Mã VietQR 24/7)
+                      <span style={{ fontSize: '11px', background: '#0071e3', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>Khuyên dùng</span>
+                    </span>
+                    <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#8c8c8c' }}>Quét mã QR qua app ngân hàng MB Bank, Techcombank, Vietcombank... xác nhận ngay</p>
+                  </div>
                 </label>
               </div>
             </div>
-
           </div>
 
+          {/* CỘT PHẢI: Tóm tắt Đơn hàng & Mã giảm giá */}
           <div className="cps-checkout-summary-box">
-            <h2 className="checkout-section-title">Tóm tắt đơn hàng ({cart.items.length} sản phẩm)</h2>
+            <h2 className="checkout-section-title">Đơn hàng của bạn ({cart.items.length})</h2>
 
             <div className="summary-item-list">
               {cart.items.map(item => (
@@ -360,29 +408,83 @@ export default function Checkout() {
                   <div className="summary-item-info">
                     <div className="summary-item-name">{item.productName}</div>
                     <div className="summary-item-variant">
-                      {item.color}{item.color && item.size ? ' | ' : ''}{item.size}
+                      {[item.color, item.size].filter(Boolean).join(' - ')}
                     </div>
                   </div>
                   <div className="summary-item-price-col">
-                    <div className="summary-item-qty">Số lượng: {item.quantity}</div>
-                    <div className="summary-item-price">{new Intl.NumberFormat('vi-VN').format(item.price * item.quantity)}đ</div>
+                    <div className="summary-item-qty">x{item.quantity}</div>
+                    <div className="summary-item-price">
+                      {new Intl.NumberFormat('vi-VN').format(item.price * item.quantity)} đ
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="summary-pricing">
+            {/* Voucher Box */}
+            <div className="voucher-section">
+              <div className="voucher-label">
+                <Tag size={15} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '6px' }} />
+                Mã giảm giá (Coupon)
+              </div>
+              
+              {!appliedCoupon ? (
+                <div className="voucher-input-group">
+                  <input
+                    type="text"
+                    className="voucher-input"
+                    placeholder="Nhập mã coupon..."
+                    value={couponCodeInput}
+                    onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                  />
+                  <button
+                    type="button"
+                    className="voucher-btn"
+                    onClick={handleApplyCoupon}
+                    disabled={checkingCoupon || !couponCodeInput.trim()}
+                  >
+                    {checkingCoupon ? '...' : 'Áp dụng'}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ecfdf5', padding: '10px 14px', border: '1px solid #a7f3d0', borderRadius: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#059669', fontSize: '0.9rem', fontWeight: 600 }}>
+                    <Check size={16} /> Đã áp dụng: <strong>{appliedCoupon.code}</strong> (-{new Intl.NumberFormat('vi-VN').format(discountAmount)}đ)
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    style={{ background: 'transparent', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '4px' }}
+                    title="Hủy mã"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Totals */}
+            <div className="summary-totals">
               <div className="summary-row">
                 <span>Tạm tính:</span>
-                <span>{new Intl.NumberFormat('vi-VN').format(subTotal)}đ</span>
+                <span>{new Intl.NumberFormat('vi-VN').format(subTotal)} đ</span>
               </div>
+
+              {discountAmount > 0 && (
+                <div className="summary-row" style={{ color: '#059669', fontWeight: 600 }}>
+                  <span>Giảm giá ({appliedCoupon?.code}):</span>
+                  <span>-{new Intl.NumberFormat('vi-VN').format(discountAmount)} đ</span>
+                </div>
+              )}
+
               <div className="summary-row">
                 <span>Phí vận chuyển:</span>
-                <span>{new Intl.NumberFormat('vi-VN').format(shippingFee)}đ</span>
+                <span>{shippingFee === 0 ? 'Miễn phí' : `${new Intl.NumberFormat('vi-VN').format(shippingFee)} đ`}</span>
               </div>
+
               <div className="summary-row total">
-                <span>Tổng tiền:</span>
-                <span style={{ color: '#0071e3' }}>{new Intl.NumberFormat('vi-VN').format(finalTotal)}đ</span>
+                <span>Tổng thanh toán:</span>
+                <span style={{ color: '#0071e3' }}>{new Intl.NumberFormat('vi-VN').format(finalTotal)} đ</span>
               </div>
             </div>
 
@@ -390,15 +492,9 @@ export default function Checkout() {
               type="submit"
               className="cps-btn-submit-order"
               disabled={checkingOut}
-              style={paymentMethod === 'Momo' ? { backgroundColor: '#d82d8b' } : {}}
             >
-              {checkingOut 
-                ? 'Đang xử lý...' 
-                : paymentMethod === 'Momo' 
-                  ? 'Thanh toán ngay bằng Ví MoMo' 
-                  : 'Xác nhận đặt hàng'}
+              {checkingOut ? 'Đang tạo đơn hàng...' : 'Xác nhận đặt hàng'}
             </button>
-
           </div>
 
         </form>

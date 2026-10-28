@@ -18,8 +18,7 @@ export default function CategoryManagement() {
   const [formData, setFormData] = useState({
     name: '',
     description: ''
-  });
-
+  })
   const fetchCategories = async (search = searchTerm) => {
     try {
       setLoading(true);

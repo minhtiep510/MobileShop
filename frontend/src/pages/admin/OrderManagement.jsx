@@ -394,8 +394,18 @@ export default function OrderManagement() {
                   ))}
                 </tbody>
                 <tfoot>
+                  {selectedOrder.discountAmount > 0 && (
+                    <tr>
+                      <td colSpan="3" style={{ textAlign: 'right', fontWeight: '600', color: '#059669' }}>
+                        Giảm giá {selectedOrder.couponCode ? `(${selectedOrder.couponCode})` : ''}:
+                      </td>
+                      <td style={{ textAlign: 'right', fontWeight: '600', color: '#059669', whiteSpace: 'nowrap' }}>
+                        -{new Intl.NumberFormat('vi-VN').format(selectedOrder.discountAmount)} đ
+                      </td>
+                    </tr>
+                  )}
                   <tr>
-                    <td colSpan="3" style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.1rem' }}>Tổng cộng:</td>
+                    <td colSpan="3" style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.1rem' }}>Tổng thanh toán:</td>
                     <td style={{ textAlign: 'right', fontWeight: '700', fontSize: '1.25rem', color: 'var(--primary)', whiteSpace: 'nowrap' }}>
                       {new Intl.NumberFormat('vi-VN').format(selectedOrder.totalAmount)} đ
                     </td>

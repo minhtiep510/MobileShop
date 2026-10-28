@@ -1,7 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using WebApplication1.DTOs;
 using WebApplication1.Model;
 using WebApplication1.Services.Interfaces;
@@ -21,6 +21,7 @@ namespace WebApplication1.Services
         {
             var query = _context.Orders
                 .Include(o => o.User)
+                .Include(o => o.Coupon)
                 .OrderByDescending(o => o.OrderDate)
                 .AsQueryable();
 
@@ -48,6 +49,8 @@ namespace WebApplication1.Services
                     Phone = o.User != null ? o.User.PhoneNumber : "N/A",
                     Date = o.OrderDate,
                     o.TotalAmount,
+                    o.DiscountAmount,
+                    CouponCode = o.Coupon != null ? o.Coupon.Code : null,
                     Status = o.Status.ToLower(),
                     PaymentMethod = o.PaymentMethod,
                     PaymentStatus = o.PaymentStatus
@@ -69,6 +72,7 @@ namespace WebApplication1.Services
             var query = _context.Orders
                 .Where(o => o.UserId == userId)
                 .Include(o => o.User)
+                .Include(o => o.Coupon)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(d => d.ProductVariant)
                         .ThenInclude(v => v.Product)
@@ -89,6 +93,8 @@ namespace WebApplication1.Services
                     Phone = o.User != null ? o.User.PhoneNumber : "N/A",
                     OrderDate = o.OrderDate,
                     o.TotalAmount,
+                    o.DiscountAmount,
+                    CouponCode = o.Coupon != null ? o.Coupon.Code : null,
                     ShippingAddress = o.ShippingAddress,
                     Status = o.Status.ToLower(),
                     PaymentMethod = o.PaymentMethod,
@@ -123,6 +129,7 @@ namespace WebApplication1.Services
         {
             var order = await _context.Orders
                 .Include(o => o.User)
+                .Include(o => o.Coupon)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(d => d.ProductVariant)
                         .ThenInclude(v => v.Product)
@@ -143,6 +150,9 @@ namespace WebApplication1.Services
                 ShippingAddress = order.ShippingAddress,
                 OrderDate = order.OrderDate,
                 TotalAmount = order.TotalAmount,
+                CouponId = order.CouponId,
+                CouponCode = order.Coupon != null ? order.Coupon.Code : null,
+                DiscountAmount = order.DiscountAmount,
                 Status = order.Status.ToLower(),
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
@@ -174,8 +184,11 @@ namespace WebApplication1.Services
             if (order == null)
                 return (false, null);
 
-            // Restore inventory if order is being cancelled
-            if (status.ToLower() == "cancelled" && order.Status.ToLower() != "cancelled")
+            var oldStatus = order.Status.ToLower();
+            var newStatus = status.ToLower();
+
+            // Nếu đơn hàng bị hủy -> hoàn lại tồn kho
+            if (newStatus == "cancelled" && oldStatus != "cancelled")
             {
                 foreach (var detail in order.OrderDetails)
                 {
@@ -185,13 +198,17 @@ namespace WebApplication1.Services
                     }
                 }
             }
-            // Deduct inventory if order is being un-cancelled
-            else if (order.Status.ToLower() == "cancelled" && status.ToLower() != "cancelled")
+            // Nếu từ cancelled chuyển sang trạng thái khác -> trừ lại tồn kho
+            else if (oldStatus == "cancelled" && newStatus != "cancelled")
             {
                 foreach (var detail in order.OrderDetails)
                 {
                     if (detail.ProductVariant != null)
                     {
+                        if (detail.ProductVariant.StockQuantity < detail.Quantity)
+                        {
+                            return (false, "Không thể khôi phục đơn hàng do tồn kho không đủ.");
+                        }
                         detail.ProductVariant.StockQuantity -= detail.Quantity;
                     }
                 }
@@ -277,14 +294,48 @@ namespace WebApplication1.Services
                     user.PhoneNumber = dto.Phone;
                 }
 
-                // 3. Tạo Đơn hàng mới
-                decimal totalAmount = cart.Items.Sum(i => i.ProductVariant.Price * i.Quantity) + dto.ShippingFee;
+                // 3. Tính tổng tiền hàng
+                decimal subTotal = cart.Items.Sum(i => i.ProductVariant.Price * i.Quantity);
+                decimal discountAmount = 0;
+                int? couponId = null;
+
+                // 4. Xử lý Coupon giảm giá nếu có
+                if (!string.IsNullOrWhiteSpace(dto.CouponCode))
+                {
+                    var coupon = await _context.Coupons
+                        .FirstOrDefaultAsync(c => c.Code.ToUpper() == dto.CouponCode.Trim().ToUpper());
+
+                    if (coupon == null || !coupon.IsActive)
+                    {
+                        return (false, "Mã giảm giá không tồn tại hoặc đã bị khóa.", null);
+                    }
+
+                    if (coupon.ExpirationDate < System.DateTime.Now)
+                    {
+                        return (false, "Mã giảm giá này đã hết hạn sử dụng.", null);
+                    }
+
+                    couponId = coupon.Id;
+                    discountAmount = coupon.DiscountAmount;
+
+                    // Không để số tiền giảm vượt quá tổng giá trị đơn hàng
+                    if (discountAmount > subTotal)
+                    {
+                        discountAmount = subTotal;
+                    }
+                }
+
+                decimal totalAmount = (subTotal - discountAmount) + dto.ShippingFee;
+                if (totalAmount < 0) totalAmount = 0;
                 
+                // 5. Tạo Đơn hàng mới
                 var order = new Order
                 {
                     UserId = userId,
                     OrderDate = System.DateTime.Now,
                     TotalAmount = totalAmount,
+                    CouponId = couponId,
+                    DiscountAmount = discountAmount,
                     Status = "pending",
                     ShippingAddress = dto.ShippingAddress,
                     PaymentMethod = string.IsNullOrEmpty(dto.PaymentMethod) ? "COD" : dto.PaymentMethod,
@@ -294,7 +345,7 @@ namespace WebApplication1.Services
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync(); // Lưu để lấy Order.Id
 
-                // 4. Tạo Order Details và Trừ Tồn kho
+                // 6. Tạo Order Details và Trừ Tồn kho
                 foreach (var item in cart.Items)
                 {
                     var orderDetail = new OrderDetail
@@ -310,7 +361,7 @@ namespace WebApplication1.Services
                     item.ProductVariant.StockQuantity -= item.Quantity;
                 }
 
-                // 5. Làm trống giỏ hàng
+                // 7. Làm trống giỏ hàng
                 _context.CartItems.RemoveRange(cart.Items);
 
                 await _context.SaveChangesAsync();
@@ -321,7 +372,7 @@ namespace WebApplication1.Services
             catch (DbUpdateConcurrencyException)
             {
                 await transaction.RollbackAsync();
-                return (false, "Sản phẩm bạn đã hết hàng. Vui lòng kiểm tra lại giỏ hàng.", null);
+                return (false, "Sản phẩm bạn đặt đã hết hàng. Vui lòng kiểm tra lại giỏ hàng.", null);
             }
             catch (System.Exception ex)
             {

@@ -29,6 +29,7 @@ import CategoryManagement from './pages/admin/CategoryManagement';
 import OrderManagement from './pages/admin/OrderManagement';
 import UserManagement from './pages/admin/UserManagement';
 import BannerManagement from './pages/admin/BannerManagement';
+import CouponManagement from './pages/admin/CouponManagement';
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
           <Route path="variants" element={<VariantManagement />} />
           <Route path="categories" element={<CategoryManagement />} />
           <Route path="orders" element={<OrderManagement />} />
+          <Route path="coupons" element={<CouponManagement />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="banners" element={<BannerManagement />} />
         </Route>

@@ -18,6 +18,10 @@ namespace WebApplication1.DTOs
         public string PaymentMethod { get; set; }
         public string PaymentStatus { get; set; }
 
+        public int? CouponId { get; set; }
+        public string? CouponCode { get; set; }
+        public decimal DiscountAmount { get; set; }
+
         public List<OrderDetailDto> Items { get; set; }
     }
 }
