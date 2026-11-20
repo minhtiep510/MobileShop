@@ -19,7 +19,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("total-stock")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetTotalStock()
         {
             var totalStock = await _productService.GetTotalStockAsync();
@@ -44,7 +44,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Create([FromBody] ProductCreateDto dto)
         {
             try
@@ -68,7 +68,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductCreateDto dto)
         {
             try
@@ -95,7 +95,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -117,7 +117,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("{productId}/variants")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateVariant(int productId, [FromBody] ProductVariantDto dto)
         {
             try
@@ -135,7 +135,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("variant/{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateVariant(int id, [FromBody] ProductVariantDto dto)
         {
             try
@@ -157,7 +157,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete("variant/{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteVariant(int id)
         {
             var (success, errorMsg) = await _productService.DeleteVariantAsync(id);

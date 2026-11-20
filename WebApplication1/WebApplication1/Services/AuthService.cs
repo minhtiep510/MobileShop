@@ -38,7 +38,7 @@ namespace WebApplication1.Services
 
             if (!user.EmailConfirmed)
             {
-                return (false, "Vui lòng xác thực email trước khi đăng nhập.", null);
+                return (false, "Tài khoản chưa được kích hoạt. Vui lòng xác thực email trước khi đăng nhập.", null);
             }
 
             // Bypass mật khẩu cho tài khoản Admin mặc định để tránh mọi lỗi liên quan đến Hash
@@ -99,8 +99,8 @@ namespace WebApplication1.Services
                 FullName = dto.FullName,
                 PhoneNumber = dto.PhoneNumber,
                 Address = "", // Bắt buộc phải có giá trị vì cột Address không cho phép NULL trong CSDL
-                Role = "customer",
-                EmailConfirmed = false // Đã đổi thành false để bắt buộc xác thực email
+                Role = "User",
+                EmailConfirmed = false // Bắt buộc phải xác thực email mới được đăng nhập
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
@@ -197,7 +197,7 @@ namespace WebApplication1.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email ?? ""),
                 new Claim(ClaimTypes.Name, user.FullName ?? ""),
-                new Claim(ClaimTypes.Role, user.Role ?? "customer")
+                new Claim(ClaimTypes.Role, user.Role ?? "User")
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

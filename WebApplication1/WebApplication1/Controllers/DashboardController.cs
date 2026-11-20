@@ -8,7 +8,7 @@ namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    [Authorize(Policy = "AdminOnly")]
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;

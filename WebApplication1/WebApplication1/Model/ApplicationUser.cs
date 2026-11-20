@@ -11,7 +11,7 @@ namespace WebApplication1.Model
         public string FullName { get; set; }
 
         [MaxLength(20)]
-        public string Role { get; set; } = "Customer"; // Customer, Admin, Shipper
+        public string Role { get; set; } = "User"; // Admin, User
 
         public string Address { get; set; }
 

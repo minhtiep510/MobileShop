@@ -278,8 +278,8 @@ export default function UserManagement() {
                     required value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })}
                     className="admin-form-select"
                   >
-                    <option value="customer">Customer</option>
-                    <option value="admin">Admin</option>
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
                   </select>
                 </div>
               </form>

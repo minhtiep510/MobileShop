@@ -55,6 +55,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Configure Authorization Policies (Chính sách phân quyền)
+builder.Services.AddAuthorization(options =>
+{
+    // Chính sách 1: Chỉ cho phép tài khoản có quyền Admin
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Admin", "admin"));
+
+    // Chính sách 2: Cho phép cả Admin và User đã đăng nhập
+    options.AddPolicy("UserOrAdmin", policy =>
+        policy.RequireRole("Admin", "admin", "User", "user", "Customer", "customer"));
+});
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

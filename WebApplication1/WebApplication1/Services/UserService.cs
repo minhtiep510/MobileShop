@@ -100,6 +100,17 @@ namespace WebApplication1.Services
                     return (false, "Số điện thoại không hợp lệ", null);
             }
 
+            // Chuẩn hóa chỉ cho phép 2 role: Admin hoặc User
+            string role = "User";
+            if (!string.IsNullOrWhiteSpace(dto.Role))
+            {
+                var inputRole = dto.Role.Trim();
+                if (inputRole.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                    role = "Admin";
+                else
+                    role = "User";
+            }
+
             var user = new ApplicationUser
             {
                 FullName = dto.FullName.Trim(),
@@ -107,7 +118,8 @@ namespace WebApplication1.Services
                 UserName = dto.Email.Trim().ToLower(),
                 PhoneNumber = dto.PhoneNumber?.Trim(),
                 Address = dto.Address?.Trim(),
-                Role = string.IsNullOrWhiteSpace(dto.Role) ? "customer" : dto.Role.ToLower(),
+                Role = role,
+                EmailConfirmed = true, // Admin tạo trực tiếp thì mặc định xác thực
                 PasswordHash = "default_hash"
             };
 
@@ -160,7 +172,10 @@ namespace WebApplication1.Services
             user.PhoneNumber = dto.PhoneNumber?.Trim();
             user.Address = dto.Address?.Trim();
             if (!string.IsNullOrWhiteSpace(dto.Role))
-                user.Role = dto.Role.ToLower();
+            {
+                var inputRole = dto.Role.Trim();
+                user.Role = inputRole.Equals("admin", StringComparison.OrdinalIgnoreCase) ? "Admin" : "User";
+            }
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();

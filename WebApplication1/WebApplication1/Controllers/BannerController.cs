@@ -33,7 +33,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Create([FromBody] BannerDto dto)
         {
             var result = await _bannerService.CreateAsync(dto);
@@ -41,7 +41,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Update(int id, [FromBody] BannerDto dto)
         {
             var success = await _bannerService.UpdateAsync(id, dto);
@@ -50,7 +50,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _bannerService.DeleteAsync(id);

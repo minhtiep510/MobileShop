@@ -18,7 +18,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = null, [FromQuery] string status = null)
         {
             var orders = await _orderService.GetAllAsync(page, pageSize, searchTerm, status);
@@ -26,7 +26,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("my-orders")]
-        [Authorize]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<IActionResult> GetMyOrders([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -40,7 +40,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<IActionResult> GetDetail(int id)
         {
             var result = await _orderService.GetDetailAsync(id);
@@ -50,7 +50,7 @@ namespace WebApplication1.Controllers
             var role = User.FindFirstValue(ClaimTypes.Role);
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
-            if (role != "admin")
+            if (!string.Equals(role, "admin", StringComparison.OrdinalIgnoreCase))
             {
                 if (!int.TryParse(userIdStr, out int currentUserId) || result.UserId != currentUserId)
                 {
@@ -62,7 +62,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("{id}/status")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
         {
             var (success, data) = await _orderService.UpdateStatusAsync(id, status);
@@ -73,7 +73,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("{id}/payment-status")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdatePaymentStatus(int id, [FromBody] string paymentStatus)
         {
             var (success, data) = await _orderService.UpdatePaymentStatusAsync(id, paymentStatus);
@@ -84,7 +84,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _orderService.DeleteAsync(id);
@@ -95,7 +95,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("checkout")]
-        [Authorize]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<IActionResult> Checkout([FromBody] CheckoutDto dto)
         {
             if (!ModelState.IsValid)
@@ -119,7 +119,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("{id}/cancel")]
-        [Authorize]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<IActionResult> CancelOrder(int id)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);

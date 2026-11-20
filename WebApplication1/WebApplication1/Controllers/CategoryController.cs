@@ -35,7 +35,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Create(CategoryDto dto)
         {
             var result = await _categoryService.CreateAsync(dto);
@@ -43,7 +43,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Update(int id, CategoryDto dto)
         {
             var success = await _categoryService.UpdateAsync(id, dto);
@@ -54,7 +54,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _categoryService.DeleteAsync(id);

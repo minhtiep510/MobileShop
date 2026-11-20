@@ -53,7 +53,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateCoupon([FromBody] CouponDto dto)
         {
             var success = await _couponService.CreateCouponAsync(dto);
@@ -65,7 +65,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateCoupon(int id, [FromBody] CouponDto dto)
         {
             var success = await _couponService.UpdateCouponAsync(id, dto);
@@ -77,7 +77,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteCoupon(int id)
         {
             var success = await _couponService.DeleteCouponAsync(id);

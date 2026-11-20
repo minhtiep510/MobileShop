@@ -47,10 +47,9 @@ namespace WebApplication1.Services
             }
             catch (Exception ex)
             {
-                // In production, log the error. For now, print to console.
+                
                 Console.WriteLine($"Error sending email: {ex.Message}");
-                // You might choose to rethrow or just swallow the error if email isn't strictly blocking.
-                // We'll swallow it for testing purposes if credentials are not yet set.
+             
             }
         }
     }

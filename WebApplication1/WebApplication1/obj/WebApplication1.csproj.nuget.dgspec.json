@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj": {}
+    "D:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj": {}
   },
   "projects": {
-    "d:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj": {
+    "D:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
+        "projectUniqueName": "D:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
         "projectName": "WebApplication1",
-        "projectPath": "d:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
+        "projectPath": "D:\\baocao\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
         "packagesPath": "C:\\Users\\Tiep\\.nuget\\packages\\",
-        "outputPath": "d:\\baocao\\WebApplication1\\WebApplication1\\obj\\",
+        "outputPath": "D:\\baocao\\WebApplication1\\WebApplication1\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

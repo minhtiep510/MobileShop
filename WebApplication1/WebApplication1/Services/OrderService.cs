@@ -186,8 +186,7 @@ namespace WebApplication1.Services
 
             var oldStatus = order.Status.ToLower();
             var newStatus = status.ToLower();
-
-            // Nếu đơn hàng bị hủy -> hoàn lại tồn kho
+            //Hoan lai hang
             if (newStatus == "cancelled" && oldStatus != "cancelled")
             {
                 foreach (var detail in order.OrderDetails)
@@ -198,7 +197,7 @@ namespace WebApplication1.Services
                     }
                 }
             }
-            // Nếu từ cancelled chuyển sang trạng thái khác -> trừ lại tồn kho
+            
             else if (oldStatus == "cancelled" && newStatus != "cancelled")
             {
                 foreach (var detail in order.OrderDetails)
@@ -263,7 +262,7 @@ namespace WebApplication1.Services
 
         public async Task<(bool Success, string ErrorMessage, int? OrderId)> CheckoutAsync(int userId, CheckoutDto dto)
         {
-            // 1. Lấy giỏ hàng
+            
             var cart = await _context.Carts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.ProductVariant)
@@ -274,7 +273,7 @@ namespace WebApplication1.Services
                 return (false, "Giỏ hàng trống", null);
             }
 
-            // 2. Bắt đầu Transaction
+            
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -287,19 +286,19 @@ namespace WebApplication1.Services
                     }
                 }
 
-                // Cập nhật sđt user nếu có truyền vào
+                // Cập nhật sđt user
                 var user = await _context.Users.FindAsync(userId);
                 if (user != null && !string.IsNullOrEmpty(dto.Phone))
                 {
                     user.PhoneNumber = dto.Phone;
                 }
 
-                // 3. Tính tổng tiền hàng
+                // 3. Tính tổng 
                 decimal subTotal = cart.Items.Sum(i => i.ProductVariant.Price * i.Quantity);
                 decimal discountAmount = 0;
                 int? couponId = null;
 
-                // 4. Xử lý Coupon giảm giá nếu có
+                // 4. Xử lý Coupon
                 if (!string.IsNullOrWhiteSpace(dto.CouponCode))
                 {
                     var coupon = await _context.Coupons
